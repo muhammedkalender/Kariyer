@@ -336,6 +336,89 @@ class User
         return [true, "perm_ok"];
     }
 
+    //region Experience
+    public function addExperience($name, $company, $description, $start, $end = null, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->userId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO experience (
+                       experience_member, 
+                       experience_name, 
+                       experience_company, 
+                       experience_desc,  
+                       experience_start,
+                       experience_end,
+                       experience_order
+                       ) VALUES ($memberId, '$name', '$company', '$description', '$start', '$end',$order)");
+    }
+
+    public function setExperience($experienceId, $name, $company, $description, $start, $end = null, $order = 0)
+    {
+        $userId = DB::select("SELECT experience_member FROM experience WHERE experience_id = $experienceId");
+
+        if ($userId[0]) {
+            $userId = $userId[1]["experience_member"];
+        } else {
+            return [false, "404_experience"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE experience SET 
+                     experience_name = '$name',
+                     experience_company = '$company',
+                     experience_desc = '$description',
+                     experience_start = '$start',
+                     education_end = '$end',
+                     education_order = $order,
+                     WHERE experience_id = $experienceId");
+    }
+
+    public function delExperience($experienceId)
+    {
+        $userId = DB::select("SELECT experience_member FROM experience WHERE experience_id = $experienceId");
+
+        if ($userId[0]) {
+            $userId = $userId[1]["experience_member"];
+        } else {
+            return [false, "404_experience"];
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE experience SET experience_active = 0 WHERE experience_id = $experienceId");
+    }
+
+    public function getExperience($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM experience WHERE experience_member = $memberId ORDER BY experience_order DESC" . $suffix);
+    }
+    //endregion
+
     //region Education
     public function addEducation($name, $department, $type, $start, $end = null, $note = null, $order = 0, $userId = 0)
     {
@@ -384,13 +467,17 @@ class User
                      WHERE education_id = $educationId");
     }
 
-    public function delEducation($educationId, $userId = 0)
+    public function delEducation($educationId)
     {
-        if ($userId == 0) {
-            $userId = $this->userId;
+        $memberId = DB::select("SELECT education_member FROM education WHERE education_id = $educationId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["education_member"];
+        } else {
+            return [false, "404_education"];
         }
 
-        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
@@ -437,20 +524,20 @@ class User
                        reference_gsm,
                        reference_description,
                        reference_order
-                       ) VALUES ($memberId, '$name', '$company', '$title','email', '$gsm', '$description',$order)");
+                       ) VALUES ($memberId, '$name', '$company', '$title','$email', '$gsm', '$description',$order)");
     }
 
     public function setReference($referenceId, $name, $company, $title, $email, $gsm, $description, $order = 0)
     {
-        $userId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
+        $memberId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
 
-        if ($userId[0]) {
-            $userId = $userId[1]["reference_id"];
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["reference_id"];
         } else {
             return [false, "404_reference"];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
             return $auth;
         }
 
@@ -465,11 +552,16 @@ class User
                      WHERE reference_id = $referenceId");
     }
 
-    public function delReference($referenceId, $memberId = 0)
+    public function delReference($referenceId)
     {
-        if ($memberId == 0) {
-            $memberId = $this->memberId;
+        $memberId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["reference_member"];
+        } else {
+            return [false, "404_reference"];
         }
+
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
