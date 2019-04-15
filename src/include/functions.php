@@ -22,6 +22,7 @@ class Perm
     const ADMIN = 4;
 
     const SELF_OR_UPPER = 1;
+    const OR_UPPER = 2;
 }
 
 class ValidObject
@@ -322,18 +323,66 @@ class Session
 
 class User
 {
+    const MEMBER = 0;
+    const COMPANY = 1;
+
+    private $memberId, $power, $type;
+    private $token, $token_key, $token_id;
+    private $email, $nick;
+    private $gender, $military, $military_date, $smoke, $special;
+    private $name, $surname, $description, $picture;
+    private $website, $fax, $gsm;
+
+    function __construct($memberId = 0)
+    {
+        if ($memberId = 0) {
+
+        }
+    }
+
     //X Kullanıcı ve üstü, Y => Hangisi
     //Örnk. SELF_OR_UPPER, ADMIN
-    public function checkAuth($permType, $permNeed, $userId)
+    public function checkAuth($permType, $permNeed, $userId = 0)
     {
         if ($permType == Perm::SELF_OR_UPPER) {
             //Kendisi yada X üstü, eğer id kendisi değilse powera bakar, azsa error döner
             if ($userId != $this->userId && $permNeed < $this->power) {
                 return [false, "perm_error"];
             }
+        } else if ($permType == Perm::OR_UPPER) {
+            if ($this->power < $permNeed) {
+                return [false, "perm_error"];
+            }
         }
 
         return [true, "perm_ok"];
+    }
+
+    public function register($type, $email, $name, $surname, $password)
+    {
+        if ($this->checkAuth(Perm::OR_UPPER, Perm::VISITOR)[0] == false) {
+            return [false, lang("perm_error")];
+        }
+
+        $power = $type == User::MEMBER ? Perm::USER : Perm::COMPANY;
+
+        if (DB::isAvailable("SELECT member_id FROM member WHERE member_email = '$email'")) {
+            return [false, lang("already_email")];
+        }
+
+        $password_prefix = Valid::generate();
+
+        $password = $this->password($password, $password_prefix);
+
+        $result = DB::executeId("INSERT INTO member (
+                    member_email, member_type, member_power, member_name, member_surname, member_password, member_prefix
+                    ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
+
+        if ($result[0]) {
+            return $result;
+        } else {
+            return [false, $result[1]];
+        }
     }
 
     //region Experience
