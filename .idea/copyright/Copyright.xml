@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="Copyright (c) &amp;#36;today.year&#10;Project : &amp;#36;project.name&#10;Owner : Muhammed Kalender&#10;Contact : muhammedkalender@protonmail.com&#10;Date : &amp;#36;today.format(&quot;dd-MM-YYYY&quot;)&#10;Time : &amp;#36;today.hour24:&amp;#36;today.minute" />
+    <option name="myName" value="Copyright" />
+  </copyright>
+</component>
