@@ -415,7 +415,7 @@ class User
             return $auth;
         }
 
-        return DB::select("SELECT * FROM experience WHERE experience_member = $memberId ORDER BY experience_order DESC" . $suffix);
+        return DB::select("SELECT * FROM experience WHERE experience_member = $memberId AND experience_active = 1 ORDER BY experience_order DESC" . $suffix);
     }
     //endregion
 
@@ -500,7 +500,7 @@ class User
             return $auth;
         }
 
-        return DB::select("SELECT * FROM education WHERE education_member = $memberId ORDER BY education_order DESC" . $suffix);
+        return DB::select("SELECT * FROM education WHERE education_member = $memberId AND education_active = 1 ORDER BY education_order DESC" . $suffix);
     }
     //endregion
 
@@ -586,7 +586,92 @@ class User
             return $auth;
         }
 
-        return DB::select("SELECT * FROM reference WHERE reference_member = $memberId ORDER BY reference_order DESC " . $suffix);
+        return DB::select("SELECT * FROM reference WHERE reference_member = $memberId AND reference_active = 1  ORDER BY reference_order DESC " . $suffix);
+    }
+    //endregion
+
+    //region Certificate
+    public function addCertificate($name, $company, $url, $description, $date, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO certificate (
+                       certificate_member, 
+                       certificate_name, 
+                       certificate_company, 
+                       certificate_url, 
+                       certificate_desc, 
+                       certificate_date,
+                       certificate_order
+                       ) VALUES ($memberId, '$name', '$company', '$url','$description', '$date', $order)");
+    }
+
+    public function setCertificate($certificateId, $name, $company, $url, $description, $date, $order = 0)
+    {
+        $memberId = DB::select("SELECT certificate_member FROM certificate WHERE certificate_id = $certificateId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["certificate_id"];
+        } else {
+            return [false, "404_certificate"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE certificate SET 
+                     certificate_name = '$name',
+                     certificate_company = '$company',
+                     certificate_url = '$url',
+                     certificate_desc = '$description',
+                     certificate_date = '$date',
+                     certificate_order = $order,
+                     WHERE certificate_id = $certificateId");
+    }
+
+    public function delCertificate($certificateId)
+    {
+        //tips Procedure yazılabilir
+        $memberId = DB::select("SELECT certificate_member FROM certificate WHERE certificate_id = $certificateId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["reference_member"];
+        } else {
+            return [false, "404_reference"];
+        }
+
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE certificate SET certificate_active = 0 WHERE certificate_id = $certificateId");
+    }
+
+    public function getCertificate($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM certificate WHERE certificate_member = $memberId AND certificate_active = 1 ORDER BY certificate_order DESC " . $suffix);
     }
     //endregion
 
