@@ -41,6 +41,7 @@ class ValidObject
     const POST = 1;
     const REQUEST = 2;
     const SESSION = 3;
+    const VARIABLE = 4;
 
     public $isCorrect = 1;
     public $requestName = "";
@@ -50,8 +51,9 @@ class ValidObject
     public $method = 0;
     public $isNullable = 0;
     public $inputType;
+    public $value;
 
-    public function __construct($requestName, $langName, $minLength, $maxLength, $inputType, $method = ValidObject::POST, $isNullable = false)
+    public function __construct($requestName, $langName, $minLength, $maxLength, $inputType, $method = ValidObject::POST, $isNullable = false, $value = "")
     {
         if ($requestName == "" || $requestName == null) {
             //System error, devoloper side
@@ -70,6 +72,7 @@ class ValidObject
         $this->inputType = $inputType;
         $this->method = $method;
         $this->isNullable = $isNullable; //Sadece "" ollacak, boş geçemeez
+        $this->value = $value;
     }
 }
 
@@ -139,7 +142,10 @@ class Valid
                         $var = Session::get($input->name);
                     }
                     break;
-
+                case ValidObject::VARIABLE:
+                    $correctMethod = true;
+                    $var = $input->value;
+                    break;
                 default:
                     $correctMethod = false;
                     $var = "";
@@ -227,6 +233,9 @@ class Valid
                 case ValidObject::SESSION:
                     Session::set($input->name, $var);
                     break;
+                case ValidObject::VARIABLE:
+                    $input->value = $var;
+                    break;
             }
         }
 
@@ -313,7 +322,6 @@ class Session
 
 class User
 {
-
     //X Kullanıcı ve üstü, Y => Hangisi
     //Örnk. SELF_OR_UPPER, ADMIN
     public function checkAuth($permType, $permNeed, $userId)
@@ -328,18 +336,85 @@ class User
         return [true, "perm_ok"];
     }
 
-    public function addEducation()
+    //region Education
+    public function addEducation($name, $department, $type, $start, $end = null, $note = null, $order = 0, $userId = 0)
     {
+        if ($userId == 0) {
+            $userId = $this->userId;
+        }
 
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO education (
+                       education_member, 
+                       education_name, 
+                       education_department, 
+                       education_note, 
+                       education_type, 
+                       education_start,
+                       education_end,
+                       education_order
+                       ) VALUES ($userId, '$name', '$department', $note,$type, '$start', '$end',$order)");
+    }
+
+    public function setEducation($educationId, $name, $department, $type, $start, $end = null, $note = null, $order = 0)
+    {
+        $userId = DB::select("SELECT member_id FROM education WHERE education_id = $educationId");
+
+        if ($userId[0]) {
+            $userId = $userId[1]["member_id"];
+        } else {
+            return [false, "404_education"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE education SET 
+                     education_name = '$name',
+                     education_department = '$department',
+                     education_note = '$note',
+                     education_type = $type,
+                     education_start = '$start',
+                     education_end = '$end',
+                     education_order = $order,
+                     WHERE education_id = $educationId");
     }
 
     public function delEducation($educationId, $userId = 0)
     {
-        if (($result = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
-            return $result;
+        if ($userId == 0) {
+            $userId = $this->userId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
         }
 
         return DB::execute("UPDATE education SET active = 0 WHERE education_id = $educationId");
     }
+
+    public function getEducation($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM education WHERE education_member = $memberId" . $suffix);
+    }
+    //endregion
 
 }

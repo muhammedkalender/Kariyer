@@ -8,6 +8,8 @@
  */
 create database if not exists kariyer;
 
+use kariyer;
+
 create table if not exists member
 (
     member_id            int auto_increment primary key,
@@ -28,13 +30,13 @@ create table if not exists member
     member_picture       VARCHAR(256)  DEFAULT 'avatar.jpg',
     member_gender        TINYINT(1)    DEFAULT 0,    ##0 => Belirtilmemiş, 1 = Erkek, 2 = Kadın, 3 = Diğer
     member_military      TINYINT(1)    DEFAULT 0,## 0 => Belirtilmemiş, 1 = Yapıldı, 2 = Muaf, 3 = Tecilli
-    member_military_date TIMESTAMP     DEFAULT NULL,
+    member_military_date    timestamp null default null,
     member_smoke         TINYINT(1)    DEFAULT 0,    ##0=> Belirtilmemiş, 1 = Hayır, 2 = Evet
     member_special       TINYINT(1)    DEFAULT 0,    ## 0=> Belirtilmemiş, 1 => Hayır, 2 = Evet
     member_ban           TINYINT(1)    DEFAULT 0,    ##0=> Bansız, 1 => Banlı Ban bitimini kotnrol edip 1 i 0 yap
-    member_ban_date      TIMESTAMP     DEFAULT NULL,
+    member_ban_date         timestamp null default null,
     member_insert        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-    member_update        TIMESTAMP     DEFAULT NULL,
+    member_update           timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     member_active        TINYINT(1)    DEFAULT 1
 );
 
@@ -47,10 +49,10 @@ create table if not exists education
     education_note       varchar(8) default null, ##Not ortalaması
     education_type       int          not null,   ##0 => İlk, 1 = Orta, 2 = Lise, 3 = Ön L., 4 = Mas....
     education_start      timestamp    not null,
-    education_end        timestamp  default null, ##Nullsa devam ediyor
+    education_end           timestamp null default null, ##Nullsa devam ediyor
     education_order      int        default 0,
     education_insert     timestamp  default current_timestamp,
-    education_update     timestamp  default current_timestamp,
+    education_update      timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     education_active     tinyint(1) default 1
     #,foreign key education (education_member) references member (member_id)
 );
@@ -63,10 +65,10 @@ create table if not exists experience
     experience_company varchar(128) not null,   ##Şirket
     experience_desc    varchar(512) not null,   ##Açıklama
     experience_start   timestamp    not null,   ##İşe Başlama
-    experience_end     timestamp  default null, ##Nullsa işe devam ediyor
+    experience_end        timestamp null default null, ##Nullsa işe devam ediyor
     experience_order   int        default 0,
     experience_insert  timestamp  default current_timestamp,
-    experience_update  timestamp  default current_timestamp,
+    experience_update  timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     experience_active  tinyint(1) default 1
     #,foreign key experience (experience_member) references member (member_id),
 );
@@ -83,7 +85,7 @@ create table if not exists reference
     reference_description varchar(512) default null,
     reference_order       int          default 0,
     reference_insert      timestamp    default current_timestamp,
-    reference_update      timestamp    default current_timestamp,
+    reference_update      timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     reference_active      tinyint(1)   default 1
     #,foreign key reference (reference_member) references member (member_id)
 );
@@ -96,9 +98,10 @@ create table if not exists certificate
     certificate_company varchar(128)  not null, ##Veren Kurum
     certificate_url     varchar(1024) not null,
     certificate_desc    varchar(512) default null,
+    certificate_date    timestamp null default null,
     certificate_order   int          default 0,
     certificate_insert  timestamp    default current_timestamp,
-    certificate_update  timestamp    default current_timestamp,
+    certificate_update  timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     certificate_active  tinyint(1)   default 1
     #,foreign key certificate (certificate_member) references member (member_id)
 );
@@ -110,7 +113,7 @@ create table if not exists token
     token_key    varchar(256) not null,
     token_lock   varchar(256) not null,
     token_insert timestamp  DEFAULT CURRENT_TIMESTAMP,
-    token_update timestamp  DEFAULT CURRENT_TIMESTAMP,
+    token_update  timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     token_active tinyint(1) default 1
     #,foreign key token (token_member) references member (member_id)
 );
