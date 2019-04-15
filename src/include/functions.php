@@ -361,10 +361,10 @@ class User
 
     public function setEducation($educationId, $name, $department, $type, $start, $end = null, $note = null, $order = 0)
     {
-        $userId = DB::select("SELECT member_id FROM education WHERE education_id = $educationId");
+        $userId = DB::select("SELECT education_member FROM education WHERE education_id = $educationId");
 
         if ($userId[0]) {
-            $userId = $userId[1]["member_id"];
+            $userId = $userId[1]["education_member"];
         } else {
             return [false, "404_education"];
         }
@@ -413,7 +413,88 @@ class User
             return $auth;
         }
 
-        return DB::select("SELECT * FROM education WHERE education_member = $memberId" . $suffix);
+        return DB::select("SELECT * FROM education WHERE education_member = $memberId ORDER BY education_order DESC" . $suffix);
+    }
+    //endregion
+
+    //region Reference
+    public function addReference($name, $company, $title, $email, $gsm, $description, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO reference (
+                       reference_member, 
+                       reference_name, 
+                       reference_company, 
+                       reference_title, 
+                       reference_email, 
+                       reference_gsm,
+                       reference_description,
+                       reference_order
+                       ) VALUES ($memberId, '$name', '$company', '$title','email', '$gsm', '$description',$order)");
+    }
+
+    public function setReference($referenceId, $name, $company, $title, $email, $gsm, $description, $order = 0)
+    {
+        $userId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
+
+        if ($userId[0]) {
+            $userId = $userId[1]["reference_id"];
+        } else {
+            return [false, "404_reference"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE reference SET 
+                     reference_name = '$name',
+                     reference_company = '$company',
+                     reference_title = '$title',
+                     reference_email = '$email',
+                     reference_gsm = '$gsm',
+                     reference_description = '$description',
+                     reference_order = $order,
+                     WHERE reference_id = $referenceId");
+    }
+
+    public function delReference($referenceId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE reference SET reference_active = 0 WHERE reference_id = $referenceId");
+    }
+
+    public function getReference($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM reference WHERE reference_member = $memberId ORDER BY reference_order DESC " . $suffix);
     }
     //endregion
 
