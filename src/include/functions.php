@@ -13,6 +13,15 @@
  * Return [result , [ErrorCode | Result]]
  */
 
+$user = new User();
+
+if(file_exists("lang/".$user->getLang().".php")){
+    include_once "../lang/".$user->getLang().".php";
+}else{
+    //todo error ?
+    include_once "../lang/tr.php";
+}
+
 class Perm
 {
     const VISITOR = 0;
@@ -326,17 +335,137 @@ class User
     const MEMBER = 0;
     const COMPANY = 1;
 
-    private $memberId, $power, $type;
+    private $memberId = 0, $power, $type;
     private $token, $token_key, $token_id;
     private $email, $nick;
     private $gender, $military, $military_date, $smoke, $special;
     private $name, $surname, $description, $picture;
     private $website, $fax, $gsm;
+    private $isLogged = false;
 
-    function __construct($memberId = 0)
+    public function __construct($memberId = 0)
     {
-        if ($memberId = 0) {
+        if ($memberId == -1) {
+            //nothing todo
+        } else if ($memberId != 0) {
+            //todo, hariciden user çağırılıyor
+        } else {
+            $this->checkLogin();
+        }
+    }
 
+    private function checkLogin($customMember = 0)
+    {
+        if ($customMember != 0) {
+            //todo auth Dışarıdan kullanıcının bilgisi getirilmek isteniyor
+        }
+
+        $memberId = Session::Get("member_id");
+        $token = Session::Get("token");
+        $token_key = Session::Get("token_key");
+
+        if ($memberId == "" || $token == "" || $token_key == "") {
+            //todo, visitor
+            return false;
+        }
+
+        $qToken = DB::Select("SELECT token_id FROM token WHERE token_lock = '{$token}' AND token_key = '{$token_key}' AND token_member = '{$memberId}' AND token_active = 1 ");
+
+        $customMember = $memberId;
+
+        if ($qToken[0] == false || $qToken[1] == null) {
+            return false;
+        }
+
+        $this->token_id = $qToken[1];
+
+        $qUser = DB::Select("SELECT * FROM member WHERE member_id = {$customMember}");
+
+        if ($qUser[0] == false || isset($qUser[1][0]) == false) {
+            return false;
+        }
+
+        $qUser = $qUser[1][0];
+
+        $this->memberId = $qUser["member_id"];
+        $this->nick = $qUser["member_nick"];
+        $this->type = $qUser["member_type"];
+        $this->power = $qUser["member_power"];
+        $this->email = $qUser["member_email"];
+
+        $this->name = $qUser["member_ame"];
+        $this->surname = $qUser["member_surname"];
+
+        $this->gsm = $qUser["member_gsm"];
+        //$this->tel = $qUser["member_tel"];
+        $this->fax = $qUser["member_fax"];
+
+        $this->special = $qUser["member_special"];
+
+        $this->smoke = $qUser["member_smoke"];
+        $this->military = $qUser["member_military"];
+
+        //todo $this->military_date = $qUser["user_"];
+
+        $this->gender = $qUser["member_gender"];
+
+        $this->token = $token;
+        $this->token_key = $token_key;
+
+        $this->description = $qUser["member_description"];
+        $this->picture = $qUser["member_picture"];
+        $this->website = $qUser["member_website"];
+
+        $this->isLogged = true;
+
+        return true;
+    }
+
+    public function login($usernameOrEmail, $password)
+    {
+        $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = '{$usernameOrEmail}' OR member_nick = '{$usernameOrEmail}')");
+
+        if ($prefix[0] == false) {
+            return [false, lang("wrong_login")];
+        }
+
+        $memberId = $prefix[1][0]["member_id"];
+
+        $password = $this->encPassword($password, $prefix[1][0]["member_prefix"]);
+
+        $checkLogin = DB::Select("SELECT member_id FROM member WHERE member_id = $memberId AND  member_password = '{$password}'");
+
+        if (isset($checkLogin[1][0]["member_id"]) == false) {
+            return [false, lang("wrong_login")];
+        }
+
+        if (is_int($memberId) == false || intval($memberId) < 1) {
+            return [false, lang("wrong_login")];
+        }
+
+        $token_lock = Valid::generate();
+        $token_key = Valid::generate();
+        $memberIP = $this->getIP();
+
+        while (DB::isAvailable ("SELECT token_id FROM token WHERE token_member = {$memberId} AND token_lock =  '{$token_lock}' AND token_key = '{$token_key}'")) {
+            $token_lock = Valid::generate();
+            $token_key = Valid::generate();
+        }
+
+        DB::Execute("UPDATE token SET token_active = 0 WHERE token_member = {$memberId}");
+
+        $qInsert = DB::ExecuteId("INSERT INTO token (token_member, token_lock, token_key, token_ip) VALUES ({$memberId}, '{$token_lock}', '{$token_key}','$memberIP')");
+
+        if ($qInsert[0]) {
+            //todo redirect
+            Session::Set("token_id", $qInsert);
+            Session::Set("token_lock", $token_lock);
+            Session::Set("token_key", $token_key);
+            Session::Set("member_id", $memberId);
+
+            return [true, $qInsert[1], $token_lock, $token_key];
+        } else {
+            return [false, lang("login_system_error")];
         }
     }
 
@@ -358,6 +487,11 @@ class User
         return [true, "perm_ok"];
     }
 
+    private function encPassword($password, $prefix)
+    {
+        return sha1(md5($password) . $prefix);
+    }
+
     public function register($type, $email, $name, $surname, $password)
     {
         if ($this->checkAuth(Perm::OR_UPPER, Perm::VISITOR)[0] == false) {
@@ -372,7 +506,7 @@ class User
 
         $password_prefix = Valid::generate();
 
-        $password = $this->password($password, $password_prefix);
+        $password = $this->encPassword($password, $password_prefix);
 
         $result = DB::executeId("INSERT INTO member (
                     member_email, member_type, member_power, member_name, member_surname, member_password, member_prefix
@@ -383,6 +517,32 @@ class User
         } else {
             return [false, $result[1]];
         }
+    }
+
+    public function getIP()
+    {
+        try {
+            $ip = null;
+
+            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+                $ip = $_SERVER['HTTP_CLIENT_IP'];
+            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+
+            return $ip;
+        } catch (Exception $e) {
+            ///todo log sistemi ? belkli Log::error("ip", $e);
+            return "ERR";
+        }
+    }
+
+    public function getLang(){
+        //todo
+
+        return "tr";
     }
 
     //region Experience
@@ -426,8 +586,8 @@ class User
                      experience_company = '$company',
                      experience_desc = '$description',
                      experience_start = '$start',
-                     education_end = '$end',
-                     education_order = $order,
+                     experience_end = '$end',
+                     experience_order = $order,
                      WHERE experience_id = $experienceId");
     }
 
