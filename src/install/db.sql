@@ -118,3 +118,14 @@ create table if not exists token
     token_active tinyint(1) default 1
     #,foreign key token (token_member) references member (member_id)
 );
+
+create table if not exists skill(
+    skill_id int auto_increment primary key ,
+    skill_member int not null ,
+    skill_name varchar(128) not null ,
+    skill_level int default 0, ##0 Giriş, 1 Junior, 2 Middler, 3 Up, 4 expert vs... 1-5
+    skill_order   int                default 0,
+    skill_insert  timestamp          default current_timestamp,
+    skill_update  timestamp          default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    skill_active  tinyint(1)         default 1
+);

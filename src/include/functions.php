@@ -15,9 +15,9 @@
 
 $user = new User();
 
-if(file_exists("lang/".$user->getLang().".php")){
-    include_once "../lang/".$user->getLang().".php";
-}else{
+if (file_exists("lang/" . $user->getLang() . ".php")) {
+    include_once "../lang/" . $user->getLang() . ".php";
+} else {
     //todo error ?
     include_once "../lang/tr.php";
 }
@@ -447,7 +447,7 @@ class User
         $token_key = Valid::generate();
         $memberIP = $this->getIP();
 
-        while (DB::isAvailable ("SELECT token_id FROM token WHERE token_member = {$memberId} AND token_lock =  '{$token_lock}' AND token_key = '{$token_key}'")) {
+        while (DB::isAvailable("SELECT token_id FROM token WHERE token_member = {$memberId} AND token_lock =  '{$token_lock}' AND token_key = '{$token_key}'")) {
             $token_lock = Valid::generate();
             $token_key = Valid::generate();
         }
@@ -539,7 +539,8 @@ class User
         }
     }
 
-    public function getLang(){
+    public function getLang()
+    {
         //todo
 
         return "tr";
@@ -881,6 +882,85 @@ class User
         }
 
         return DB::select("SELECT * FROM certificate WHERE certificate_member = $memberId AND certificate_active = 1 ORDER BY certificate_order DESC " . $suffix);
+    }
+    //endregion
+
+    //region Skill
+    public function addSkill($name, $level, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO skill (
+                       skill_member, 
+                       skill_name, 
+                       skill_level,
+                       skill_order
+                       ) VALUES ($memberId, '$name', $level, $order)");
+    }
+
+    public function setSkill($skillId, $name, $level, $order = 0)
+    {
+        $memberId = DB::select("SELECT skill_member FROM skill WHERE skill_id = $skillId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["skill_id"];
+        } else {
+            return [false, "404_skill"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE skill SET 
+                     skill_name = '$name',
+                     skill_level = $level,
+                     skill_order = $order,
+                     WHERE skill_id = $skillId");
+    }
+
+    public function delSkill($skillId)
+    {
+        //tips Procedure yazılabilir
+        $memberId = DB::select("SELECT skill_member FROM skill WHERE skill_id = $skillId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["skill_member"];
+        } else {
+            return [false, "404_skill"];
+        }
+
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE skill SET skill_acitve = 0 WHERE skill_id = $skillId");
+    }
+
+    public function getSkill($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM skill WHERE skill_member = $memberId AND skill_active = 1 ORDER BY skill_order DESC " . $suffix);
     }
     //endregion
 
