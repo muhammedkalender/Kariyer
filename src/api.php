@@ -284,7 +284,8 @@ if ($callCategory == "user") {
         }
 
         $callResult = $user->getExperience($_POST["member_id"], $_POST["count"], $_POST["page"]);
-    } else if ($callRequest== "insert") {
+        goto output;
+    } else if ($callRequest == "insert") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("experience_member", "", 1, 32, ValidObject::Integer),
@@ -339,10 +340,227 @@ if ($callCategory == "user") {
         goto nothing;
     }
     //endregion
+} else if ($callCategory == "user_education") {
+    //region Education
+    if ($callRequest == "select") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("member_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("count", "", 1, 3, ValidObject::Integer),
+            new ValidObject("page", "", 1, 3, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getEducation($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "insert") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("education_member", "", 1, 32, ValidObject::Integer),
+            new ValidObject("education_name", "", 1, 32, ValidObject::CleanText),
+            new ValidObject("education_department", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("education_type", "", 1, 16, ValidObject::Integer),
+            new ValidObject("education_start", "", 1, 32, ValidObject::Date),
+            new ValidObject("education_end", "", 0, 32, ValidObject::Date),
+            new ValidObject("education_order", "", 0, 3, ValidObject::Integer),
+            new ValidObject("education_note", "", 0, 4, ValidObject::Float)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->addEducation($_POST["education_name"], $_POST["education_department"], $_POST["education_type"], $_POST["education_start"], $_POST["education_end"], $_POST["education_note"], $_POST["education_order"], $_POST["education_member"]);
+        goto output;
+    } else if ($callRequest == "update") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("education_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("education_name", "", 1, 32, ValidObject::CleanText),
+            new ValidObject("education_department", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("education_type", "", 1, 16, ValidObject::Integer),
+            new ValidObject("education_start", "", 1, 32, ValidObject::Date),
+            new ValidObject("education_end", "", 0, 32, ValidObject::Date),
+            new ValidObject("education_order", "", 0, 3, ValidObject::Integer),
+            new ValidObject("education_note", "", 0, 4, ValidObject::Float)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->setEducation($_POST["education_id"], $_POST["education_name"], $_POST["education_department"], $_POST["education_type"], $_POST["education_start"], $_POST["education_end"], $_POST["education_note"], $_POST["education_order"]);
+        goto output;
+    } else if ($callRequest == "delete") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("education_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->delEducation($_POST["education_id"]);
+        goto output;
+    } else {
+        goto nothing;
+    }
+    //endregion
+} else if ($callCategory == "user_reference") {
+    //region Reference
+    if ($callRequest == "select") {
+        $inputs = Valid::check([
+            new ValidObject("member_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("count", "", 1, 3, ValidObject::Integer),
+            new ValidObject("page", "", 1, 3, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getReference($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "insert") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("reference_member", "", 1, 32, ValidObject::Integer),
+            new ValidObject("reference_name", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_company", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_title", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_email", "", 0, 32, ValidObject::Email),
+            new ValidObject("reference_gsm", "", 0, 32, ValidObject::Phone),
+            new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("reference_order", "", 0, 3, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->addReference($_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], $_POST["reference_description"], $_POST["reference_order"], $_POST["reference_member"]);
+        goto output;
+    } else if ($callRequest == "update") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("reference_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("reference_name", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_company", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_title", "", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_email", "", 0, 32, ValidObject::Email),
+            new ValidObject("reference_gsm", "", 0, 32, ValidObject::Phone),
+            new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("reference_order", "", 0, 3, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->setReference($_POST["reference_id"], $_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], $_POST["reference_description"], $_POST["reference_order"]);
+        goto output;
+    } else if ($callRequest == "delete") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("reference_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->delReference($_POST["reference_id"]);
+        goto output;
+    } else {
+        goto nothing;
+    }
+    //endregion
+} else if ($callCategory == "user_language") {
+    //region Language
+    if ($callRequest == "select") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("member_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("count", "", 1, 3, ValidObject::Integer),
+            new ValidObject("page", "", 1, 3, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getLanguage($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "insert") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("language_member", "", 1, 32, ValidObject::Integer),
+            new ValidObject("language_code", "", 1, 4, ValidObject::CleanText),
+            new ValidObject("language_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("language_order", "", 0, 3, ValidObject::Integer),
+            new ValidObject("language_level","",0,3,ValidObject::Integer,5)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->addLanguage($_POST["language_code"], $_POST["language_description"], $_POST["language_order"], $_POST["language_level"], $_POST["language_member"]);
+        goto output;
+    }else if($callRequest == "update"){
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("language_id", "", 1, 32, ValidObject::Integer),
+            new ValidObject("language_code", "", 1, 4, ValidObject::CleanText),
+            new ValidObject("language_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("language_order", "", 0, 3, ValidObject::Integer),
+            new ValidObject("language_level","",0,3,ValidObject::Integer,5)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->setLanguage($_POST["language_id"],$_POST["language_code"], $_POST["language_description"], $_POST["language_order"], $_POST["language_level"]);
+        goto output;
+    }else if($callRequest == "delete"){
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("language_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->delLanguage($_POST["language_id"]);
+        goto output;
+    }else{
+        goto nothing;
+    }
+    //endregion
+}else{
+    goto nothing;
 }
 
+nothing:
+$callResult = [false, lang("call_null")];
 
 output:
 echo json_encode($callResult, JSON_FORCE_OBJECT);
-
-nothing:

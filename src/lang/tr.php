@@ -40,6 +40,7 @@ $lang = [
     "var_page" => "Sayfa",
     "skill" => "Yetenek",
     "404_" => "[%PARAM1%] Bulunamadı",
+    "call_null" => "Talep Hatalı",
     "licence" => "Lisans",
     "success_insert" => "[%PARAM1%] Başarıyla Eklendi",
     "failed_insert" => "[%PARAM1%] Eklenirken Bir Sorunla Karşılaşıldı",

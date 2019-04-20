@@ -216,7 +216,12 @@ class Valid
                     }
                     break;
                 case ValidObject::Float:
-                    $checkInputType = is_float($var);
+                    if ($var == "" || $var == 0) {
+                        $var = 0;
+                        $checkInputType = true;
+                    } else {
+                        $checkInputType = filter_var($var, FILTER_VALIDATE_FLOAT);
+                    }
                     break;
                 case ValidObject::Boolean:
                     //todo kontrol et, 0 ve 1 mi yoksa true false mu arıyor
@@ -635,7 +640,7 @@ class User
             return $auth;
         }
 
-        $result =  DB::executeId("INSERT INTO experience (
+        $result = DB::executeId("INSERT INTO experience (
                        experience_member, 
                        experience_name, 
                        experience_company, 
@@ -645,9 +650,9 @@ class User
                        experience_order
                        ) VALUES ($memberId, '$name', '$company', '$description', '$start', '$end',$order)");
 
-        if($result[0]){
+        if ($result[0]) {
             return [true, message("success_insert", "experience")];
-        }else{
+        } else {
             return [false, message("failed_insert", "experience")];
         }
     }
@@ -659,7 +664,7 @@ class User
         if ($userId[0] && count($userId[1]) > 0) {
             $userId = $userId[1][0]["experience_member"];
         } else {
-            return [false, message("404_","experience")];
+            return [false, message("404_", "experience")];
         }
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) == false) {
@@ -674,9 +679,9 @@ class User
                      experience_end = '$end',
                      experience_order = $order
                      WHERE experience_id = $experienceId");
-        if($result[0]){
+        if ($result[0]) {
             return [true, message("success_update", "experience")];
-        }else{
+        } else {
             return [false, message("failed_update", "experience")];
         }
     }
@@ -688,7 +693,7 @@ class User
         if ($userId[0] && count($userId[1]) > 0) {
             $userId = $userId[1][0]["experience_member"];
         } else {
-            return [false, message("404_","experience")];
+            return [false, message("404_", "experience")];
         }
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
@@ -697,9 +702,9 @@ class User
 
         $result = DB::execute("UPDATE experience SET experience_active = 0 WHERE experience_id = $experienceId");
 
-        if($result[0]){
+        if ($result[0]) {
             return [true, message("success_delete", "experience")];
-        }else{
+        } else {
             return [false, message("failed_delete", "experience")];
         }
     }
@@ -728,14 +733,14 @@ class User
     public function addEducation($name, $department, $type, $start, $end = null, $note = null, $order = 0, $userId = 0)
     {
         if ($userId == 0) {
-            $userId = $this->userId;
+            $userId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
             return $auth;
         }
-
-        return DB::executeId("INSERT INTO education (
+        echo $name;
+        $result = DB::executeId("INSERT INTO education (
                        education_member, 
                        education_name, 
                        education_department, 
@@ -744,49 +749,67 @@ class User
                        education_start,
                        education_end,
                        education_order
-                       ) VALUES ($userId, '$name', '$department', $note,$type, '$start', '$end',$order)");
+                       ) VALUES ($userId, '$name', '$department', '$note',$type, '$start', '$end',$order)");
+
+        if ($result[0]) {
+            return [true, message("success_insert", "education"), $result[1]];
+        } else {
+            return [false, message("failed_insert", "education")];
+        }
     }
 
     public function setEducation($educationId, $name, $department, $type, $start, $end = null, $note = null, $order = 0)
     {
         $userId = DB::select("SELECT education_member FROM education WHERE education_id = $educationId");
 
-        if ($userId[0]) {
-            $userId = $userId[1]["education_member"];
+        if ($userId[0] && count($userId[1]) > 0) {
+            $userId = $userId[1][0]["education_member"];
         } else {
-            return [false, "404_education"];
+            return [false, message("404_", "education")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE education SET 
+        $result = DB::execute("UPDATE education SET 
                      education_name = '$name',
                      education_department = '$department',
                      education_note = '$note',
                      education_type = $type,
                      education_start = '$start',
                      education_end = '$end',
-                     education_order = $order,
+                     education_order = $order
                      WHERE education_id = $educationId");
+
+        if ($result[0]) {
+            return [true, message("success_update", "education")];
+        } else {
+            return [false, message("failed_update", "education")];
+        }
     }
 
     public function delEducation($educationId)
     {
         $memberId = DB::select("SELECT education_member FROM education WHERE education_id = $educationId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["education_member"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["education_member"];
         } else {
-            return [false, "404_education"];
+            return [false, message("404_", "education")];
         }
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE education SET active = 0 WHERE education_id = $educationId");
+        $result = DB::execute("UPDATE education SET education_active = 0 WHERE education_id = $educationId");
+
+        if ($result[0]) {
+            return [true, message("success_delete", "education")];
+        } else {
+            return [false, message("failed_delete", "education")];
+        }
     }
 
     public function getEducation($memberId = 0, $count = 0, $page = 0)
@@ -816,11 +839,11 @@ class User
             $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO reference (
+        $result = DB::executeId("INSERT INTO reference (
                        reference_member, 
                        reference_name, 
                        reference_company, 
@@ -830,41 +853,53 @@ class User
                        reference_description,
                        reference_order
                        ) VALUES ($memberId, '$name', '$company', '$title','$email', '$gsm', '$description',$order)");
+
+        if ($result[0]) {
+            return [false, message("success_insert", "reference"), $result[1]];
+        } else {
+            return [false, message("failed_insert", "reference")];
+        }
     }
 
     public function setReference($referenceId, $name, $company, $title, $email, $gsm, $description, $order = 0)
     {
         $memberId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["reference_id"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["reference_member"];
         } else {
-            return [false, "404_reference"];
+            return [false, message("404_", "reference")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE reference SET 
+        $result = DB::execute("UPDATE reference SET 
                      reference_name = '$name',
                      reference_company = '$company',
                      reference_title = '$title',
                      reference_email = '$email',
                      reference_gsm = '$gsm',
                      reference_description = '$description',
-                     reference_order = $order,
+                     reference_order = $order
                      WHERE reference_id = $referenceId");
+
+        if ($result[0]) {
+            return [false, message("success_update", "reference")];
+        } else {
+            return [false, message("failed_update", "reference")];
+        }
     }
 
     public function delReference($referenceId)
     {
         $memberId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["reference_member"];
+        if ($memberId[0] && count($memberId) > 0) {
+            $memberId = $memberId[1][0]["reference_member"];
         } else {
-            return [false, "404_reference"];
+            return [false, message("404_", "reference")];
         }
 
 
@@ -872,7 +907,13 @@ class User
             return $auth;
         }
 
-        return DB::execute("UPDATE reference SET reference_active = 0 WHERE reference_id = $referenceId");
+        $result = DB::execute("UPDATE reference SET reference_active = 0 WHERE reference_id = $referenceId");
+
+        if ($result[0]) {
+            return [true, message("success_delete", "reference")];
+        } else {
+            return [true, message("failed_delete", "reference")];
+        }
     }
 
     public function getReference($memberId = 0, $count = 0, $page = 0)
@@ -961,7 +1002,7 @@ class User
         if ($memberId[0] && count($memberId[1]) > 0) {
             $memberId = $memberId[1][0]["certificate_member"];
         } else {
-            return [false, message("404_","reference")];
+            return [false, message("404_", "reference")];
         }
 
 
@@ -971,9 +1012,9 @@ class User
 
         $result = DB::execute("UPDATE certificate SET certificate_active = 0 WHERE certificate_id = $certificateId");
 
-        if($result[0]){
+        if ($result[0]) {
             return [true, message("success_delete", "certificate")];
-        }else{
+        } else {
             return [false, message("success_delete", "certificate")];
         }
     }
@@ -1092,43 +1133,57 @@ class User
     //endregion
 
     //region Language
-    public function addLanguage($code, $desc, $order = 0, $memberId = 0)
+    public function addLanguage($code, $desc, $order = 0, $languageLevel = 0, $memberId = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO language (
+        $result = DB::executeId("INSERT INTO language (
                        language_member, 
                        language_code, 
                        language_desc,
-                       language_order
-                       ) VALUES ($memberId, '$code', '$desc', $order)");
+                       language_order,
+                      language_level
+                       ) VALUES ($memberId, (SELECT lang_id FROM lang WHERE lang_code = '$code' AND lang_active = 1), '$desc', $order, $languageLevel)");
+
+        if ($result[0]) {
+            return [true, message("success_insert", "language"), $result[1]];
+        } else {
+            return [false, message("failed_insert", "language")];
+        }
     }
 
-    public function setLanguage($languageId, $code, $desc, $order = 0, $memberId = 0)
+    public function setLanguage($languageId, $code, $desc, $order = 0, $languageLevel = 0)
     {
         $memberId = DB::select("SELECT language_member FROM language WHERE language_id = $languageId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["language_id"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["language_member"];
         } else {
-            return [false, "404_language"];
+            return [false, message("404_", "language")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE language SET 
-                     language_code = $code,
-                     language_desc = $desc,
+        $result = DB::execute("UPDATE language SET 
+                     language_code = (SELECT lang_id FROM lang WHERE lang_code = '$code' AND lang_active = 1),
+                     language_desc = '$desc',
                      language_order = $order,
+                    language_level = $languageLevel
                      WHERE language_id = $languageId");
+
+        if ($result[0]) {
+            return [true, message("success_update", "language")];
+        } else {
+            return [false, message("failed_update", "language")];
+        }
     }
 
     public function delLanguage($languageId)
@@ -1136,10 +1191,10 @@ class User
         //tips Procedure yazılabilir
         $memberId = DB::select("SELECT language_member FROM language WHERE language_id = $languageId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["language_member"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["language_member"];
         } else {
-            return [false, "404_language"];
+            return [false, message("404_","language")];
         }
 
 
@@ -1147,7 +1202,13 @@ class User
             return $auth;
         }
 
-        return DB::execute("UPDATE language SET language_active = 0 WHERE language_id = $languageId");
+        $result = DB::execute("UPDATE language SET language_active = 0 WHERE language_id = $languageId");
+
+        if($result[0]){
+            return [true, message("success_delete","language")];
+        }else{
+            return [false, message("failed_delete","language")];
+        }
     }
 
     public function getLanguage($memberId = 0, $count = 0, $page = 0)

@@ -7,7 +7,7 @@
  * Time: 15:08
  */
 create database if not exists kariyer;
-##todo timesampları date yap, yeri format için ( giriş çıkış tarihleri felan, isnertler değil
+
 use kariyer;
 
 create table if not exists member
@@ -30,7 +30,7 @@ create table if not exists member
     member_picture       VARCHAR(256)      DEFAULT 'avatar.jpg',
     member_gender        TINYINT(1)        DEFAULT 0,    ##0 => Belirtilmemiş, 1 = Erkek, 2 = Kadın, 3 = Diğer
     member_military      TINYINT(1)        DEFAULT 0,## 0 => Belirtilmemiş, 1 = Yapıldı, 2 = Muaf, 3 = Tecilli
-    member_military_date timestamp    null default null,
+    member_military_date date    null default null,
     member_smoke         TINYINT(1)        DEFAULT 0,    ##0=> Belirtilmemiş, 1 = Hayır, 2 = Evet
     member_special       TINYINT(1)        DEFAULT 0,    ## 0=> Belirtilmemiş, 1 => Hayır, 2 = Evet
     member_ban           TINYINT(1)        DEFAULT 0,    ##0=> Bansız, 1 => Banlı Ban bitimini kotnrol edip 1 i 0 yap
@@ -48,8 +48,8 @@ create table if not exists education
     education_department varchar(128) not null,          ##Bölüm
     education_note       varchar(8)        default null, ##Not ortalaması
     education_type       int          not null,          ##0 => İlk, 1 = Orta, 2 = Lise, 3 = Ön L., 4 = Mas....
-    education_start      timestamp    not null,
-    education_end        timestamp    null default null, ##Nullsa devam ediyor
+    education_start      date    not null,
+    education_end        date    null default null, ##Nullsa devam ediyor
     education_order      int               default 0,
     education_insert     timestamp         default current_timestamp,
     education_update     timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -64,8 +64,8 @@ create table if not exists experience
     experience_name    varchar(128) not null,          ##İş
     experience_company varchar(128) not null,          ##Şirket
     experience_desc    varchar(512) not null,          ##Açıklama
-    experience_start   timestamp    not null,          ##İşe Başlama
-    experience_end     timestamp    null default null, ##Nullsa işe devam ediyor
+    experience_start   date    not null,          ##İşe Başlama
+    experience_end     date    null default null, ##Nullsa işe devam ediyor
     experience_order   int               default 0,
     experience_insert  timestamp         default current_timestamp,
     experience_update  timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -98,7 +98,7 @@ create table if not exists certificate
     certificate_company varchar(128)  not null, ##Veren Kurum
     certificate_url     varchar(1024) not null,
     certificate_desc    varchar(512)       default null,
-    certificate_date    timestamp     null default null,
+    certificate_date    date     null default null,
     certificate_order   int                default 0,
     certificate_insert  timestamp          default current_timestamp,
     certificate_update  timestamp          default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -165,7 +165,7 @@ create table if not exists licence
     licence_id     int auto_increment primary key,
     licence_member   int          not null,
     licence_name   varchar(128) not null,
-    licence_date   timestamp    null not null,
+    licence_date   date    null not null,
     licence_code   varchar(12)  not null,
     licence_order  int        default 0,
     licence_insert timestamp  default current_timestamp,
