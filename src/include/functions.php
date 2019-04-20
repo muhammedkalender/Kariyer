@@ -121,7 +121,8 @@ class Valid
 //todo
     }
 
-    public static function day($timestampFirst, $timestampSecond){
+    public static function day($timestampFirst, $timestampSecond)
+    {
         //todo
     }
 
@@ -262,9 +263,9 @@ class Valid
             }
         }
 
-        if(count($inputs) == 0){
+        if (count($inputs) == 0) {
             return [false, "valid_null"];
-        }else{
+        } else {
             return [true];
         }
     }
@@ -535,7 +536,7 @@ class User
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
 
         if ($result[0]) {
-            return [true,  $result];
+            return [true, $result];
         } else {
             return [false, $result];
         }
@@ -1062,6 +1063,87 @@ class User
         }
 
         return DB::select("SELECT * FROM language WHERE language_member = $memberId AND language_active = 1 ORDER BY language_order DESC " . $suffix);
+    }
+    //endregion
+
+    //region Licence
+    public function addLicence($name, $date, $code, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO licence (
+                       licence_member, 
+                        licence_name,
+                       licence_code, 
+                     licence_date,
+                       licence_order
+                       ) VALUES ($memberId, '$name','$code', '$date', $order)");
+    }
+
+    public function setLicence($licenceId, $name, $code, $date, $order = 0, $memberId = 0)
+    {
+        $memberId = DB::select("SELECT licence_member FROM licence WHERE licence_id = $licenceId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["licence_id"];
+        } else {
+            return [false, "404_licence"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE licence SET 
+                     licence_code = '$code',
+                     licence_name = '$name',
+                    licence_date = '$date',
+                     licence_order = $order,
+                     WHERE licence_id = $licenceId");
+    }
+
+    public function delLicence($licenceId)
+    {
+        //tips Procedure yazılabilir
+        $memberId = DB::select("SELECT licence_member FROM licence WHERE licence_id = $licenceId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["licence_member"];
+        } else {
+            return [false, "404_licence"];
+        }
+
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE licence SET licence_active = 0 WHERE licence_id = $licenceId");
+    }
+
+    public function getLicence($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM licence WHERE licence_member = $memberId AND licence_active = 1 ORDER BY licence_order DESC " . $suffix);
     }
     //endregion
 

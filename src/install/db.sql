@@ -130,16 +130,18 @@ create table if not exists skill
     skill_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     skill_active tinyint(1) default 1
 );
-##todo
+
 create table if not exists language
 (
     language_id     int auto_increment primary key,
-    language_member   int         not null,
+    language_member int not null,
     language_code   int not null,
-    language_desc varchar(256) default null, ##toelf 180 aldım felan
-    language_order int default 0,
-    language_level  int        default 0,
-    language_active tinyint(1) default 1
+    language_desc   varchar(256) default null, ##toelf 180 aldım felan
+    language_order  int          default 0,
+    language_level  int          default 0,    ##todo
+    language_insert timestamp    default current_timestamp,
+    language_update timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    language_active tinyint(1)   default 1
 );
 
 ##todo
@@ -158,12 +160,16 @@ VALUES ("tr"),
        ("ru"),
        ("es");
 ##todo
-create table if not exists license
+
+create table if not exists licence
 (
     licence_id     int auto_increment primary key,
-    licence_user int not null,
-    licence_name varchar(128) not null ,
-    licence_date timestamp null not null ,
-    licence_code   varchar(12) not null,
+    licence_member   int          not null,
+    licence_name   varchar(128) not null,
+    licence_date   timestamp    null not null,
+    licence_code   varchar(12)  not null,
+    licence_order  int        default 0,
+    licence_insert timestamp  default current_timestamp,
+    licence_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     licence_active tinyint(1) default 1
 );
