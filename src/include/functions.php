@@ -69,8 +69,9 @@ class ValidObject
     public $isNullable = 0;
     public $inputType;
     public $value;
+    public $maxValue;
 
-    public function __construct($requestName, $langName, $minLength, $maxLength, $inputType, $method = ValidObject::POST, $isNullable = false, $value = "")
+    public function __construct($requestName, $langName, $minLength, $maxLength, $inputType, $maxValue = 0, $method = ValidObject::POST, $isNullable = false, $value = "")
     {
         if ($requestName == "" || $requestName == null) {
             //System error, devoloper side
@@ -91,6 +92,7 @@ class ValidObject
         $this->method = $method;
         $this->isNullable = $isNullable; //Sadece "" ollacak, boş geçemeez
         $this->value = $value;
+        $this->maxValue = $maxValue;
     }
 }
 
@@ -149,6 +151,11 @@ class Valid
 
                     if ($correctMethod) {
                         $var = $_POST[$input->requestName];
+
+                        if ($var == "" && $input->minLength == 0) {
+                            $var = 0;
+                            $_POST[$input->requestName] = 0;
+                        }
                     }
                     break;
                 case ValidObject::REQUEST:
@@ -176,7 +183,6 @@ class Valid
             }
 
             if ($correctMethod == false) {
-
                 return [false, message("check_null", $input->langName)];
             }
 
@@ -193,10 +199,21 @@ class Valid
             }
 
             $checkInputType = false;
+            $overMaxValue = false;
 
             switch ($input->inputType) {
                 case ValidObject::Integer:
                     $checkInputType = filter_var($var, FILTER_VALIDATE_INT);
+
+                    if ($var == "0" || $var == 0) {
+                        $checkInputType = true;
+                    }
+
+                    if ($checkInputType && $input->maxValue > 0) {
+                        if ($var > $input->maxValue) {
+                            $overMaxValue = true;
+                        }
+                    }
                     break;
                 case ValidObject::Float:
                     $checkInputType = is_float($var);
@@ -231,9 +248,20 @@ class Valid
                     $checkInputType = true;
                     break;
                 case ValidObject::Date:
-                    //todo
-                    //todo re format
-                    $checkInputType = true;
+                    //Gün - Ay - yıl alıcak  gg-aa-yyyy yada boşluk
+
+                    if ($var == "") {
+                        $checkInputType = true;
+                    } else {
+                        $check = str_split($var, "-");
+
+                        if (count($check) < 3) {
+                            $checkInputType = false;
+                        } else {
+                            $checkInputType = checkdate($check[1], $check[0], $check[2]);
+                        }
+                    }
+
                     break;
                 default:
                     $checkInputType = false;
@@ -243,6 +271,11 @@ class Valid
             if ($checkInputType == false) {
                 return [false, message("check_type", $input->langName)];
             }
+
+            if ($overMaxValue == true) {
+                return [false, message("check_over", $input->langName, $input->maxValue)];
+            }
+
             //todo Formatlanıp tekrar yhazılıyor
             switch ($input->method) {
                 case ValidObject::GET:
@@ -275,14 +308,23 @@ class DB
 {
     public static function execute($paramQuery)
     {
-        global $db;
-        return [$db->prepare($paramQuery)->execute(), "exec_result"];
+        try {
+            global $db;
+            return [$db->prepare($paramQuery)->execute(), "exec_result"];
+        } catch (Exception $e) {
+            //todo
+            return [false, $e];
+        }
     }
 
     public static function executeId($paramQuery)
     {
-        global $db;
-        return [$db->prepare($paramQuery)->execute(), $db->lastInsertId()];
+        try {
+            global $db;
+            return [$db->prepare($paramQuery)->execute(), $db->lastInsertId()];
+        } catch (Exception $e) {
+            return [false, $paramQuery];
+        }
     }
 
     public static function select($paramQuery)
@@ -372,6 +414,15 @@ class User
         }
     }
 
+    public function logout()
+    {
+        if ($this->isLogged) {
+            return DB::execute("UPDATE token SET token_active = 0 WHERE token_id = " . $this->token_id);
+        }
+
+        return false;
+    }
+
     private function checkLogin($customMember = 0)
     {
         if ($customMember != 0) {
@@ -395,7 +446,7 @@ class User
             return false;
         }
 
-        $this->token_id = $qToken[1];
+        $this->token_id = $qToken[1][0]["token_id"];
 
         $qUser = DB::Select("SELECT * FROM member WHERE member_id = {$customMember}");
 
@@ -498,12 +549,12 @@ class User
     {
         if ($permType == Perm::SELF_OR_UPPER) {
             //Kendisi yada X üstü, eğer id kendisi değilse powera bakar, azsa error döner
-            if ($userId != $this->userId && $permNeed < $this->power) {
-                return [false, "perm_error"];
+            if ($userId != $this->memberId && $permNeed > $this->power) {
+                return [false, lang("perm_error")];
             }
         } else if ($permType == Perm::OR_UPPER) {
             if ($this->power < $permNeed) {
-                return [false, "perm_error"];
+                return [false, lang("perm_error")];
             }
         }
 
@@ -915,7 +966,7 @@ class User
             $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
@@ -931,21 +982,29 @@ class User
     {
         $memberId = DB::select("SELECT skill_member FROM skill WHERE skill_id = $skillId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["skill_id"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["skill_member"];
         } else {
             return [false, "404_skill"];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE skill SET 
+        $result = DB::execute("UPDATE skill SET 
                      skill_name = '$name',
                      skill_level = $level,
-                     skill_order = $order,
+                     skill_order = $order
                      WHERE skill_id = $skillId");
+
+        if ($result[0]) {
+            $result[1] = message("success_update", "skill");
+        } else {
+            $result[1] = message("failed_update", "skill");
+        }
+
+        return $result;
     }
 
     public function delSkill($skillId)
@@ -953,10 +1012,10 @@ class User
         //tips Procedure yazılabilir
         $memberId = DB::select("SELECT skill_member FROM skill WHERE skill_id = $skillId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["skill_member"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["skill_member"];
         } else {
-            return [false, "404_skill"];
+            return [false, message("404_", "skill")];
         }
 
 
@@ -964,7 +1023,13 @@ class User
             return $auth;
         }
 
-        return DB::execute("UPDATE skill SET skill_acitve = 0 WHERE skill_id = $skillId");
+        $result = DB::execute("UPDATE skill SET skill_active = 0 WHERE skill_id = $skillId");
+
+        if ($result[0]) {
+            return [true, message("success_delete", "skill")];
+        } else {
+            return [false, message("failed_delete", "skill")];
+        }
     }
 
     public function getSkill($memberId = 0, $count = 0, $page = 0)
@@ -1073,39 +1138,51 @@ class User
             $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO licence (
+        $result = DB::executeId("INSERT INTO licence (
                        licence_member, 
                         licence_name,
                        licence_code, 
-                     licence_date,
+                        licence_date,
                        licence_order
-                       ) VALUES ($memberId, '$name','$code', '$date', $order)");
+                       ) VALUES ($memberId, '$name', '$code', '$date', $order)");
+
+        if ($result[0]) {
+            return [true, message("success_insert", "licence"), $result[1]];
+        } else {
+            return [false, message("failed_insert", "licence")];
+        }
     }
 
-    public function setLicence($licenceId, $name, $code, $date, $order = 0, $memberId = 0)
+    public function setLicence($licenceId, $name, $code, $date, $order = 0)
     {
         $memberId = DB::select("SELECT licence_member FROM licence WHERE licence_id = $licenceId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["licence_id"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["licence_member"];
         } else {
-            return [false, "404_licence"];
+            return [false, message("404_", "licence")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE licence SET 
+        $result = DB::execute("UPDATE licence SET 
                      licence_code = '$code',
                      licence_name = '$name',
                     licence_date = '$date',
-                     licence_order = $order,
+                     licence_order = $order
                      WHERE licence_id = $licenceId");
+
+        if($result[0]){
+            return [true, message("success_update", "licence")];
+        }else{
+            return [true, message("failed_update", "licence")];
+        }
     }
 
     public function delLicence($licenceId)
@@ -1113,10 +1190,10 @@ class User
         //tips Procedure yazılabilir
         $memberId = DB::select("SELECT licence_member FROM licence WHERE licence_id = $licenceId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["licence_member"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["licence_member"];
         } else {
-            return [false, "404_licence"];
+            return [false, message("404_", "licence")];
         }
 
 
@@ -1124,7 +1201,13 @@ class User
             return $auth;
         }
 
-        return DB::execute("UPDATE licence SET licence_active = 0 WHERE licence_id = $licenceId");
+        $result = DB::execute("UPDATE licence SET licence_active = 0 WHERE licence_id = $licenceId");
+
+        if($result){
+            return [true, message("success_delete", "licence")];
+        }else{
+            return [false, message("success_delete", "licence")];
+        }
     }
 
     public function getLicence($memberId = 0, $count = 0, $page = 0)

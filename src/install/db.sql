@@ -159,7 +159,6 @@ VALUES ("tr"),
        ("fr"),
        ("ru"),
        ("es");
-##todo
 
 create table if not exists licence
 (
