@@ -13,10 +13,17 @@
  * Return [result , [ErrorCode | Result]]
  */
 
+//https://stackoverflow.com/a/18542272
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+include_once "db.php";
+
 $user = new User();
 
 if (file_exists("lang/" . $user->getLang() . ".php")) {
-    include_once "../lang/" . $user->getLang() . ".php";
+    include_once "./lang/" . $user->getLang() . ".php";
 } else {
     //todo error ?
     include_once "../lang/tr.php";
@@ -71,12 +78,13 @@ class ValidObject
             return;
         }
 
+        $this->langName = $langName;
+
         if ($langName == "" || $langName == null) {
             $this->langName = "var_" . $requestName;
         }
 
         $this->requestName = $requestName;
-        $this->langName = $langName;
         $this->minLength = $minLength;
         $this->maxLength = $maxLength;
         $this->inputType = $inputType;
@@ -113,10 +121,14 @@ class Valid
 //todo
     }
 
+    public static function day($timestampFirst, $timestampSecond){
+        //todo
+    }
+
     public static function check($inputs)
     {
         foreach ($inputs as $input) {
-            if ($input->isCorrect) {
+            if ($input->isCorrect == false) {
                 return [false, lang("check_dev_error")];
             }
 
@@ -163,18 +175,19 @@ class Valid
             }
 
             if ($correctMethod == false) {
-                return [false, lang("check_null", $input->langName)];
+
+                return [false, message("check_null", $input->langName)];
             }
 
             if ($input->minLength > 0) {
                 if (strlen($var) < $input->minLength) {
-                    return [false, lang("check_short", $input->langName, $input->minLength)];
+                    return [false, message("check_short", $input->langName, $input->minLength)];
                 }
             }
 
             if ($input->maxLength > 0) {
                 if (strlen($var) > $input->maxLength) {
-                    return [false, lang("check_long", lang($input->langName), $input->maxLength)];
+                    return [false, message("check_long", $input->langName, $input->maxLength)];
                 }
             }
 
@@ -182,7 +195,7 @@ class Valid
 
             switch ($input->inputType) {
                 case ValidObject::Integer:
-                    $checkInputType = is_int($var);
+                    $checkInputType = filter_var($var, FILTER_VALIDATE_INT);
                     break;
                 case ValidObject::Float:
                     $checkInputType = is_float($var);
@@ -227,21 +240,21 @@ class Valid
             }
 
             if ($checkInputType == false) {
-                return [false, lang("check_type", $input->langName)];
+                return [false, message("check_type", $input->langName)];
             }
             //todo Formatlanıp tekrar yhazılıyor
             switch ($input->method) {
                 case ValidObject::GET:
-                    $_GET[$input->name] = $var;
+                    $_GET[$input->requestName] = $var;
                     break;
                 case ValidObject::POST:
-                    $_POST[$input->name] = $var;
+                    $_POST[$input->requestName] = $var;
                     break;
                 case ValidObject::REQUEST:
-                    $_REQUEST[$input->name] = $var;
+                    $_REQUEST[$input->requestName] = $var;
                     break;
                 case ValidObject::SESSION:
-                    Session::set($input->name, $var);
+                    Session::set($input->requestName, $var);
                     break;
                 case ValidObject::VARIABLE:
                     $input->value = $var;
@@ -249,7 +262,11 @@ class Valid
             }
         }
 
-        return [false, "valid_null"];
+        if(count($inputs) == 0){
+            return [false, "valid_null"];
+        }else{
+            return [true];
+        }
     }
 }
 
@@ -274,7 +291,7 @@ class DB
             $conn = $db->prepare($paramQuery);
 
             if ($conn->execute() == false) {
-                return array(false, $conn->errorInfo());
+                return [false, $conn->errorInfo()];
             }
 
             return [true, $conn->fetchAll(PDO::FETCH_ASSOC)];
@@ -335,13 +352,13 @@ class User
     const MEMBER = 0;
     const COMPANY = 1;
 
-    private $memberId = 0, $power, $type;
-    private $token, $token_key, $token_id;
-    private $email, $nick;
-    private $gender, $military, $military_date, $smoke, $special;
-    private $name, $surname, $description, $picture;
-    private $website, $fax, $gsm;
-    private $isLogged = false;
+    public $memberId = 0, $power, $type;
+    public $token, $token_key, $token_id;
+    public $email, $nick;
+    public $gender, $military, $military_date, $smoke, $special;
+    public $name, $surname, $description, $picture;
+    public $website, $fax, $gsm;
+    public $isLogged = false;
 
     public function __construct($memberId = 0)
     {
@@ -361,7 +378,7 @@ class User
         }
 
         $memberId = Session::Get("member_id");
-        $token = Session::Get("token");
+        $token = Session::Get("token_lock");
         $token_key = Session::Get("token_key");
 
         if ($memberId == "" || $token == "" || $token_key == "") {
@@ -393,7 +410,7 @@ class User
         $this->power = $qUser["member_power"];
         $this->email = $qUser["member_email"];
 
-        $this->name = $qUser["member_ame"];
+        $this->name = $qUser["member_name"];
         $this->surname = $qUser["member_surname"];
 
         $this->gsm = $qUser["member_gsm"];
@@ -423,15 +440,21 @@ class User
 
     public function login($usernameOrEmail, $password)
     {
-        $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = '{$usernameOrEmail}' OR member_nick = '{$usernameOrEmail}')");
+        $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = 'asd@gmail.com' OR member_nick = '$usernameOrEmail')");
 
         if ($prefix[0] == false) {
             return [false, lang("wrong_login")];
         }
 
-        $memberId = $prefix[1][0]["member_id"];
+        if (isset($prefix[1][0]["member_id"]) == false) {
+            return [false, lang("wrong_login")];
+        }
 
-        $password = $this->encPassword($password, $prefix[1][0]["member_prefix"]);
+        $prefix = $prefix[1][0];
+
+        $memberId = $prefix["member_id"];
+
+        $password = $this->encPassword($password, $prefix["member_prefix"]);
 
         $checkLogin = DB::Select("SELECT member_id FROM member WHERE member_id = $memberId AND  member_password = '{$password}'");
 
@@ -457,7 +480,6 @@ class User
         $qInsert = DB::ExecuteId("INSERT INTO token (token_member, token_lock, token_key, token_ip) VALUES ({$memberId}, '{$token_lock}', '{$token_key}','$memberIP')");
 
         if ($qInsert[0]) {
-            //todo redirect
             Session::Set("token_id", $qInsert);
             Session::Set("token_lock", $token_lock);
             Session::Set("token_key", $token_key);
@@ -513,9 +535,9 @@ class User
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
 
         if ($result[0]) {
-            return $result;
+            return [true,  $result];
         } else {
-            return [false, $result[1]];
+            return [false, $result];
         }
     }
 
@@ -961,6 +983,85 @@ class User
         }
 
         return DB::select("SELECT * FROM skill WHERE skill_member = $memberId AND skill_active = 1 ORDER BY skill_order DESC " . $suffix);
+    }
+    //endregion
+
+    //region Language
+    public function addLanguage($code, $desc, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::executeId("INSERT INTO language (
+                       language_member, 
+                       language_code, 
+                       language_desc,
+                       language_order
+                       ) VALUES ($memberId, '$code', '$desc', $order)");
+    }
+
+    public function setLanguage($languageId, $code, $desc, $order = 0, $memberId = 0)
+    {
+        $memberId = DB::select("SELECT language_member FROM language WHERE language_id = $languageId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["language_id"];
+        } else {
+            return [false, "404_language"];
+        }
+
+        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE language SET 
+                     language_code = $code,
+                     language_desc = $desc,
+                     language_order = $order,
+                     WHERE language_id = $languageId");
+    }
+
+    public function delLanguage($languageId)
+    {
+        //tips Procedure yazılabilir
+        $memberId = DB::select("SELECT language_member FROM language WHERE language_id = $languageId");
+
+        if ($memberId[0]) {
+            $memberId = $memberId[1]["language_member"];
+        } else {
+            return [false, "404_language"];
+        }
+
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::execute("UPDATE language SET language_active = 0 WHERE language_id = $languageId");
+    }
+
+    public function getLanguage($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM language WHERE language_member = $memberId AND language_active = 1 ORDER BY language_order DESC " . $suffix);
     }
     //endregion
 

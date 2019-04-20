@@ -119,13 +119,51 @@ create table if not exists token
     #,foreign key token (token_member) references member (member_id)
 );
 
-create table if not exists skill(
-    skill_id int auto_increment primary key ,
-    skill_member int not null ,
-    skill_name varchar(128) not null ,
-    skill_level int default 0, ##0 Giriş, 1 Junior, 2 Middler, 3 Up, 4 expert vs... 1-5
-    skill_order   int                default 0,
-    skill_insert  timestamp          default current_timestamp,
-    skill_update  timestamp          default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    skill_active  tinyint(1)         default 1
+create table if not exists skill
+(
+    skill_id     int auto_increment primary key,
+    skill_member int          not null,
+    skill_name   varchar(128) not null,
+    skill_level  int        default 0, ##0 Giriş, 1 Junior, 2 Middler, 3 Up, 4 expert vs... 1-5
+    skill_order  int        default 0,
+    skill_insert timestamp  default current_timestamp,
+    skill_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    skill_active tinyint(1) default 1
+);
+##todo
+create table if not exists language
+(
+    language_id     int auto_increment primary key,
+    language_member   int         not null,
+    language_code   int not null,
+    language_desc varchar(256) default null, ##toelf 180 aldım felan
+    language_order int default 0,
+    language_level  int        default 0,
+    language_active tinyint(1) default 1
+);
+
+##todo
+create table if not exists lang
+(
+    lang_id     int auto_increment primary key,
+    lang_code   varchar(12) not null,
+    lang_active tinyint(1) default 1
+);
+##todo
+insert into lang (lang_code)
+VALUES ("tr"),
+       ("en"),
+       ("de"),
+       ("fr"),
+       ("ru"),
+       ("es");
+##todo
+create table if not exists license
+(
+    licence_id     int auto_increment primary key,
+    licence_user int not null,
+    licence_name varchar(128) not null ,
+    licence_date timestamp null not null ,
+    licence_code   varchar(12) not null,
+    licence_active tinyint(1) default 1
 );
