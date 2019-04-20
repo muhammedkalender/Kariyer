@@ -1,12 +1,17 @@
 # Kariyer
-SAT - Proje
+SAT - Proje<br>
 Bu proje okul ödevi için yapılmaktadır.
 
-Biçimler
-Çıktılar JSON formatındadır
+Biçimler<br>
+Çıktılar JSON formatındadır<br>
 Girdiler formata uygun değilse yeniden formatlanır(-acak)
 
 Çıktılar 
-[ sonuç, mesaj ]
-[ sonuç, mesaj , insert id] 
+[ sonuç, mesaj ]<br>
+[ sonuç, mesaj , insert id]<br> 
 [ sonuç, [...] ]
+
+Sayfa Yapısı
+
+[Main] Index
+Include Every Page

@@ -8,6 +8,8 @@
  * Time : 19:5
  */
 
+include_once $_SERVER['DOCUMENT_ROOT'] . "/include/functions.php";
+
 if (isset($_POST["call_category"]) == false || isset($_POST["call_request"]) == false) {
     //todo
     goto nothing;
@@ -15,8 +17,6 @@ if (isset($_POST["call_category"]) == false || isset($_POST["call_request"]) == 
 
 $callCategory = $_POST["call_category"];
 $callRequest = $_POST["call_request"];
-
-include_once "./include/functions.php";
 
 if ($callCategory == "user") {
     //region User
@@ -511,7 +511,7 @@ if ($callCategory == "user") {
             new ValidObject("language_code", "", 1, 4, ValidObject::CleanText),
             new ValidObject("language_description", "", 0, 256, ValidObject::CleanText),
             new ValidObject("language_order", "", 0, 3, ValidObject::Integer),
-            new ValidObject("language_level","",0,3,ValidObject::Integer,5)
+            new ValidObject("language_level", "", 0, 3, ValidObject::Integer, 5)
         ]);
 
         if ($inputs[0] == false) {
@@ -521,14 +521,14 @@ if ($callCategory == "user") {
 
         $callResult = $user->addLanguage($_POST["language_code"], $_POST["language_description"], $_POST["language_order"], $_POST["language_level"], $_POST["language_member"]);
         goto output;
-    }else if($callRequest == "update"){
+    } else if ($callRequest == "update") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("language_id", "", 1, 32, ValidObject::Integer),
             new ValidObject("language_code", "", 1, 4, ValidObject::CleanText),
             new ValidObject("language_description", "", 0, 256, ValidObject::CleanText),
             new ValidObject("language_order", "", 0, 3, ValidObject::Integer),
-            new ValidObject("language_level","",0,3,ValidObject::Integer,5)
+            new ValidObject("language_level", "", 0, 3, ValidObject::Integer, 5)
         ]);
 
         if ($inputs[0] == false) {
@@ -536,9 +536,9 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->setLanguage($_POST["language_id"],$_POST["language_code"], $_POST["language_description"], $_POST["language_order"], $_POST["language_level"]);
+        $callResult = $user->setLanguage($_POST["language_id"], $_POST["language_code"], $_POST["language_description"], $_POST["language_order"], $_POST["language_level"]);
         goto output;
-    }else if($callRequest == "delete"){
+    } else if ($callRequest == "delete") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("language_id", "", 1, 32, ValidObject::Integer)
@@ -551,11 +551,11 @@ if ($callCategory == "user") {
 
         $callResult = $user->delLanguage($_POST["language_id"]);
         goto output;
-    }else{
+    } else {
         goto nothing;
     }
     //endregion
-}else{
+} else {
     goto nothing;
 }
 

@@ -1,0 +1,4 @@
+##https://stackoverflow.com/a/10722444
+<FilesMatch "\.(js)$">
+AddHandler application/x-httpd-php .js
+</FilesMatch>

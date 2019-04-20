@@ -63,7 +63,23 @@ $lang = [
     "lang_ru" => "Rusça",
     "lang_fr" => "Fransızca",
     "lang_de" => "Almanca",
-    "lang_es" => "İspanyolca"
+    "lang_es" => "İspanyolca",
+
+
+    "site_title" => "Kariyer",
+    "page_main" => "Ana Sayfa",
+    "register" => "Kayıt Ol",
+    "login" => "Giriş Yap",
+    "settings" => "Ayarlar",
+    "my_profile" => "Profilim",
+    "exit" => "Çıkış Yap",
+    "header_success" => "İşlem Başarılı",
+    "header_failed" => "İşlem Başarısız",
+    "close" => "Kapat",
+    "success_exit" => "Başarıyla çıkış yapıldı. Birazdan Yönelndirileceksiniz",
+    "failed_exit" => "Çıkış Yapılırken Sorunla Karşılaşıldı"
+
+
 ];
 
 function lang($name, $firstParam = "", $secondParam = "")

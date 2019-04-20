@@ -8,7 +8,6 @@
  * Time : 16:19
  */
 
-
 /*
  * Return [result , [ErrorCode | Result]]
  */
@@ -22,11 +21,11 @@ include_once "db.php";
 
 $user = new User();
 
-if (file_exists("lang/" . $user->getLang() . ".php")) {
-    include_once "./lang/" . $user->getLang() . ".php";
+if (file_exists($_SERVER['DOCUMENT_ROOT'] . "/lang/" . $user->getLang() . ".php")) {
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/lang/" . $user->getLang() . ".php";
 } else {
     //todo error ?
-    include_once "../lang/tr.php";
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/lang/tr.php";
 }
 
 class Perm
@@ -426,10 +425,15 @@ class User
     public function logout()
     {
         if ($this->isLogged) {
-            return DB::execute("UPDATE token SET token_active = 0 WHERE token_id = " . $this->token_id);
+            $result = DB::execute("UPDATE token SET token_active = 0 WHERE token_id = " . $this->token_id);
+            if($result[0]){
+                return [true, lang("success_exit")];
+            }else{
+                return [true, lang("failed_exit")];
+            }
         }
 
-        return false;
+        return [true, lang("success_exit")];
     }
 
     private function checkLogin($customMember = 0)
@@ -1194,7 +1198,7 @@ class User
         if ($memberId[0] && count($memberId[1]) > 0) {
             $memberId = $memberId[1][0]["language_member"];
         } else {
-            return [false, message("404_","language")];
+            return [false, message("404_", "language")];
         }
 
 
@@ -1204,10 +1208,10 @@ class User
 
         $result = DB::execute("UPDATE language SET language_active = 0 WHERE language_id = $languageId");
 
-        if($result[0]){
-            return [true, message("success_delete","language")];
-        }else{
-            return [false, message("failed_delete","language")];
+        if ($result[0]) {
+            return [true, message("success_delete", "language")];
+        } else {
+            return [false, message("failed_delete", "language")];
         }
     }
 
