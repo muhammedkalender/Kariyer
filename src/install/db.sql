@@ -7,7 +7,7 @@
  * Time: 15:08
  */
 create database if not exists kariyer;
-
+##todo timesampları date yap, yeri format için ( giriş çıkış tarihleri felan, isnertler değil
 use kariyer;
 
 create table if not exists member

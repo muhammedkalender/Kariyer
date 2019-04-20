@@ -18,16 +18,16 @@ $_POST["count"] = 0;
 $_POST["page"] = 0;
 include "include/functions.php";
 
-////$_POST["call_category"] = "user";
-////$_POST["call_request"] = "login";
-//
-//
-//
-//$_POST["user_type"] = 1; //todo 0 olamıyormu ?
-//$_POST["user_email"] = "asd@gmail.com";
-//$_POST["user_name"] = "cem";
-//$_POST["user_surname"] = "uzan";
-//$_POST["user_password"] = "123456";
+//$_POST["call_category"] = "user";
+//$_POST["call_request"] = "login";
+
+
+
+$_POST["user_type"] = 1; //todo 0 olamıyormu ?
+$_POST["user_email"] = "asd@gmail.com";
+$_POST["user_name"] = "cem";
+$_POST["user_surname"] = "uzan";
+$_POST["user_password"] = "123456";
 
 
 //$_POST["call_category"] = "user_skill";
@@ -55,6 +55,36 @@ include "include/functions.php";
 //$_POST["licence_order"] = "";
 //$_POST["licence_member"] = "";
 
+//$_POST["call_category"] = "user_certificate";
+//$_POST["call_request"] = "insert";
+//$_POST["call_request"] = "select";
+//$_POST["call_request"] = "update";
+//$_POST["call_request"] = "delete";
+//$_POST["certificate_id"] = 2;
+//
+//$_POST["certificate_member"] = 0;
+//$_POST["certificate_name"] = "C# - 101";
+//$_POST["certificate_company"] = "Microsoft Açık Akademi";
+//$_POST["certificate_url"] = "";
+//$_POST["certificate_description"] = "";
+//$_POST["certificate_date"] = "1990-11-19";
+//$_POST["certificate_order"] = "";
+
+
+$_POST["call_category"] = "user_experience";
+//$_POST["call_request"] = "insert";
+//$_POST["call_request"] = "select";
+//$_POST["call_request"] = "update";
+//$_POST["call_request"] = "delete";
+
+$_POST["experience_id"] = 1;
+$_POST["experience_member"] = 0;
+$_POST["experience_name"] = "Seni1111or Financier";
+$_POST["experience_company"] = "Berserker Co.";
+$_POST["experience_description"] = "";
+$_POST["experience_start"] = "2019-01-12";
+$_POST["experience_end"] = "2020-12-19";
+$_POST["experience_order"] = "";
 include "api.php";
 
 //echo $user->isLogged?"tr":"fl";

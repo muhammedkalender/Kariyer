@@ -226,7 +226,11 @@ class Valid
                     $checkInputType = filter_var($var, FILTER_VALIDATE_EMAIL);
                     break;
                 case ValidObject::URL:
-                    $checkInputType = filter_var($var, FILTER_VALIDATE_URL);
+                    if ($var == "") {
+                        $checkInputType = true;
+                    } else {
+                        $checkInputType = filter_var($var, FILTER_VALIDATE_URL);
+                    }
                     break;
                 case ValidObject::CleanText:
                     //todo
@@ -248,17 +252,17 @@ class Valid
                     $checkInputType = true;
                     break;
                 case ValidObject::Date:
-                    //Gün - Ay - yıl alıcak  gg-aa-yyyy yada boşluk
+                    //Gün - Ay - yıl alıcak  yyyy-aa-gg yada boşluk
 
                     if ($var == "") {
                         $checkInputType = true;
                     } else {
-                        $check = str_split($var, "-");
+                        $check = explode("-", $var);
 
                         if (count($check) < 3) {
                             $checkInputType = false;
                         } else {
-                            $checkInputType = checkdate($check[1], $check[0], $check[2]);
+                            $checkInputType = checkdate($check[1], $check[2], $check[0]);
                         }
                     }
 
@@ -624,14 +628,14 @@ class User
     public function addExperience($name, $company, $description, $start, $end = null, $order = 0, $memberId = 0)
     {
         if ($memberId == 0) {
-            $memberId = $this->userId;
+            $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO experience (
+        $result =  DB::executeId("INSERT INTO experience (
                        experience_member, 
                        experience_name, 
                        experience_company, 
@@ -640,47 +644,64 @@ class User
                        experience_end,
                        experience_order
                        ) VALUES ($memberId, '$name', '$company', '$description', '$start', '$end',$order)");
+
+        if($result[0]){
+            return [true, message("success_insert", "experience")];
+        }else{
+            return [false, message("failed_insert", "experience")];
+        }
     }
 
     public function setExperience($experienceId, $name, $company, $description, $start, $end = null, $order = 0)
     {
         $userId = DB::select("SELECT experience_member FROM experience WHERE experience_id = $experienceId");
 
-        if ($userId[0]) {
-            $userId = $userId[1]["experience_member"];
+        if ($userId[0] && count($userId[1]) > 0) {
+            $userId = $userId[1][0]["experience_member"];
         } else {
-            return [false, "404_experience"];
+            return [false, message("404_","experience")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId)) == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE experience SET 
+        $result = DB::execute("UPDATE experience SET 
                      experience_name = '$name',
                      experience_company = '$company',
                      experience_desc = '$description',
                      experience_start = '$start',
                      experience_end = '$end',
-                     experience_order = $order,
+                     experience_order = $order
                      WHERE experience_id = $experienceId");
+        if($result[0]){
+            return [true, message("success_update", "experience")];
+        }else{
+            return [false, message("failed_update", "experience")];
+        }
     }
 
     public function delExperience($experienceId)
     {
         $userId = DB::select("SELECT experience_member FROM experience WHERE experience_id = $experienceId");
 
-        if ($userId[0]) {
-            $userId = $userId[1]["experience_member"];
+        if ($userId[0] && count($userId[1]) > 0) {
+            $userId = $userId[1][0]["experience_member"];
         } else {
-            return [false, "404_experience"];
+            return [false, message("404_","experience")];
         }
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE experience SET experience_active = 0 WHERE experience_id = $experienceId");
+        $result = DB::execute("UPDATE experience SET experience_active = 0 WHERE experience_id = $experienceId");
+
+        if($result[0]){
+            return [true, message("success_delete", "experience")];
+        }else{
+            return [false, message("failed_delete", "experience")];
+        }
     }
 
     public function getExperience($memberId = 0, $count = 0, $page = 0)
@@ -881,11 +902,11 @@ class User
             $memberId = $this->memberId;
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO certificate (
+        $result = DB::executeId("INSERT INTO certificate (
                        certificate_member, 
                        certificate_name, 
                        certificate_company, 
@@ -894,30 +915,42 @@ class User
                        certificate_date,
                        certificate_order
                        ) VALUES ($memberId, '$name', '$company', '$url','$description', '$date', $order)");
+
+        if ($result[0]) {
+            return [true, message("success_insert", "certificate")];
+        } else {
+            return [false, message("failed_insert", "certificate")];
+        }
     }
 
     public function setCertificate($certificateId, $name, $company, $url, $description, $date, $order = 0)
     {
         $memberId = DB::select("SELECT certificate_member FROM certificate WHERE certificate_id = $certificateId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["certificate_id"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["certificate_member"];
         } else {
-            return [false, "404_certificate"];
+            return [false, message("404_", "certificate")];
         }
 
-        if ($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId)) {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
             return $auth;
         }
 
-        return DB::execute("UPDATE certificate SET 
+        $result = DB::execute("UPDATE certificate SET 
                      certificate_name = '$name',
                      certificate_company = '$company',
                      certificate_url = '$url',
                      certificate_desc = '$description',
                      certificate_date = '$date',
-                     certificate_order = $order,
+                     certificate_order = $order
                      WHERE certificate_id = $certificateId");
+
+        if ($result[0]) {
+            return [true, message("success_update", "certificate")];
+        } else {
+            return [false, message("failed_update", "certificate")];
+        }
     }
 
     public function delCertificate($certificateId)
@@ -925,10 +958,10 @@ class User
         //tips Procedure yazılabilir
         $memberId = DB::select("SELECT certificate_member FROM certificate WHERE certificate_id = $certificateId");
 
-        if ($memberId[0]) {
-            $memberId = $memberId[1]["reference_member"];
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["certificate_member"];
         } else {
-            return [false, "404_reference"];
+            return [false, message("404_","reference")];
         }
 
 
@@ -936,7 +969,13 @@ class User
             return $auth;
         }
 
-        return DB::execute("UPDATE certificate SET certificate_active = 0 WHERE certificate_id = $certificateId");
+        $result = DB::execute("UPDATE certificate SET certificate_active = 0 WHERE certificate_id = $certificateId");
+
+        if($result[0]){
+            return [true, message("success_delete", "certificate")];
+        }else{
+            return [false, message("success_delete", "certificate")];
+        }
     }
 
     public function getCertificate($memberId = 0, $count = 0, $page = 0)
@@ -1178,9 +1217,9 @@ class User
                      licence_order = $order
                      WHERE licence_id = $licenceId");
 
-        if($result[0]){
+        if ($result[0]) {
             return [true, message("success_update", "licence")];
-        }else{
+        } else {
             return [true, message("failed_update", "licence")];
         }
     }
@@ -1203,9 +1242,9 @@ class User
 
         $result = DB::execute("UPDATE licence SET licence_active = 0 WHERE licence_id = $licenceId");
 
-        if($result){
+        if ($result) {
             return [true, message("success_delete", "licence")];
-        }else{
+        } else {
             return [false, message("success_delete", "licence")];
         }
     }
