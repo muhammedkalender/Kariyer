@@ -1,0 +1,62 @@
+{
+  "0": {
+    "id": 1,
+    "code": "es",
+    "text": "İlkokul ( Öğrenci )"
+  },
+  "1": {
+    "id": 2,
+    "code": "esg",
+    "text": "İlkokul ( Mezun )"
+  },
+  "2": {
+    "id": 3,
+    "code": "hs",
+    "text": "Lise ( Öğrenci )"
+  },
+  "3": {
+    "id": 4,
+    "code": "hsg",
+    "text": "Lise ( Mezun )"
+  },
+  "4": {
+    "id": 5,
+    "code": "ad",
+    "text": "Ön Lisans ( Öğrenci )"
+  },
+  "5": {
+    "id": 6,
+    "code": "adg",
+    "text": "Ön Lisans ( Mezun )"
+  },
+  "6": {
+    "id": 8,
+    "code": "bd",
+    "text": "Lisans ( Öğrenci )"
+  },
+  "7": {
+    "id": 8,
+    "code": "bdg",
+    "text": "Lisans ( Mezun )"
+  },
+  "8": {
+    "id": 9,
+    "code": "md",
+    "text": "Yüksek Lisans ( Öğrenci )"
+  },
+  "9": {
+    "id": 10,
+    "code": "mdg",
+    "text": "Yüksek Lisans ( Mezun )"
+  },
+  "10": {
+    "id": 11,
+    "code": "phd",
+    "text": "Doktora ( Öğrenci )"
+  },
+  "11": {
+    "id": 12,
+    "code": "phdg",
+    "text": "Doktora ( Mezun )"
+  }
+}

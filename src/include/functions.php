@@ -426,9 +426,9 @@ class User
     {
         if ($this->isLogged) {
             $result = DB::execute("UPDATE token SET token_active = 0 WHERE token_id = " . $this->token_id);
-            if($result[0]){
+            if ($result[0]) {
                 return [true, lang("success_exit")];
-            }else{
+            } else {
                 return [true, lang("failed_exit")];
             }
         }
@@ -550,7 +550,7 @@ class User
             Session::Set("token_key", $token_key);
             Session::Set("member_id", $memberId);
 
-            return [true, lang("login_success"),$qInsert[1], $token_lock, $token_key];
+            return [true, lang("login_success"), $qInsert[1], $token_lock, $token_key];
         } else {
             return [false, lang("login_system_error")];
         }
@@ -600,7 +600,7 @@ class User
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
 
         if ($result[0]) {
-            return [true, message("success_insert","user") ,$result];
+            return [true, message("success_insert", "user"), $result];
         } else {
             return [false, $result];
         }
@@ -1333,5 +1333,13 @@ class User
         return DB::select("SELECT * FROM licence WHERE licence_member = $memberId AND licence_active = 1 ORDER BY licence_order DESC " . $suffix);
     }
     //endregion
+}
+//TODO Cache hazırlama ( db de değşiklik oldukça json output
+//todo iş kategorileri
+//ilan ypaısı
 
+class Job{
+    public function insertJob(){
+
+    }
 }

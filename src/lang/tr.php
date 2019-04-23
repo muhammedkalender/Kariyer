@@ -18,7 +18,7 @@ $lang = [
     "check_short" => "[%PARAM1%], [%PARAM2%] Karakterden kısa olamaz.",
     "valid_null" => "Parametreler uygun değil",
     "already_email" => "Bu eposta adresi zaten kayıtlı",
-"experience" => "Deneyim",
+    "experience" => "Deneyim",
     "success_register" => "Başarıyla kayıt olundu",
     "failed_register" => "Kayıt olunurken bir sorunla karşılaşıldı",
     "check_over" => "[%PARAM1%], [%PARAM2%] Den fazla olamaz",
@@ -51,7 +51,7 @@ $lang = [
     "failed_update" => "[%PARAM1%] Güncellenirken Bir Sorunla Karşılaşıldı",
     "success_delete" => "[%PARAM1%] Başarıyla Silindi",
     "success_failed" => "[%PARAM1%] Silinirken Sorunla Karşılaşıldı",
-"var_experience_member" => "Kullanıcı",
+    "var_experience_member" => "Kullanıcı",
     "certificate" => "Sertifika",
     "var_licence_id" => "Lisans Id",
     "var_certificate_member" => "Kullanıcı",
@@ -85,8 +85,20 @@ $lang = [
     "password_repeat" => "Şifre Tekrar",
     "password" => "Şifre",
     "name" => "İsim",
-    "surname" => "Soyisim"
+    "surname" => "Soyisim",
 
+    "education_level_es" => "İlkokul ( Öğrenci )",
+    "education_level_esg" => "İlkokul ( Mezun )",
+    "education_level_hs" => "Lise ( Öğrenci )",
+    "education_level_hsg" => "Lise ( Mezun )",
+    "education_level_ad" => "Ön Lisans ( Öğrenci )",
+    "education_level_adg" => "Ön Lisans ( Mezun )",
+    "education_level_bd" => "Lisans ( Öğrenci )",
+    "education_level_bdg" => "Lisans ( Mezun )",
+    "education_level_md" => "Yüksek Lisans ( Öğrenci )",
+    "education_level_mdg" => "Yüksek Lisans ( Mezun )",
+    "education_level_phd" => "Doktora ( Öğrenci )",
+    "education_level_phdg" => "Doktora ( Mezun )"
 
 ];
 
@@ -101,11 +113,11 @@ function lang($name, $firstParam = "", $secondParam = "")
     $result = $lang[$name];
 
     if ($firstParam != "") {
-        $result = str_replace("[%PARAM1%]", $firstParam, $result);
+        $result = str_replace("[%PARAM1 %]", $firstParam, $result);
     }
 
     if ($secondParam != "") {
-        $result = str_replace("[%PARAM2%]", $secondParam, $result);
+        $result = str_replace("[%PARAM2 %]", $secondParam, $result);
     }
 
     return $result;

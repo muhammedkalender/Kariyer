@@ -30,7 +30,7 @@ create table if not exists member
     member_picture       VARCHAR(256)      DEFAULT 'avatar.jpg',
     member_gender        TINYINT(1)        DEFAULT 0,    ##0 => Belirtilmemiş, 1 = Erkek, 2 = Kadın, 3 = Diğer
     member_military      TINYINT(1)        DEFAULT 0,## 0 => Belirtilmemiş, 1 = Yapıldı, 2 = Muaf, 3 = Tecilli
-    member_military_date date    null default null,
+    member_military_date date         null default null,
     member_smoke         TINYINT(1)        DEFAULT 0,    ##0=> Belirtilmemiş, 1 = Hayır, 2 = Evet
     member_special       TINYINT(1)        DEFAULT 0,    ## 0=> Belirtilmemiş, 1 => Hayır, 2 = Evet
     member_ban           TINYINT(1)        DEFAULT 0,    ##0=> Bansız, 1 => Banlı Ban bitimini kotnrol edip 1 i 0 yap
@@ -48,8 +48,8 @@ create table if not exists education
     education_department varchar(128) not null,          ##Bölüm
     education_note       varchar(8)        default null, ##Not ortalaması
     education_type       int          not null,          ##0 => İlk, 1 = Orta, 2 = Lise, 3 = Ön L., 4 = Mas....
-    education_start      date    not null,
-    education_end        date    null default null, ##Nullsa devam ediyor
+    education_start      date         not null,
+    education_end        date         null default null, ##Nullsa devam ediyor
     education_order      int               default 0,
     education_insert     timestamp         default current_timestamp,
     education_update     timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -64,8 +64,8 @@ create table if not exists experience
     experience_name    varchar(128) not null,          ##İş
     experience_company varchar(128) not null,          ##Şirket
     experience_desc    varchar(512) not null,          ##Açıklama
-    experience_start   date    not null,          ##İşe Başlama
-    experience_end     date    null default null, ##Nullsa işe devam ediyor
+    experience_start   date         not null,          ##İşe Başlama
+    experience_end     date         null default null, ##Nullsa işe devam ediyor
     experience_order   int               default 0,
     experience_insert  timestamp         default current_timestamp,
     experience_update  timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -98,7 +98,7 @@ create table if not exists certificate
     certificate_company varchar(128)  not null, ##Veren Kurum
     certificate_url     varchar(1024) not null,
     certificate_desc    varchar(512)       default null,
-    certificate_date    date     null default null,
+    certificate_date    date          null default null,
     certificate_order   int                default 0,
     certificate_insert  timestamp          default current_timestamp,
     certificate_update  timestamp          default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -163,12 +163,117 @@ VALUES ("tr"),
 create table if not exists licence
 (
     licence_id     int auto_increment primary key,
-    licence_member   int          not null,
+    licence_member int          not null,
     licence_name   varchar(128) not null,
-    licence_date   date    null not null,
+    licence_date   date         null not null,
     licence_code   varchar(12)  not null,
     licence_order  int        default 0,
     licence_insert timestamp  default current_timestamp,
     licence_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     licence_active tinyint(1) default 1
+);
+
+/* gewrek yok sabit zaten çak json e
+create table if not exists education_level
+(
+    education_level_id     int auto_increment primary key,
+    education_level_code   varchar(16) not null unique, #dil dosyası için
+    education_level_active tinyint(1) default 1
+);
+
+
+insert into education_level (education_level_code)
+VALUES ("ES"),
+       ("ESG"),
+       ("HS"),
+       ("HSG"),
+       ("AD"),
+       ("ADG"),
+       ("BD"),
+       ("BDD"),
+       ("MD"),
+       ("MDG"),
+       ("PHD"),
+       ("PHDG");
+*/
+##todo Çalışma Şekli - Part, Tam ...
+##todo departman ?
+##todo pozisyon seviyesi ( yönetici, eleman,uzman syaj..)
+##todo pozisyon ?? gerek olmayabilir
+##todo sektör
+
+##todo function
+create table if not exists job_adv
+(
+    job_adv_id            int auto_increment primary key,
+    job_adv_author        int           not null,
+    ## sornadan çekme job_adv_country int not null ,
+    ## sornadan çekme job_ad
+    job_adv_experience    int           not null,
+    job_adv_title         varchar(256)  not null,
+    job_adv_count         int        default 1,
+    job_adv_type          int           not null,  ## çalışma şekli, free tam part
+    job_adv_military_type int           not null,
+    job_adv_sex           int        default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
+    job_adv_description   varchar(4096) not null,
+    job_adv_view          int        default 0,
+    job_adv_app           int        default 0,
+    job_adv_close         date       default null, ##şu zaman kadar ...
+    job_adv_insert        timestamp  default current_timestamp,
+    job_adv_update        timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_adv_active        tinyint(1) default 1
+);
+##todo function
+###TODO  sadece en küçük birimi alsın ( tuzla seçilsin, üstüne doğru istanbul bilmmene oraya bağlı olanlar felan
+## idleri öyle dağılsın, üste gittikçe gitsin   tuzla father (ist) istanbul father ( türkiye ) türkiye father 0 gibi
+/*
+create table if not exists job_adv_country
+(
+    job_adv_country_id     int auto_increment not null,
+    job_adv_id             int                not null,
+    job_adv_country        int                not null,
+    job_adv_country_active tinyint(1) default 1
+);*/
+
+##todo function
+##todo json a çıktı versin, pert eder bu serveri
+## update, insertte versin dilide çaksın hatta içinde olsun
+create table if not exists job_adv_location
+(
+    job_adv_location_id     int auto_increment not null,
+    job_adv_id              int                not null,
+    location_id             int                not null,
+    job_adv_location_active tinyint(1) default 1
+);
+##todo function
+create table if not exists job_adv_language
+(
+    job_adv_language_id     int auto_increment not null,
+    job_adv_id              int                not null,
+    language_id             int                not null, ##json a aktarmalı olsun
+    job_adv_language_active tinyint(1) default 1
+);
+
+##todo function
+create table if not exists location
+(
+    location_id             int auto_increment not null,
+    location_father int        default 0,
+    location_name            varchar(64)        not null,
+    location_level int default 0, # 0 ülke, 1 şehir, 2 içe
+    location_active tinyint(1) default 1
+);
+
+
+##todo function
+##Application for employment
+create table if not exists afe(
+    afe int auto_increment primary key ,
+    efe_member int not null,
+    efe_job_adv int not null ,
+    efe_message varchar(1024) default null,
+    efe_status int default 0, ##Firma geri dönüş yapacak, beyenirse silsin ilanı
+    efe_insert        timestamp  default current_timestamp,
+    efe_update        timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    efe_active        tinyint(1) default 1
 );
