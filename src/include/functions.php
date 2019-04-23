@@ -600,7 +600,7 @@ class User
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
 
         if ($result[0]) {
-            return [true, $result];
+            return [true, message("success_insert","user") ,$result];
         } else {
             return [false, $result];
         }

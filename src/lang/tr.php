@@ -42,6 +42,8 @@ $lang = [
     "404_" => "[%PARAM1%] Bulunamadı",
     "call_null" => "Talep Hatalı",
     "licence" => "Lisans",
+    "user" => "Kullanıcı",
+    "member" => "Kullanıcı",
     "success_insert" => "[%PARAM1%] Başarıyla Eklendi",
     "failed_insert" => "[%PARAM1%] Eklenirken Bir Sorunla Karşılaşıldı",
     "success_update" => "[%PARAM1%] Başarıyla Güncellendi",
@@ -77,7 +79,12 @@ $lang = [
     "header_failed" => "İşlem Başarısız",
     "close" => "Kapat",
     "success_exit" => "Başarıyla çıkış yapıldı. Birazdan Yönelndirileceksiniz",
-    "failed_exit" => "Çıkış Yapılırken Sorunla Karşılaşıldı"
+    "failed_exit" => "Çıkış Yapılırken Sorunla Karşılaşıldı",
+    "email" => "e-Posta",
+    "password_repeat" => "Şifre Tekrar",
+    "password" => "Şifre",
+    "name" => "İsim",
+    "surname" => "Soyisim"
 
 
 ];

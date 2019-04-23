@@ -52,10 +52,10 @@
                     <?php
                 }else{?>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><?=lang("login")?></a>
+                    <a class="nav-link" href="#" onclick="openModal('modal-login')"><?=lang("login")?></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><?=lang("register")?></a>
+                    <a class="nav-link" href="#" onclick="openModal('modal-register')"><?=lang("register")?></a>
                 </li>
                 <?php } ?>
             </ul>
@@ -83,6 +83,92 @@
                     <button type="button" class="btn btn-danger" data-dismiss="modal" id="messageButton" onclick="$('#messageDialog').hide()" ><?=lang("close")?></button>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal" id="modal-register">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title"><?=lang("register")?></h4>
+                    <button type="button" class="close" data-dismiss="modal" onclick="closeModal('modal-register')">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body" id="messagePanel">
+                    <form id="modal-register-form" action="#" onsubmit="register(); return false">
+                        <input type="hidden" name="call_category" value="user">
+                        <input type="hidden" name="call_request" value="register">
+                        <input type="hidden" name="user_type" value="0"> <!-- şirket 1, ama bunu unutma -->
+                        <!-- alert-danger, alert-success, alert-primary -->
+                        <div class="alert" id="modal-register-result" style="display: none">
+                        </div>
+                        <div class="form-group">
+                            <label for="user_name"><?=lang("name")?></label>
+                            <input type="text" class="form-control" name="user_name" minlength="3" maxlength="32" placeholder="Muhammed" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user_surname"><?=lang("surname")?></label>
+                            <input type="text" class="form-control" name="user_surname"  placeholder="Kalender" minlength="3" maxlength="32" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user_email"><?=lang("email")?></label>
+                            <input type="email" class="form-control" name="user_email" placeholder="example@mail.com" minlength="3" maxlength="64" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user_password"><?=lang("password")?></label>
+                            <input type="password" id="password" class="form-control" name="user_password" placeholder="<?=lang("password")?>" minlength="6" maxlength="32" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPasswordRepeat"><?=lang("password_repeat")?></label>
+                            <input type="password" id="password_repeat" class="form-control" name="registerPasswordRepeat" placeholder="<?=lang("password_repeat")?>" minlength="6" maxlength="32" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="register()"><?=lang("register")?></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-login">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title"><?=lang("login")?></h4>
+                    <button type="button" class="close" data-dismiss="modal" onclick="closeModal('modal-login')">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="modal-login-form" onsubmit="return false;">
+                        <input type="hidden" name="call_category" value="user">
+                        <input type="hidden" name="call_request" value="register">
+                        <!-- alert-danger, alert-success, alert-primary -->
+                        <div class="alert" id="modal-login-result" style="display: none">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_email"><?=lang("email")?></label>
+                            <input type="email" class="form-control" name="user_email" placeholder="example@mail.com" minlength="3" maxlength="64" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user_password"><?=lang("password")?></label>
+                            <input type="password" class="form-control" name="user_password" placeholder="<?=lang("password")?>" minlength="6" maxlength="32" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick=""><?=lang("register")?></button>
+                    </form>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="messageButton"><?=lang("close")?></button>
+                </div>
             </div>
         </div>
     </div>
