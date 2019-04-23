@@ -140,7 +140,7 @@ function postForm(NAME, HREF = "", WAIT =0) {
         function (data, status) {
             if (status === "success") {
                 var result = JSON.parse(data);
-//console.log(result);
+
                 if (result[0]) {
                     Message.modalSuccess("modal-"+NAME+"-result", result[1]);
 
@@ -165,27 +165,21 @@ function register() {
         return;
     }
 
-    $.post("api.php",
-        $('#modal-register-form').serializeArray(),
-        function (data, status) {
-            if (status == "success") {
-                var result = JSON.parse(data);
-//console.log(result);
-                if (result[0]) {
-                    Message.modalSuccess("modal-register-result", result[1]);
-                    href("/", "5000")
-                } else {
-                    Message.modalError("modal-register-result", result[1]);
-                }
-            }
-        }
-    );
+    postForm('register', '/', 5000);
+
+//     $.post("api.php",
+//         $('#modal-register-form').serializeArray(),
+//         function (data, status) {
+//             if (status == "success") {
+//                 var result = JSON.parse(data);
+// //console.log(result);
+//                 if (result[0]) {
+//                     Message.modalSuccess("modal-register-result", result[1]);
+//                     href("/", "5000")
+//                 } else {
+//                     Message.modalError("modal-register-result", result[1]);
+//                 }
+//             }
+//         }
+//     );
 }
-
-
-
-    $(document).ready(function () {
-        $('#modal-login-form').on('submit', function(e) {
-          alert("asda");
-        });
-    });

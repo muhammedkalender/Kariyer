@@ -550,7 +550,7 @@ class User
             Session::Set("token_key", $token_key);
             Session::Set("member_id", $memberId);
 
-            return [true, $qInsert[1], $token_lock, $token_key];
+            return [true, lang("login_success"),$qInsert[1], $token_lock, $token_key];
         } else {
             return [false, lang("login_system_error")];
         }

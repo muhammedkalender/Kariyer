@@ -95,12 +95,12 @@
                 <!-- Modal Header -->
                 <div class="modal-header bg-primary text-white">
                     <h4 class="modal-title"><?=lang("register")?></h4>
-                    <button type="button" class="close" data-dismiss="modal" onclick="closeModal('modal-register')">&times;</button>
+                    <button type="button" class="close text-white" data-dismiss="modal" onclick="closeModal('modal-register')">&times;</button>
                 </div>
 
                 <!-- Modal body -->
                 <div class="modal-body" id="messagePanel">
-                    <form id="modal-register-form" action="#" onsubmit="register(); return false">
+                    <form id="modal-register-form" action="#" onsubmit="return false">
                         <input type="hidden" name="call_category" value="user">
                         <input type="hidden" name="call_request" value="register">
                         <input type="hidden" name="user_type" value="0"> <!-- şirket 1, ama bunu unutma -->
@@ -141,14 +141,14 @@
                 <!-- Modal Header -->
                 <div class="modal-header bg-primary text-white">
                     <h4 class="modal-title"><?=lang("login")?></h4>
-                    <button type="button" class="close" data-dismiss="modal" onclick="closeModal('modal-login')">&times;</button>
+                    <button type="button" class="close text-white" data-dismiss="modal" onclick="closeModal('modal-login')">&times;</button>
                 </div>
 
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <form id="modal-login-form" onsubmit="return false;">
+                    <form id="modal-login-form" onsubmit="return false">
                         <input type="hidden" name="call_category" value="user">
-                        <input type="hidden" name="call_request" value="register">
+                        <input type="hidden" name="call_request" value="login">
                         <!-- alert-danger, alert-success, alert-primary -->
                         <div class="alert" id="modal-login-result" style="display: none">
                         </div>
@@ -161,14 +161,10 @@
                             <label for="user_password"><?=lang("password")?></label>
                             <input type="password" class="form-control" name="user_password" placeholder="<?=lang("password")?>" minlength="6" maxlength="32" required>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick=""><?=lang("register")?></button>
+                        <button type="submit" class="btn btn-primary" onclick="postForm('login', '/', 5000)"><?=lang("login")?></button>
                     </form>
-                </div>
-
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-danger" id="messageButton"><?=lang("close")?></button>
                 </div>
             </div>
         </div>
     </div>
+

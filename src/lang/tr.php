@@ -44,6 +44,7 @@ $lang = [
     "licence" => "Lisans",
     "user" => "Kullanıcı",
     "member" => "Kullanıcı",
+    "login_success" => "Giriş Başarılı, Birazdan Yönlendirileceksiniz",
     "success_insert" => "[%PARAM1%] Başarıyla Eklendi",
     "failed_insert" => "[%PARAM1%] Eklenirken Bir Sorunla Karşılaşıldı",
     "success_update" => "[%PARAM1%] Başarıyla Güncellendi",
