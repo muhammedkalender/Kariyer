@@ -67,8 +67,11 @@ $lang = [
     "lang_fr" => "Fransızca",
     "lang_de" => "Almanca",
     "lang_es" => "İspanyolca",
-
-
+"search_now" => "Hemen Ara",
+    "page_find_job" => "İş İlanları",
+    "insert_keyword" => "Anahtar Kelimeler",
+    "lbl_fj_keyword" => "Anahtar Kelimeler",
+    "hint_fj_keyword" => "Bulaşıkcı, Pompacı, IT",
     "site_title" => "Kariyer",
     "page_main" => "Ana Sayfa",
     "register" => "Kayıt Ol",
@@ -86,6 +89,8 @@ $lang = [
     "password" => "Şifre",
     "name" => "İsim",
     "surname" => "Soyisim",
+
+    "default_select" => "Farketmez",
 
     "education_level_es" => "İlkokul ( Öğrenci )",
     "education_level_esg" => "İlkokul ( Mezun )",

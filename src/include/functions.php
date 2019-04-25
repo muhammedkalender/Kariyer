@@ -19,12 +19,17 @@ if (session_status() == PHP_SESSION_NONE) {
 
 include_once "db.php";
 
+
 $user = new User();
 
+$currentLang = "tr";
+
 if (file_exists($_SERVER['DOCUMENT_ROOT'] . "/lang/" . $user->getLang() . ".php")) {
+    $currentLang = $user->getLang();
     include_once $_SERVER['DOCUMENT_ROOT'] . "/lang/" . $user->getLang() . ".php";
 } else {
     //todo error ?
+    $currentLang = "tr";
     include_once $_SERVER['DOCUMENT_ROOT'] . "/lang/tr.php";
 }
 
@@ -1334,12 +1339,64 @@ class User
     }
     //endregion
 }
+
 //TODO Cache hazırlama ( db de değşiklik oldukça json output
 //todo iş kategorileri
 //ilan ypaısı
 
-class Job{
-    public function insertJob(){
+class Cache
+{
+    public static function locationJSON()
+    {
+        $country = DB::select("SELECT * FROM location WHERE location_level = 0 AND location_active = 1");
+
+        if ($country[0] && ($country[1]) > 0) {
+            file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/const/country.json", json_encode($country[1]));
+        }
+
+        $father = DB::select("SELECT * FROM location WHERE location_level = 1 AND location_active = 1");
+
+        if ($father[0] && ($father[1]) > 0) {
+            file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/const/il_10001.json", json_encode($father[1]));
+
+            for ($i = 0; $i < count($father[1]); $i++) {
+                $fatherId = $father[1][$i]["location_id"];
+
+                $child = DB::select("SELECT * FROM location WHERE location_father = $fatherId AND location_active = 1");
+
+                if ($child[0] && ($child[1]) > 0) {
+                    for ($j = 0; $j < count($child[1]); $j++) {
+                        file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/const/ilce_" . $fatherId . ".json", json_encode($child[1]));
+                    }
+                }
+            }
+        }
+    }
+
+    public static function categoryJSON()
+    {
+        $father = DB::select("SELECT * FROM category WHERE category_father = 0 AND category_active = 1");
+
+        if ($father[0] && count($father) > 0) {
+            file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/const/category.json", json_encode($father[1]));
+
+            for ($i = 0; $i < count($father); $i++) {
+                $fatherId = $father[1][$i]["category_id"];
+
+                $child = DB::select("SELECT * FROM category WHERE category_father = " . $fatherId . " AND category_active = 1");
+
+                if ($child[0] && count($child[1]) > 0) {
+                    file_put_contents($_SERVER['DOCUMENT_ROOT']."/const/category_".$fatherId.".json", json_encode($child[1]));
+                }
+            }
+        }
+    }
+}
+
+class Job
+{
+    public function insertJob()
+    {
 
     }
 }

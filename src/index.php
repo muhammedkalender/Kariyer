@@ -15,7 +15,17 @@ if (session_status() == PHP_SESSION_NONE) {
 
 include_once "include/functions.php";
 
-$title = lang("page_main");
+//Cache::categoryJSON();
+//Cache::locationJSON();
 
-include_once "./header.php";
-include_once "./footer.php";
+if (isset($_GET["page"])) {
+    $page = $_GET["page"];
+
+    if ($page == "is-ilanlari" || $page = "is-ara") {
+        include_once "./page/find_job.php";
+    }
+} else {
+    include_once "./page/main.php";
+}
+
+include_once "./page/footer.php";

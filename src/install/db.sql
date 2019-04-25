@@ -218,6 +218,8 @@ create table if not exists job_adv
     job_adv_description   varchar(4096) not null,
     job_adv_view          int        default 0,
     job_adv_app           int        default 0,
+    job_adv_category      int        default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_father        int        default 0,    ##Yazılım > Web Yazışlım gibi
     job_adv_close         date       default null, ##şu zaman kadar ...
     job_adv_insert        timestamp  default current_timestamp,
     job_adv_update        timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -255,25 +257,37 @@ create table if not exists job_adv_language
 );
 
 ##todo function
+##todo temp alıcak bol bol :/
+##todo static isimli templer oclak, update- delte de silecek
 create table if not exists location
 (
-    location_id             int auto_increment not null,
+    location_id     int auto_increment primary key,
     location_father int        default 0,
-    location_name            varchar(64)        not null,
-    location_level int default 0, # 0 ülke, 1 şehir, 2 içe
+    location_name   varchar(64) not null,
+    location_level  int        default 0, # 0 ülke, 1 şehir, 2 içe
     location_active tinyint(1) default 1
 );
 
 
 ##todo function
 ##Application for employment
-create table if not exists afe(
-    afe int auto_increment primary key ,
-    efe_member int not null,
-    efe_job_adv int not null ,
+create table if not exists afe
+(
+    afe         int auto_increment primary key,
+    efe_member  int not null,
+    efe_job_adv int not null,
     efe_message varchar(1024) default null,
-    efe_status int default 0, ##Firma geri dönüş yapacak, beyenirse silsin ilanı
-    efe_insert        timestamp  default current_timestamp,
-    efe_update        timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    efe_active        tinyint(1) default 1
+    efe_status  int           default 0, ##Firma geri dönüş yapacak, beyenirse silsin ilanı
+    efe_insert  timestamp     default current_timestamp,
+    efe_update  timestamp     default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    efe_active  tinyint(1)    default 1
+);
+
+##todo fonskiyon
+create table if not exists category(
+    category_id int auto_increment primary key ,
+    category_name_tr varchar(128) not null ,
+    category_name_en varchar(128),
+    category_father int default 0,
+    category_active tinyint(1) default 1
 );

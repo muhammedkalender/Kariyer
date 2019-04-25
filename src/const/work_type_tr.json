@@ -1,0 +1,26 @@
+{
+  "0": {
+    "id": 1,
+    "text": "Tam Zamanlı"
+  },
+  "1": {
+    "id": 2,
+    "text": "Part Time"
+  },
+  "2": {
+    "id": 3,
+    "text": "Staj"
+  },
+  "3": {
+    "id": 4,
+    "text": "Freelancer"
+  },
+  "4": {
+    "id": 5,
+    "text": "Proje"
+  },
+  "5": {
+    "id": 6,
+    "text": "Serbest"
+  }
+}

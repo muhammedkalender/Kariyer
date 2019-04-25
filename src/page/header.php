@@ -11,11 +11,13 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 
-        <link rel="stylesheet" href="./css/theme.css">
-        <script src="./js/main.js"></script>
+        <link rel="stylesheet" href="../css/theme.css">
+        <script src="../js/main.js"></script>
         <script>
-            var successMessage = "<?=lang('header_success')?>";
-            var failedMessage = "<?=lang('header_failed')?>";
+            const successMessage = "<?=lang('header_success')?>";
+            const failedMessage = "<?=lang('header_failed')?>";
+            const langDefault = "<?=lang('default_select')?>";
+            const CURRENT_LANG = "<?=$currentLang?>";
         </script>
     </head>
     <title><?=lang("site_title")." - ".$title?></title>
@@ -30,7 +32,7 @@
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
+                    <a class="nav-link" href="?page=is-ilanlari"><?=lang("page_find_job")?></a>
                 </li>
 
 

@@ -130,7 +130,7 @@ function closeModal(NAME) {
     $('#' + NAME).hide();
 }
 
-function postForm(NAME, HREF = "", WAIT =0) {
+function postForm(NAME, HREF = "", WAIT = 0) {
     if ($("#modal-" + NAME + "-form")[0].checkValidity() === false) {
         return;
     }
@@ -142,13 +142,13 @@ function postForm(NAME, HREF = "", WAIT =0) {
                 var result = JSON.parse(data);
 
                 if (result[0]) {
-                    Message.modalSuccess("modal-"+NAME+"-result", result[1]);
+                    Message.modalSuccess("modal-" + NAME + "-result", result[1]);
 
-                    if(HREF !== ""){
+                    if (HREF !== "") {
                         href(HREF, WAIT)
                     }
                 } else {
-                    Message.modalError("modal-"+NAME+"register-result", result[1]);
+                    Message.modalError("modal-" + NAME + "register-result", result[1]);
                 }
             }
         }
@@ -182,4 +182,90 @@ function register() {
 //             }
 //         }
 //     );
+}
+
+function getLocation(id, level, obj) {
+    var file = "";
+
+    if (level == 0) {
+        file = "/const/country.json";
+    } else if (level == 1) {
+        if (obj != "" && id == 0) {
+            $("#" + obj).html('<option value = "0">' + langDefault + '</option>');
+            $("#content-distinct").html("");
+            return;
+        }
+
+        file = "/const/il_" + id + ".json";
+    } else if (level == 2) {
+        file = "/const/ilce_" + id + ".json";
+    } else {
+        return;
+    }
+
+    $.getJSON(file, function (result) {
+        var options = '<option value = "0">' + langDefault + '</option>';
+
+        if (obj != "" && ((id == 0 && level == 0) || id != 0 && level != 0)) {
+            for (var i = 0; i < result.length; i++) {
+                options += '<option value = "' + result[i]["location_id"] + '">' + result[i]["location_name"] + '</option>';
+            }
+        }
+
+
+        $("#" + obj).html(options);
+    });
+}
+
+
+function getDistrict(id) {
+    if (id == 0) {
+        $("#content-distinct").html("");
+        return;
+    }
+
+    var file = "/const/ilce_" + id + ".json";
+
+    $.getJSON(file, function (result) {
+        var options = "";
+
+
+        for (var i = 0; i < result.length; i++) {
+            options += '<div class="custom-control custom-checkbox custom-control-inline"><input type="checkbox" class="custom-control-input" id="district' + i + '" name="district[]"';
+            options += 'value="' + result[i]["location_id"] + '"><label class="custom-control-label" for="district' + i + '">' + result[i]["location_name"] + '</label></div>';
+        }
+
+
+        $("#content-distinct").html(options);
+    });
+}
+
+function loadSelect(URL, TAG, OBJECT, DB) {
+    var file = "/const/" + URL + ".json";
+
+    $.getJSON(file, function (result) {
+        var options = '<option value = "0">' + langDefault + '</option>';
+
+
+        for (var i = 0; i < result.length; i++) {
+            options += '<option value = "' + result[i][DB + "_id"] + '">' + result[i][DB + "_name_" + CURRENT_LANG] + '</option>';
+        }
+
+        $("#" + OBJECT).html(options);
+    });
+}
+
+function loadCheck(URL, TAG, OBJECT, DB) {
+    var file = "/const/" + URL + ".json";
+
+    $.getJSON(file, function (result) {
+        var options = '';
+
+        for (var i = 0; i < result.length; i++) {
+            options += '<div class="custom-control custom-checkbox custom-control-inline"><input type="checkbox" class="custom-control-input" id="'+TAG+  i + '" name="'+TAG+'[]"';
+            options += 'value="' + result[i][DB+"_id"] + '"><label class="custom-control-label" for="'+TAG + i + '">' + result[i][DB+"_name_"+CURRENT_LANG] + '</label></div>';
+        }
+
+        $("#" + OBJECT).html(options);
+    });
 }
