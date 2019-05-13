@@ -67,7 +67,7 @@ $lang = [
     "lang_fr" => "Fransızca",
     "lang_de" => "Almanca",
     "lang_es" => "İspanyolca",
-"search_now" => "Hemen Ara",
+    "search_now" => "Hemen Ara",
     "page_find_job" => "İş İlanları",
     "insert_keyword" => "Anahtar Kelimeler",
     "lbl_fj_keyword" => "Anahtar Kelimeler",
@@ -110,7 +110,11 @@ $lang = [
     "failed_insert_job_adv" => "İş İlanı Yayınlanırken Sorun Oluştu",
     "failed_insert_job_adv_location" => "İş İlanı Eklendi ama konumlar eklenirken sorun oluştu",
     "failed_insert_job_adv_military" => "İş İlanı Eklendi ama askerlik eklenirken sorun oluştu",
-    "failed_insert_job_adv_language" => "İş İlanı Eklendi ama diller eklenirken sorun oluştu"
+    "failed_insert_job_adv_language" => "İş İlanı Eklendi ama diller eklenirken sorun oluştu",
+
+    "user_type" => "Kullanıcı Tipi",
+    "company" => "Firma",
+    "company_profile" => "Firma Paneli"
 
 ];
 

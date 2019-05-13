@@ -605,7 +605,7 @@ class User
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
 
         if ($result[0]) {
-            return [true, message("success_insert", "user"), $result];
+            return [true, message("success_register"), $result];
         } else {
             return [false, $result];
         }
@@ -1445,6 +1445,73 @@ class Job
 
     public function getJob($jobId)
     {
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = $jobId");
+
+        if ($job[0] == false || isset($job[1][0]) == false) {
+            //todo
+            return false;
+        }
+
+        $job = $job[1][0];
+
+        $jobLanguage = DB::select("SELECT * FROM job_adv_language INNER JOIN lang ON job_adv_language.language_id = lang.lang_id WHERE job_adv_language.job_adv_id = $jobId");
+
+        if ($jobLanguage[0] == false || isset($jobLanguage[1][0]) == false) {
+            //todo
+            //return false;
+            $jobLanguage = [[], []];
+        }
+
+        $jobLanguages = $jobLanguage[1];
+
+        $jobMilitary = DB::select("SELECT * FROM job_adv_military job_adv_id = $jobId");
+
+        if ($jobMilitary[0] == false || isset($jobMilitary[1][0]) == false) {
+            //todo
+            // return false;
+            $jobMilitary = [[], []];
+        }
+
+        $jobMilitarys = $jobMilitary[1];
+
+        $jobLocation = DB::select("SELECT * FROM job_adv_location INNER JOIN location ON job_adv_location.location_id = location.location_id WHERE job_adv_location.job_adv_id = $jobId");
+
+        if ($jobLocation[0] == false || isset($jobLocation[1][0]) == false) {
+            //todo
+            // return false;
+            $jobLocation = [[], []];
+        }
+
+        $jobLocations = $jobLocation[1];
+
+        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];
+    }
+
+    public function selectJob($keyword, $country, $city, $regions, $types, $category, $sub_category, $count = 0, $page = 0)
+    {
+        /* $jobs;
+
+        $query = "SELECT * FROM job_adv WHERE job_adv.job_adv_active = 1";
+
+        if ($keyword != "") {
+            $keyword = Valid::encode($keyword);
+
+            $query .= " OR (job_adv.job_adv_title LIKE '%$keyword%' OR job_adv.job_adv_description LIKE '%$keyword%')";
+        }
+
+        if ($country > 0) {
+            $query .= " OR job_adv_location.location_id = " . $country;
+        }
+
+        if ($city > 0) {
+            $query .= " OR job_adv_location.location_id = " . $city;
+        }
+
+        for ($i = 0; $i < count($regions); $i++) {
+            $query .= " OR job_adv_location.location_id = " . $regions[$i];
+        }
+
+
         $job = DB::select("SELECT * FROM (SELECT * FROM job_adv WHERE job_adv_id = $jobId) adv LEFT JOIN job_adv_location USING (job_adv_id) LEFT JOIN job_adv_military USING (job_adv_id) LEFT JOIN job_adv_language USING (job_adv_id)");
 
         if ($job[0] == false || isset($job[1][0]) == false) {
@@ -1459,7 +1526,7 @@ class Job
         if ($jobLanguage[0] == false || isset($jobLanguage[1][0]) == false) {
             //todo
             //return false;
-            $jobLanguage = [[],[]];
+            $jobLanguage = [[], []];
         }
 
         $jobLanguages = $jobLanguage[1];
@@ -1468,8 +1535,8 @@ class Job
 
         if ($jobMilitary[0] == false || isset($jobMilitary[1][0]) == false) {
             //todo
-           // return false;
-            $jobMilitary = [[],[]];
+            // return false;
+            $jobMilitary = [[], []];
         }
 
         $jobMilitarys = $jobMilitary[1];
@@ -1478,12 +1545,13 @@ class Job
 
         if ($jobLocation[0] == false || isset($jobLocation[1][0]) == false) {
             //todo
-           // return false;
-            $jobLocation = [[],[]];
+            // return false;
+            $jobLocation = [[], []];
         }
 
         $jobLocations = $jobLocation[1];
 
-        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];
+        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];*/
     }
+
 }
