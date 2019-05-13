@@ -205,25 +205,25 @@ VALUES ("ES"),
 ##todo function
 create table if not exists job_adv
 (
-    job_adv_id            int auto_increment primary key,
-    job_adv_author        int           not null,
+    job_adv_id          int auto_increment primary key,
+    job_adv_author      int           not null,
     ## sornadan çekme job_adv_country int not null ,
     ## sornadan çekme job_ad
-    job_adv_experience    int           not null,
-    job_adv_title         varchar(256)  not null,
-    job_adv_count         int        default 1,
-    job_adv_type          int           not null,  ## çalışma şekli, free tam part
-    job_adv_military_type int           not null,
-    job_adv_sex           int        default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
-    job_adv_description   varchar(4096) not null,
-    job_adv_view          int        default 0,
-    job_adv_app           int        default 0,
-    job_adv_category      int        default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_father        int        default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_close         date       default null, ##şu zaman kadar ...
-    job_adv_insert        timestamp  default current_timestamp,
-    job_adv_update        timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    job_adv_active        tinyint(1) default 1
+    job_adv_experience  int           not null,
+    job_adv_title       varchar(256)  not null,
+    job_adv_count       int        default 1,
+    job_adv_type        int           not null,  ## çalışma şekli, free tam part
+##  job_adv_military_type int           not null,
+    job_adv_sex         int        default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
+    job_adv_description varchar(4096) not null,
+    job_adv_view        int        default 0,
+    job_adv_app         int        default 0,
+    job_adv_category    int        default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_father      int        default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_close       date       default null, ##şu zaman kadar ...
+    job_adv_insert      timestamp  default current_timestamp,
+    job_adv_update      timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_adv_active      tinyint(1) default 1
 );
 ##todo function
 ###TODO  sadece en küçük birimi alsın ( tuzla seçilsin, üstüne doğru istanbul bilmmene oraya bağlı olanlar felan
@@ -242,18 +242,26 @@ create table if not exists job_adv_country
 ## update, insertte versin dilide çaksın hatta içinde olsun
 create table if not exists job_adv_location
 (
-    job_adv_location_id     int auto_increment not null,
-    job_adv_id              int                not null,
-    location_id             int                not null,
+    job_adv_location_id     int auto_increment primary key not null,
+    job_adv_id              int                            not null,
+    location_id             int                            not null,
     job_adv_location_active tinyint(1) default 1
 );
 ##todo function
 create table if not exists job_adv_language
 (
-    job_adv_language_id     int auto_increment not null,
-    job_adv_id              int                not null,
-    language_id             int                not null, ##json a aktarmalı olsun
+    job_adv_language_id     int auto_increment primary key not null,
+    job_adv_id              int                            not null,
+    language_id             int                            not null, ##json a aktarmalı olsun
     job_adv_language_active tinyint(1) default 1
+);
+
+create table if not exists job_adv_military
+(
+    job_adv_military_id     int auto_increment primary key not null,
+    job_adv_military_type   int                            not null,
+    job_adv_id              int                            not null,
+    job_adv_military_active tinyint(1) default 1
 );
 
 ##todo function
@@ -284,10 +292,11 @@ create table if not exists afe
 );
 
 ##todo fonskiyon
-create table if not exists category(
-    category_id int auto_increment primary key ,
-    category_name_tr varchar(128) not null ,
+create table if not exists category
+(
+    category_id      int auto_increment primary key,
+    category_name_tr varchar(128) not null,
     category_name_en varchar(128),
-    category_father int default 0,
-    category_active tinyint(1) default 1
+    category_father  int        default 0,
+    category_active  tinyint(1) default 1
 );

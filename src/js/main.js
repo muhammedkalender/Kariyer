@@ -130,7 +130,7 @@ function closeModal(NAME) {
     $('#' + NAME).hide();
 }
 
-function postForm(NAME, HREF = "", WAIT = 0) {
+function postForm(NAME, HREF = "", WAIT = 0, BUTTON) {
     if ($("#modal-" + NAME + "-form")[0].checkValidity() === false) {
         return;
     }
@@ -148,7 +148,7 @@ function postForm(NAME, HREF = "", WAIT = 0) {
                         href(HREF, WAIT)
                     }
                 } else {
-                    Message.modalError("modal-" + NAME + "register-result", result[1]);
+                    Message.modalError("modal-" + NAME + "-result", result[1]);
                 }
             }
         }

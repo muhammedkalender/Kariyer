@@ -1386,7 +1386,7 @@ class Cache
                 $child = DB::select("SELECT * FROM category WHERE category_father = " . $fatherId . " AND category_active = 1");
 
                 if ($child[0] && count($child[1]) > 0) {
-                    file_put_contents($_SERVER['DOCUMENT_ROOT']."/const/category_".$fatherId.".json", json_encode($child[1]));
+                    file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/const/category_" . $fatherId . ".json", json_encode($child[1]));
                 }
             }
         }
@@ -1395,8 +1395,95 @@ class Cache
 
 class Job
 {
-    public function insertJob()
+    public function insertJob($companyId, $experience, $title, $count, $type, $military_types, $sex, $description, $category, $father, $close, $languages, $locations)
     {
+        global $user;
 
+        if (($auth = $user->checkAuth(Perm::COMPANY_OR_UPPER, Perm::SUPPORT, $user->memberId))[0] == false) {
+            return $auth;
+        }
+
+        $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_experience, job_adv_title, job_adv_count, job_adv_type, job_adv_sex, job_adv_description,  job_adv_category, job_adv_father, job_adv_close) VALUES ($companyId, '$experience', '$title', $count, $type, $sex, '$description', $category, $father, $close)");
+
+        if ($result[0] == false) {
+            return [false, message("failed_job_adv")];
+        }
+
+        $jobAdvId = $result[1];
+
+        $errCountMilitary = 0;
+        for ($i = 0; $i < count($military_types); $i++) {
+            if (DB::execute("INSERT INTO job_adv_military (job_adv_id, job_adv_military_type) VALUES ($jobAdvId, $military_types[$i])") == false) {
+                $errCountMilitary++;
+            }
+        }
+
+        $errCountLanguage = 0;
+        for ($i = 0; $i < count($languages); $i++) {
+            if (DB::execute("INSERT INTO job_adv_language (job_adv_id, language_id) VALUES ($jobAdvId, $languages[$i])") == false) {
+                $errCountLanguage++;
+            }
+        }
+
+        $errCountLocation = 0;
+        for ($i = 0; $i < count($locations); $i++) {
+            if (DB::execute("INSERT INTO job_adv_location (job_adv_id, location_id) VALUES ($jobAdvId, $locations[$i])") == false) {
+                $errCountLocation++;
+            }
+        }
+
+        if ($errCountMilitary > 0) {
+            return [true, message("failed_insert_job_adv_military")];
+        } else if ($errCountLocation > 0) {
+            return [true, message("failed_insert_job_adv_location")];
+        } else if ($errCountLanguage > 0) {
+            return [true, message("failed_insert_job_adv_language")];
+        }
+
+        return [true, message("success_insert_job_adv")];
+    }
+
+    public function getJob($jobId)
+    {
+        $job = DB::select("SELECT * FROM (SELECT * FROM job_adv WHERE job_adv_id = $jobId) adv LEFT JOIN job_adv_location USING (job_adv_id) LEFT JOIN job_adv_military USING (job_adv_id) LEFT JOIN job_adv_language USING (job_adv_id)");
+
+        if ($job[0] == false || isset($job[1][0]) == false) {
+            //todo
+            return false;
+        }
+
+        $job = $job[1][0];
+
+        $jobLanguage = DB::select("SELECT * FROM job_adv_language INNER JOIN lang ON job_adv_language.language_id = lang.lang_id WHERE job_adv_language.job_adv_id = $jobId");
+
+        if ($jobLanguage[0] == false || isset($jobLanguage[1][0]) == false) {
+            //todo
+            //return false;
+            $jobLanguage = [[],[]];
+        }
+
+        $jobLanguages = $jobLanguage[1];
+
+        $jobMilitary = DB::select("SELECT * FROM job_adv_military job_adv_id = $jobId");
+
+        if ($jobMilitary[0] == false || isset($jobMilitary[1][0]) == false) {
+            //todo
+           // return false;
+            $jobMilitary = [[],[]];
+        }
+
+        $jobMilitarys = $jobMilitary[1];
+
+        $jobLocation = DB::select("SELECT * FROM job_adv_location INNER JOIN location ON job_adv_location.location_id = location.location_id WHERE job_adv_location.job_adv_id = $jobId");
+
+        if ($jobLocation[0] == false || isset($jobLocation[1][0]) == false) {
+            //todo
+           // return false;
+            $jobLocation = [[],[]];
+        }
+
+        $jobLocations = $jobLocation[1];
+
+        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];
     }
 }

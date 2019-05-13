@@ -1,0 +1,9 @@
+//TODO
+Sistem = Tasarım, DB, Fonksiyon, API
+
+- Üye Giriş Sistemi
+- Üye Kayıt Sistemi
+
+- İş İlanı Ekleme Sistemi
+- İş İlanı Arama Sistemi
+- İş İlanı Başvuru Sistemi

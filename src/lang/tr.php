@@ -103,7 +103,14 @@ $lang = [
     "education_level_md" => "Yüksek Lisans ( Öğrenci )",
     "education_level_mdg" => "Yüksek Lisans ( Mezun )",
     "education_level_phd" => "Doktora ( Öğrenci )",
-    "education_level_phdg" => "Doktora ( Mezun )"
+    "education_level_phdg" => "Doktora ( Mezun )",
+
+
+    "success_insert_job_adv" => "İş İlanı Başarıyla Yayınlanadı",
+    "failed_insert_job_adv" => "İş İlanı Yayınlanırken Sorun Oluştu",
+    "failed_insert_job_adv_location" => "İş İlanı Eklendi ama konumlar eklenirken sorun oluştu",
+    "failed_insert_job_adv_military" => "İş İlanı Eklendi ama askerlik eklenirken sorun oluştu",
+    "failed_insert_job_adv_language" => "İş İlanı Eklendi ama diller eklenirken sorun oluştu"
 
 ];
 
