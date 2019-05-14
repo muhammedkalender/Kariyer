@@ -262,8 +262,8 @@ function loadCheck(URL, TAG, OBJECT, DB) {
         var options = '';
 
         for (var i = 0; i < result.length; i++) {
-            options += '<div class="custom-control custom-checkbox custom-control-inline"><input type="checkbox" class="custom-control-input" id="'+TAG+  i + '" name="'+TAG+'[]"';
-            options += 'value="' + result[i][DB+"_id"] + '"><label class="custom-control-label" for="'+TAG + i + '">' + result[i][DB+"_name_"+CURRENT_LANG] + '</label></div>';
+            options += '<div class="form-check custom-control-inline"><input class="form-check-input" type="radio" id="'+TAG+  i + '" name="'+TAG+'[]"';
+            options += 'value="' + result[i][DB+"_id"] + '"><label class="form-check-label" for="'+TAG + i + '">' + result[i][DB+"_name_"+CURRENT_LANG] + '</label></div>';
         }
 
         $("#" + OBJECT).html(options);

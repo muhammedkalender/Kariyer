@@ -300,3 +300,15 @@ create table if not exists category
     category_father  int        default 0,
     category_active  tinyint(1) default 1
 );
+
+
+create table if not exists job_apply(
+    job_apply_id int auto_increment primary key ,
+    job_apply_member int not null ,
+    job_apply_message varchar(256),
+    job_apply_job_adv_id int not null ,
+    job_apply_review tinyint(1) default 0,
+    job_apply_insert      timestamp  default current_timestamp,
+    job_apply_update      timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_apply_active      tinyint(1) default 1
+);

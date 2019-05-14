@@ -119,12 +119,20 @@ class Valid
 
     public static function encode($rawText)
     {
+        return $rawText;
 //todo
     }
 
     public static function decode($rawText)
     {
+        return $rawText;
 //todo
+    }
+
+    public static function clear($rawText)
+    {
+        //todo
+        return $rawText;
     }
 
     public static function day($timestampFirst, $timestampSecond)
@@ -1395,35 +1403,38 @@ class Cache
 
 class Job
 {
-    public function insertJob($companyId, $experience, $title, $count, $type, $military_types, $sex, $description, $category, $father, $close, $languages, $locations)
+    /*
+     * İlçe seçmek zorunlu
+     *
+     * Sektör seçmek zorunlu ( en alttan , armayoı ordan yap)
+     * İş tipi zorunlu
+     * type radio
+     *category radio
+     * silicne kapansın
+     */
+
+    public static function insertJob($companyId, $title, $description, $type, $category, $locations)
     {
         global $user;
 
-        if (($auth = $user->checkAuth(Perm::COMPANY_OR_UPPER, Perm::SUPPORT, $user->memberId))[0] == false) {
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $companyId))[0] == false) {
             return $auth;
         }
 
-        $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_experience, job_adv_title, job_adv_count, job_adv_type, job_adv_sex, job_adv_description,  job_adv_category, job_adv_father, job_adv_close) VALUES ($companyId, '$experience', '$title', $count, $type, $sex, '$description', $category, $father, $close)");
+        if ($user->type != User::COMPANY) {
+            return [false, lang("perm_error")];
+        }
+
+        $title = Valid:: clear($title);
+        $description = Valid::encode($description);
+
+        $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_title, job_adv_type,  job_adv_description,  job_adv_category) VALUES ($companyId, '$title', $type, '$description', $category)");
 
         if ($result[0] == false) {
             return [false, message("failed_job_adv")];
         }
 
         $jobAdvId = $result[1];
-
-        $errCountMilitary = 0;
-        for ($i = 0; $i < count($military_types); $i++) {
-            if (DB::execute("INSERT INTO job_adv_military (job_adv_id, job_adv_military_type) VALUES ($jobAdvId, $military_types[$i])") == false) {
-                $errCountMilitary++;
-            }
-        }
-
-        $errCountLanguage = 0;
-        for ($i = 0; $i < count($languages); $i++) {
-            if (DB::execute("INSERT INTO job_adv_language (job_adv_id, language_id) VALUES ($jobAdvId, $languages[$i])") == false) {
-                $errCountLanguage++;
-            }
-        }
 
         $errCountLocation = 0;
         for ($i = 0; $i < count($locations); $i++) {
@@ -1432,114 +1443,43 @@ class Job
             }
         }
 
-        if ($errCountMilitary > 0) {
-            return [true, message("failed_insert_job_adv_military")];
-        } else if ($errCountLocation > 0) {
+        if ($errCountLocation > 0) {
             return [true, message("failed_insert_job_adv_location")];
-        } else if ($errCountLanguage > 0) {
-            return [true, message("failed_insert_job_adv_language")];
         }
 
         return [true, message("success_insert_job_adv")];
     }
 
-    public function getJob($jobId)
+    public static function deleteJob($jobId)
     {
         $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = $jobId");
 
         if ($job[0] == false || isset($job[1][0]) == false) {
-            //todo
-            return false;
+            return [false, message("404_", "job")];
         }
 
-        $job = $job[1][0];
+        global $user;
 
-        $jobLanguage = DB::select("SELECT * FROM job_adv_language INNER JOIN lang ON job_adv_language.language_id = lang.lang_id WHERE job_adv_language.job_adv_id = $jobId");
-
-        if ($jobLanguage[0] == false || isset($jobLanguage[1][0]) == false) {
-            //todo
-            //return false;
-            $jobLanguage = [[], []];
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $job[0]["job_adv_author"]))[0] == false) {
+            return $auth;
         }
 
-        $jobLanguages = $jobLanguage[1];
-
-        $jobMilitary = DB::select("SELECT * FROM job_adv_military job_adv_id = $jobId");
-
-        if ($jobMilitary[0] == false || isset($jobMilitary[1][0]) == false) {
-            //todo
-            // return false;
-            $jobMilitary = [[], []];
+        if(DB::execute("UPDATE job_adv SET job_adv_active = 0 WHERE job_adv_id".intval($jobId))[0]){
+            return [true, message("success_delete_job")];
+        }else{
+            return [false, message("failed_delete_job")];
         }
-
-        $jobMilitarys = $jobMilitary[1];
-
-        $jobLocation = DB::select("SELECT * FROM job_adv_location INNER JOIN location ON job_adv_location.location_id = location.location_id WHERE job_adv_location.job_adv_id = $jobId");
-
-        if ($jobLocation[0] == false || isset($jobLocation[1][0]) == false) {
-            //todo
-            // return false;
-            $jobLocation = [[], []];
-        }
-
-        $jobLocations = $jobLocation[1];
-
-        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];
     }
 
-    public function selectJob($keyword, $country, $city, $regions, $types, $category, $sub_category, $count = 0, $page = 0)
+    public static function getJob($jobId)
     {
-        /* $jobs;
-
-        $query = "SELECT * FROM job_adv WHERE job_adv.job_adv_active = 1";
-
-        if ($keyword != "") {
-            $keyword = Valid::encode($keyword);
-
-            $query .= " OR (job_adv.job_adv_title LIKE '%$keyword%' OR job_adv.job_adv_description LIKE '%$keyword%')";
-        }
-
-        if ($country > 0) {
-            $query .= " OR job_adv_location.location_id = " . $country;
-        }
-
-        if ($city > 0) {
-            $query .= " OR job_adv_location.location_id = " . $city;
-        }
-
-        for ($i = 0; $i < count($regions); $i++) {
-            $query .= " OR job_adv_location.location_id = " . $regions[$i];
-        }
-
-
-        $job = DB::select("SELECT * FROM (SELECT * FROM job_adv WHERE job_adv_id = $jobId) adv LEFT JOIN job_adv_location USING (job_adv_id) LEFT JOIN job_adv_military USING (job_adv_id) LEFT JOIN job_adv_language USING (job_adv_id)");
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = $jobId");
 
         if ($job[0] == false || isset($job[1][0]) == false) {
-            //todo
-            return false;
+            return [false, message("404_", "job")];
         }
 
         $job = $job[1][0];
-
-        $jobLanguage = DB::select("SELECT * FROM job_adv_language INNER JOIN lang ON job_adv_language.language_id = lang.lang_id WHERE job_adv_language.job_adv_id = $jobId");
-
-        if ($jobLanguage[0] == false || isset($jobLanguage[1][0]) == false) {
-            //todo
-            //return false;
-            $jobLanguage = [[], []];
-        }
-
-        $jobLanguages = $jobLanguage[1];
-
-        $jobMilitary = DB::select("SELECT * FROM job_adv_military job_adv_id = $jobId");
-
-        if ($jobMilitary[0] == false || isset($jobMilitary[1][0]) == false) {
-            //todo
-            // return false;
-            $jobMilitary = [[], []];
-        }
-
-        $jobMilitarys = $jobMilitary[1];
 
         $jobLocation = DB::select("SELECT * FROM job_adv_location INNER JOIN location ON job_adv_location.location_id = location.location_id WHERE job_adv_location.job_adv_id = $jobId");
 
@@ -1551,7 +1491,101 @@ class Job
 
         $jobLocations = $jobLocation[1];
 
-        return [true, $job, $jobLanguages, $jobMilitarys, $jobLocations];*/
+        return [true, $job, $jobLocations];
     }
 
+    public static function selectJob($keyword, $locations, $type, $cat, $page, $count)
+    {
+        //todo close olmuşşsa select etmesin
+        $query = "";
+
+
+        if ($keyword != "") {
+            $query .= " AND ((job_adv_title LIKE '%" . Valid::clear($keyword) . "%' OR  job_adv_description LIKE '%" . Valid::clear($keyword) . "%') ";
+        }
+
+        if (intval($type) > 0) {
+            if ($query != "") {
+                $query .= " AND job_adv_type = " . intval($type);
+            } else {
+                $query .= " AND (job_adv_type = " . intval($type);
+            }
+        }
+
+        if (intval($cat) > 0) {
+            if ($query != "") {
+                $query .= " AND job_adv_category = " . intval($cat);
+            } else {
+                $query .= " AND (job_adv_category = " . intval($cat);
+            }
+        }
+
+        //todo location ??? if($query != "" && )
+
+        if ($query != "") {
+            $query .= ")";
+        }
+
+        $query .= " ORDER BY job_adv_id ";
+
+        if (intval($page) > 0 && intval($count)) {
+            $query .= " LIMIT " . ($page * $count) . ", " . intval($count);
+        }
+
+        $job = DB::select("SELECT * FROM job_adv INNER JOIN job_adv_location USING (job_adv_id) WHERE job_adv_active = 1" . $query);
+
+        if ($job[0] && count($job[1]) > 0) {
+            return [true, $job];
+        } else {
+            return [false, message("404_", "search_job")];
+        }
+    }
+
+    public static function applyJob($jobAdvId)
+    {
+        $jobAdvId = intval($jobAdvId);
+        global $user;
+
+        if ($user->isLogged == false || $user->type == User::COMPANY) {
+            return [false, lang("perm_error")];
+        }
+
+        $job = DB::select("SELECT * FROM job_Adv WHERE job_adv_id = ".$jobAdvId);
+
+        if ($job[0] && count($job[1]) > 0) {
+            if(!($job[1][0]["job_close"] == null || $job[1][0]["job_close"] == "")){
+                return [false, message("closed_job_apply")];
+            }
+        } else {
+            return [false, message("404_", "job")];
+        }
+
+        if(DB::execute("INSERT INTO job_apply(job_apply_member, job_apply_job_adv_id) VALUES (" . $user->memberId . "," . $jobAdvId . ")")[0]){
+            return [true, message("success_job_apply")];
+        }else{
+            return [false, message("failed_job_apply")];
+        }
+    }
+
+    public static function closeJobAdv($jobAdvId){
+        $jobAdvId = intval($jobAdvId);
+
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = ".$jobAdvId);
+
+        if ($job[0] == false || isset($job[1][0]) == false) {
+            return [false, message("404_", "job")];
+        }
+
+        global $user;
+
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $job[1][0]["job_adv_author"]))[0] == false) {
+            return $auth;
+        }
+
+        if(DB::execute("UPDATE job_adv SET  job_adv_close = '".date("m.d.y")."' WHERE job_adv_id = ".$jobAdvId)[0]){
+            return [true, message("success_close_job_adv")];
+        }else{
+            return [true, message("failed_close_job_adv")];
+        }
+    }
 }

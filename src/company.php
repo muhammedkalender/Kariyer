@@ -15,16 +15,20 @@ if (session_status() == PHP_SESSION_NONE) {
 
 include_once "include/functions.php";
 
+$isAllowRequest = 1;
+
 if (isset($_GET["page"])) {
     $page = $_GET["page"];
 
-    if ($page == "is-ilanlari") {
-        include_once "./page/company_main.php";
-    } //else if ($page == "firma-paneli") {
+    if ($page == "job") {
+        include_once "./page/company_job.php";
+    } else if ($page == "job_edit") {
+        include_once "./page/company_job_edit.php";
+    }  //else if ($page == "firma-paneli") {
     // include_once "./page/company.php";
     // }
 } else {
-    include_once "./page/main.php";
+    include_once "./page/company_main.php";
 }
 
 include_once "./page/footer.php";
