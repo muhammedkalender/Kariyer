@@ -8,6 +8,9 @@
  * Time : 00:08
  */
 
+if (!isset($isAllowRequest)) {
+    die();
+}
 ?>
 </body>
 </http>

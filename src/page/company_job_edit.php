@@ -18,6 +18,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
 $jobId = 0;
 if (isset($_GET["job_id"])) {
+    $jobId = $_GET["job_id"];
 //todo
 }
 
@@ -30,20 +31,21 @@ if (isset($_GET["job_id"])) {
 
         </div>
         <div class="col-md-8">
-            <input type="hidden" name="call_category" value="job">
-            <input type="hidden" name="call_request" value="<?= $jobId != 0 ? "update" : "insert" ?>">
-            <!-- alert-danger, alert-success, alert-primary -->
-            <div class="alert" id="job-edit-result" style="display: none">
+            <div class="alert" id="modal-edit-job-result" style="display: none">
             </div>
 
-            <form id="form_edit_job" action="#" onsubmit="return false">
+            <form id="modal-edit-job-form" action="#" onsubmit="return false">
+                <input type="hidden" name="call_category" value="job">
+                <input type="hidden" name="call_request" value="<?= $jobId != 0 ? "update" : "insert" ?>">
+                <input type="hidden" name="job_id" value="<?= $jobId ?>">
+                <!-- alert-danger, alert-success, alert-primary -->
+
                 <div class="card">
                     <div class="card-body">
-
                         <div class="form-group">
-                            <label for="et_tittle"><?= lang("lbl_et_tittle") ?></label>
-                            <input type="text" class="form-control" name="et_tittle"
-                                   placeholder="<?= lang('hint_ej_title') ?>" minlength="3" maxlength="256">
+                            <label for="job_title"><?= lang("var_job_title") ?></label>
+                            <input type="text" class="form-control" id="job_title" name="job_title"
+                                   placeholder="<?= lang('hint_job_title') ?>" minlength="3" maxlength="256">
                         </div>
                     </div>
                 </div>
@@ -52,10 +54,9 @@ if (isset($_GET["job_id"])) {
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label for="ej_desc"><?= lang("lbl_ej_desc") ?></label>
-                            <textarea minlength="3" maxlength="2048" name="ej_desc" class="form-control" placeholder="<?= lang('hint_ej_desc') ?>">
-
-                            </textarea>
+                            <label for="job_desc"><?= lang("var_job_description") ?></label>
+                            <textarea minlength="3" maxlength="2048" id="job_desc" name="job_desc" class="form-control"
+                                      placeholder="<?= lang('hint_job_desc') ?>"></textarea>
 
                         </div>
                     </div>
@@ -65,7 +66,7 @@ if (isset($_GET["job_id"])) {
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label for="fj_country"><?= lang("lbl_location") ?></label>
+                            <label for="fj_country"><?= lang("var_job_location") ?></label>
                             <select class="form-control" id="fj_country" name="fj_country"
                                     onchange="getLocation(this.value,1, 'fj_city')" required
                             >
@@ -75,7 +76,7 @@ if (isset($_GET["job_id"])) {
 
                         <div class="form-group">
                             <select class="form-control" id="fj_city" name="fj_city" onclick="getDistrict(this.value)"
-                             required>
+                                    required>
                                 <?php
                                 $category = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/const/category.json", true);
                                 ?>
@@ -91,7 +92,7 @@ if (isset($_GET["job_id"])) {
 
                     <div class="card-body">
                         <div class="form-group">
-                            <label><?= lang("lbl_work_type") ?></label>
+                            <label><?= lang("var_job_type") ?></label>
                         </div>
                         <div class="form-group ">
                             <?php
@@ -99,7 +100,7 @@ if (isset($_GET["job_id"])) {
 
                             for ($i = 0; $i < count($workType); $i++) {
                                 echo '<div class="form-check custom-control-inline">';
-                                echo '<input class="form-check-input" type="radio" name="work_type" id="work_type' . $workType[$i]["id"] . '" value="' . $workType[$i]["id"] . '"' . ($i == 0 ? "checked" : "") . '>';
+                                echo '<input class="form-check-input" type="radio" name="job_type" id="work_type' . $workType[$i]["id"] . '" value="' . $workType[$i]["id"] . '"' . ($i == 0 ? "checked" : "") . '>';
                                 echo '<label class="form-check-label" for="work_type' . $workType[$i]["id"] . '">' . $workType[$i]["text"] . '</label>';
                                 echo '</div>';
                             }
@@ -110,10 +111,10 @@ if (isset($_GET["job_id"])) {
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="fj_category"><?= lang("lbl_category") ?></label>
+                            <label for="job_category"><?= lang("var_job_category") ?></label>
                             <select class="form-control" id="fj_category" name="fj_category"
                                     onchange='loadCheck("category_"+this.value, "category", "content_sub_category", "category")'
-                             required>
+                                    required>
 
                             </select>
                         </div>
@@ -126,18 +127,97 @@ if (isset($_GET["job_id"])) {
                         </div>
                     </div>
                 </div>
-                <input type="submit" class="form-control bg-success" onclick="jobEdit()" value="<?= message('apply') ?>">
+
             </form>
+
+            <input type="submit" class="form-control bg-success" onclick="jobEdit()"
+                   value="<?= message('apply') ?>">
         </div>
     </div>
 </div>
 
 
 <script>
-    function jobEdit() {
-        if ($("#form_edit_job")[0].checkValidity() === false) {
-            return;
-        }
+    function getJobEdit(id) {
+        $.post("api.php",
+            {
+                'call_category': "job",
+                'call_request': "get",
+                'job_id': id
+
+            },
+            function (data, status) {
+                if (status == "success") {
+                    var result = JSON.parse(data);
+
+                    if (result[0]) {
+                        var job = result[1];
+                        var locations = JSON.parse(result[2]);
+
+                        if (locations.length > 0) {
+                            getLocation(locations[0]["big_father"], 1, 'fj_city', (function () {
+                                item("fj_country").value = locations[0]["big_father"];
+                                item("fj_city").value = locations[0]["location_father"];
+                                getDistrict(locations[0]["location_father"], function () {
+                                    var objs = item("content-distinct").getElementsByTagName("input");
+
+                                    for (var i = 0; i < objs.length; i++) {
+                                        var ava = false;
+
+                                        for (var j = 0; j < locations.length; j++) {
+                                            if (objs[i].value == locations[j]["location_id"]) {
+                                                ava = true;
+                                            }
+                                        }
+
+                                        objs[i].checked = ava;
+                                    }
+                                });
+                            }));
+                        }
+
+                        item("job_title").value = job["job_adv_title"];
+                        item("job_desc").value = job["job_adv_description"];
+
+                        var objs = item("card-work-type").getElementsByTagName("input");
+
+                        for (var i = 0; i < objs.length;i++){
+                            if(objs[i].value == job["job_adv_type"]){
+                                objs[i].checked = true;
+                            }else{
+                                objs[i].checked = false;
+                            }
+                        }
+
+                        item("fj_category").value = job["job_adv_category_father"];
+                        loadCheck("category_"+job["job_adv_category_father"], "category", "content_sub_category", "category", function () {
+                            var objs = item("content_sub_category").getElementsByTagName("input");
+
+                            for (var i = 0; i < objs.length;i++){
+                                if(objs[i].value == job["job_adv_category"]){
+                                    objs[i].checked = true;
+                                }else{
+                                    objs[i].checked = false;
+                                }
+                            }
+                        });
+
+                        if (result[1]["job_adv_id"] !== 1) {
+                            Message.success(result[1]["job_adv_id"])
+                        }
+                    } else {
+                        Message.error(result[1])
+                    }
+                }
+            });
+        //todo o
+    }
+
+
+    function jobEdit(button) {
+        //check todo
+
+        postForm("edit-job", "", 0, button);
 
 //        postForm('form_edit_job', '/', 5000);
     }
@@ -146,5 +226,11 @@ if (isset($_GET["job_id"])) {
         getLocation(0, 0, "fj_country");
         getLocation(0, 1, "fj_city");
         loadSelect("category", "category", "fj_category", "category");
+
+        var jobId = <?=$jobId?>;
+
+        if (jobId != 0) {
+            getJobEdit(jobId);
+        }
     });
 </script>

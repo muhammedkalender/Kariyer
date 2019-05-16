@@ -131,8 +131,12 @@ function closeModal(NAME) {
 }
 
 function postForm(NAME, HREF = "", WAIT = 0, BUTTON) {
-    if ($("#modal-" + NAME + "-form")[0].checkValidity() === false) {
-        return;
+    // if ($("#modal-" + NAME + "-form")[0].checkValidity() === false) {
+    //     return;
+    // }  todo
+
+    if (BUTTON != null) {
+        BUTTON.disabled = true;
     }
 
     $.post("api.php",
@@ -145,11 +149,19 @@ function postForm(NAME, HREF = "", WAIT = 0, BUTTON) {
                     Message.modalSuccess("modal-" + NAME + "-result", result[1]);
 
                     if (HREF !== "") {
-                        href(HREF, WAIT)
+                        if (HREF == "") {
+                            location.reload();
+                        } else {
+                            href(HREF, WAIT)
+                        }
                     }
                 } else {
                     Message.modalError("modal-" + NAME + "-result", result[1]);
                 }
+            }
+
+            if (BUTTON != null) {
+                BUTTON.disabled = false;
             }
         }
     );
@@ -185,6 +197,10 @@ function register() {
 }
 
 function getLocation(id, level, obj) {
+    getLocation(id, level, obj, null);
+}
+
+function getLocation(id, level, obj, callback) {
     var file = "";
 
     if (level == 0) {
@@ -214,11 +230,18 @@ function getLocation(id, level, obj) {
 
 
         $("#" + obj).html(options);
+
+        if (callback != null) {
+            callback();
+        }
     });
 }
 
-
 function getDistrict(id) {
+    getDistrict(id, null);
+}
+
+function getDistrict(id, callback) {
     if (id == 0) {
         $("#content-distinct").html("");
         return;
@@ -237,6 +260,10 @@ function getDistrict(id) {
 
 
         $("#content-distinct").html(options);
+
+        if (callback != null) {
+            callback();
+        }
     });
 }
 
@@ -256,16 +283,24 @@ function loadSelect(URL, TAG, OBJECT, DB) {
 }
 
 function loadCheck(URL, TAG, OBJECT, DB) {
+    loadCheck(URL, TAG, OBJECT, DB, null);
+}
+
+function loadCheck(URL, TAG, OBJECT, DB, callback) {
     var file = "/const/" + URL + ".json";
 
     $.getJSON(file, function (result) {
         var options = '';
 
         for (var i = 0; i < result.length; i++) {
-            options += '<div class="form-check custom-control-inline"><input class="form-check-input" type="radio" id="'+TAG+  i + '" name="'+TAG+'[]"';
-            options += 'value="' + result[i][DB+"_id"] + '"><label class="form-check-label" for="'+TAG + i + '">' + result[i][DB+"_name_"+CURRENT_LANG] + '</label></div>';
+            options += '<div class="form-check custom-control-inline"><input class="form-check-input" type="radio" id="' + TAG + i + '" name="' + TAG + '"';
+            options += 'value="' + result[i][DB + "_id"] + '"><label class="form-check-label" for="' + TAG + i + '">' + result[i][DB + "_name_" + CURRENT_LANG] + '</label></div>';
         }
 
         $("#" + OBJECT).html(options);
+
+        if (callback != null) {
+            callback();
+        }
     });
 }

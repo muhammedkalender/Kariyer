@@ -8,6 +8,10 @@
  * Time : 19:18
  */
 
+if (!isset($isAllowRequest)) {
+    die();
+}
+
 $title = lang("page_company_main");
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";

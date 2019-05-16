@@ -8,6 +8,10 @@
  * Time : 16:20
  */
 
+if (!isset($isAllowRequest)) {
+    die();
+}
+
 $title = lang("page_find_job");
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";

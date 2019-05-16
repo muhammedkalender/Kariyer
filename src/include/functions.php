@@ -57,6 +57,8 @@ class ValidObject
     const Boolean = 7;
     const Date = 8; //standart tyok
     const Html = 9; //todo bu sakat
+    const Radio = 10;
+    const Check = 11;
 
     const GET = 0;
     const POST = 1;
@@ -199,8 +201,24 @@ class Valid
             }
 
             if ($input->minLength > 0) {
-                if (strlen($var) < $input->minLength) {
-                    return [false, message("check_short", $input->langName, $input->minLength)];
+                if ($input->inputType == ValidObject::Check) {
+                    if (is_array($var) && count($var) >= $input->minLength) {
+                        for ($i = 0; $i < count($var); $i++) {
+                            $_POST[$input->requestName][$i] = intval($_POST[$input->requestName][$i]);
+                        }
+
+                        if ($input->maxLength > 0 && count($var) > $input->maxLength) {
+                            return [false, message("check_long_array", $input->langName, $input->maxLength)];
+                        }
+
+                        continue;
+                    } else {
+                        return [false, message("check_short_array", $input->langName, $input->minLength)];
+                    }
+                } else {
+                    if (strlen($var) < $input->minLength) {
+                        return [false, message("check_short", $input->langName, $input->minLength)];
+                    }
                 }
             }
 
@@ -266,6 +284,7 @@ class Valid
                 case ValidObject::Html:
                     //todo
                     //todo encode
+                    $_POST[$input->requestName] = Valid::encode($_POST[$input->requestName]);
                     $checkInputType = true;
                     break;
                 case ValidObject::Date:
@@ -1417,6 +1436,10 @@ class Job
     {
         global $user;
 
+        if ($companyId == 0) {
+            $companyId = $user->memberId;
+        }
+
         if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $companyId))[0] == false) {
             return $auth;
         }
@@ -1450,6 +1473,49 @@ class Job
         return [true, message("success_insert_job_adv")];
     }
 
+    public static function editJob($jobId, $title, $description, $type, $category, $locations)
+    {
+        global $user;
+
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = " . intval($jobId));
+
+        if ($job[0] == false || count($job[1]) < 1) {
+            return [false, message("404_", "job")];
+        }
+
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $job[1][0]["job_adv_author"]))[0] == false) {
+            return $auth;
+        }
+
+        if ($user->type != User::COMPANY) {
+            return [false, lang("perm_error")];
+        }
+
+        $title = Valid:: clear($title);
+        $description = Valid::encode($description);
+
+        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" . Valid::clear($title) . "', job_adv_type =  $type,  job_adv_description = '" . Valid::encode($description) . "',  job_adv_category = $category WHERE job_adv_id = $jobId");
+
+        if ($result[0] == false) {
+            return [false, message("failed_job_adv_update")];
+        }
+
+        DB::execute("DELETE FROM job_adv_location WHERE  job_adv_id = $jobId");
+
+        $errCountLocation = 0;
+        for ($i = 0; $i < count($locations); $i++) {
+            if (DB::execute("INSERT INTO job_adv_location (job_adv_id, location_id) VALUES ($jobId, $locations[$i])") == false) {
+                $errCountLocation++;
+            }
+        }
+
+        if ($errCountLocation > 0) {
+            return [true, message("failed_update_job_adv_location")];
+        }
+
+        return [true, message("success_job_adv_update")];
+    }
+
     public static function deleteJob($jobId)
     {
         $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = $jobId");
@@ -1460,28 +1526,38 @@ class Job
 
         global $user;
 
-        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $job[0]["job_adv_author"]))[0] == false) {
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $job[1][0]["job_adv_author"]))[0] == false) {
             return $auth;
         }
 
-        if(DB::execute("UPDATE job_adv SET job_adv_active = 0 WHERE job_adv_id".intval($jobId))[0]){
+        if (DB::execute("UPDATE job_adv SET job_adv_active = 0 WHERE job_adv_id = " . intval($jobId))[0]) {
             return [true, message("success_delete_job")];
-        }else{
+        } else {
             return [false, message("failed_delete_job")];
         }
     }
 
     public static function getJob($jobId)
     {
-        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = $jobId");
+        global $user;
+
+        $job = DB::select("SELECT *, (SELECT category_father FROM category WHERE  category_id = job_adv.job_adv_category) as job_adv_category_father FROM job_adv WHERE job_adv_id = $jobId");
 
         if ($job[0] == false || isset($job[1][0]) == false) {
             return [false, message("404_", "job")];
         }
 
+        //todo
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::USER, $job[1][0]["job_adv_author"]))[0] == false) {
+            return $auth;
+        }
+
         $job = $job[1][0];
 
-        $jobLocation = DB::select("SELECT * FROM job_adv_location INNER JOIN location ON job_adv_location.location_id = location.location_id WHERE job_adv_location.job_adv_id = $jobId");
+        $jobLocation = DB::select("SELECT lc.*, bf.location_father as big_father FROM job_adv_location jl 
+INNER JOIN location lc USING (location_id)
+INNER JOIN location bf ON lc.location_father = bf.location_id
+WHERE jl.job_adv_id = " . intval($jobId));
 
         if ($jobLocation[0] == false || isset($jobLocation[1][0]) == false) {
             //todo
@@ -1491,14 +1567,76 @@ class Job
 
         $jobLocations = $jobLocation[1];
 
-        return [true, $job, $jobLocations];
+        return [true, $job, json_encode($jobLocations, true)];
+    }
+
+    public static function selectJobForAdmin($keyword, $active, $puser, $page, $count)
+    {
+        //todo close olmuşşsa select etmesin
+
+        global $user;
+
+        $query = "";
+
+        if ($puser == 0) {
+            if ($user->power >= Perm::SUPPORT) {
+                if(intval($puser) != 0){
+                    $query = " WHERE job_adv_author = " . $puser;
+                }
+            } else {
+                if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
+                    return $auth;
+                }
+
+                $query = " WHERE job_adv_author = " . $user->memberId;
+            }
+        }else{
+            $query = " WHERE job_adv_author = ".$user->memberId;
+
+            if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
+                return $auth;
+            }
+        }
+
+        if($active != ""){
+            if($query == ""){
+                $query = " WHERE job_adv_active = ".intval($active);
+            }else{
+                $query .= " AND job_adv_active = ".intval($active);
+            }
+        }
+
+        if ($keyword != "") {
+            if($query == ""){
+                $query = " WHERE ";
+            }else{
+                $query .= " AND ";
+            }
+
+            $keyword = Valid::clear($keyword);
+
+            $query .= "(co.member_name LIKE '%$keyword%' OR co.member_surname LIKE '%$keyword%' OR ja.job_adv_title LIKE '%$keyword%' OR ja.job_adv_description LIKE '%$keyword%')";
+        }
+
+        $query .= " ORDER BY ja.job_adv_id ";
+
+        if (intval($count) > 0) {
+            $query .= " LIMIT " . ($page * $count) . ", " . intval($count);
+        }
+
+        $job = DB::select("SELECT ja.*, CONCAT_WS(' ', co.member_name, co.member_surname) as company_name   FROM job_adv ja  INNER JOIN member co ON ja.job_adv_author = co.member_id" . $query);
+
+        if ($job[0] && count($job[1]) > 0) {
+            return [true, $job];
+        } else {
+            return [false, message("404_", "search_job")];
+        }
     }
 
     public static function selectJob($keyword, $locations, $type, $cat, $page, $count)
     {
         //todo close olmuşşsa select etmesin
         $query = "";
-
 
         if ($keyword != "") {
             $query .= " AND ((job_adv_title LIKE '%" . Valid::clear($keyword) . "%' OR  job_adv_description LIKE '%" . Valid::clear($keyword) . "%') ";
@@ -1526,18 +1664,18 @@ class Job
             $query .= ")";
         }
 
-        $query .= " ORDER BY job_adv_id ";
+        $query .= " ORDER BY ja.job_adv_id ";
 
-        if (intval($page) > 0 && intval($count)) {
+        if (intval($count) > 0) {
             $query .= " LIMIT " . ($page * $count) . ", " . intval($count);
         }
 
-        $job = DB::select("SELECT * FROM job_adv INNER JOIN job_adv_location USING (job_adv_id) WHERE job_adv_active = 1" . $query);
+        $job = DB::select("SELECT ja.*, job_adv_location.*, CONCAT_WS(' ', member.member_name, member.member_surname) as company_name   FROM job_adv ja INNER JOIN job_adv_location USING (job_adv_id) INNER JOIN member ON ja.job_adv_author = member.member_id  WHERE job_adv_active = 1" . $query);
 
         if ($job[0] && count($job[1]) > 0) {
             return [true, $job];
         } else {
-            return [false, message("404_", "search_job")];
+            return [false, message("404_", "search_job") . "SELECT job_adv.*, job_adv_location.*, CONCAT_WS(' ', member.member_name, member.member_surname) as company_name   FROM job_adv INNER JOIN job_adv_location USING (job_adv_id) INNER JOIN member ON job_adv.job_adv_author = member.member_id  WHERE job_adv_active = 1" . $query];
         }
     }
 
@@ -1550,27 +1688,28 @@ class Job
             return [false, lang("perm_error")];
         }
 
-        $job = DB::select("SELECT * FROM job_Adv WHERE job_adv_id = ".$jobAdvId);
+        $job = DB::select("SELECT * FROM job_Adv WHERE job_adv_id = " . $jobAdvId);
 
         if ($job[0] && count($job[1]) > 0) {
-            if(!($job[1][0]["job_close"] == null || $job[1][0]["job_close"] == "")){
+            if (!($job[1][0]["job_close"] == null || $job[1][0]["job_close"] == "")) {
                 return [false, message("closed_job_apply")];
             }
         } else {
             return [false, message("404_", "job")];
         }
 
-        if(DB::execute("INSERT INTO job_apply(job_apply_member, job_apply_job_adv_id) VALUES (" . $user->memberId . "," . $jobAdvId . ")")[0]){
+        if (DB::execute("INSERT INTO job_apply(job_apply_member, job_apply_job_adv_id) VALUES (" . $user->memberId . "," . $jobAdvId . ")")[0]) {
             return [true, message("success_job_apply")];
-        }else{
+        } else {
             return [false, message("failed_job_apply")];
         }
     }
 
-    public static function closeJobAdv($jobAdvId){
+    public static function closeJobAdv($jobAdvId)
+    {
         $jobAdvId = intval($jobAdvId);
 
-        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = ".$jobAdvId);
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = " . $jobAdvId);
 
         if ($job[0] == false || isset($job[1][0]) == false) {
             return [false, message("404_", "job")];
@@ -1582,9 +1721,9 @@ class Job
             return $auth;
         }
 
-        if(DB::execute("UPDATE job_adv SET  job_adv_close = '".date("m.d.y")."' WHERE job_adv_id = ".$jobAdvId)[0]){
+        if (DB::execute("UPDATE job_adv SET  job_adv_close = '" . date("d.m.y") . "' WHERE  job_adv_close IS NULL AND job_adv_id = " . $jobAdvId)[0]."") {
             return [true, message("success_close_job_adv")];
-        }else{
+        } else {
             return [true, message("failed_close_job_adv")];
         }
     }

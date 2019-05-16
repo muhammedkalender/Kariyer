@@ -16,6 +16,8 @@ $lang = [
     "check_type" => "[%PARAM1%], Uygun biçimde değil",
     "check_long" => "[%PARAM1%], [%PARAM2%] Karakterden uzun olamaz.",
     "check_short" => "[%PARAM1%], [%PARAM2%] Karakterden kısa olamaz.",
+    "check_long_array" => "[%PARAM1%], En fazla [%PARAM2%] adet seçilmeli.",
+    "check_short_array" => "[%PARAM1%], En az [%PARAM2%] adet seçilmeli.",
     "valid_null" => "Parametreler uygun değil",
     "already_email" => "Bu eposta adresi zaten kayıtlı",
     "experience" => "Deneyim",
@@ -31,7 +33,11 @@ $lang = [
     "var_skill_level" => "Yetenek Düzeyi",
     "var_skill_order" => "Yetenek Sırası",
     "var_skill_id" => "Yetenek",
-
+    "success_close_job_adv" => "İlan Başarıyla Kapatıldı",
+    "failed_close_job_adv" => "İlan Kapatılamadı",
+    "success_delete_job" => "İlan Başarıyla Silindi",
+    "delete_job" => "İlanı Sil",
+    "failed_delete_job" => "İlan Silinemedi",
     "var_licence_name" => "Lisans Adı",
     "var_licence_code" => "Lisans Kodu",
     "var_licence_date" => "Lisans Tarihi",
@@ -89,6 +95,21 @@ $lang = [
     "password" => "Şifre",
     "name" => "İsim",
     "surname" => "Soyisim",
+    "load_more" => "Daha Fazla Yükle",
+    "view_job_adv" => "İş İlanını İncele",
+    "close_job_apply" => "Başvuruları Kapat",
+    "view_job_applys" => "İşe Başvuranları İncele",
+    "actions" => "İşlemler",
+    "title" => "Başlık",
+    "view_count" => "Görüntülenme",
+    "apply_count" => "Başvuru",
+    "search" => "Ara",
+    "confirm" => "Onayla",
+    "are_you_sure" => "Eminmisin ?",
+    "close_job" => "İlanı Kapat",
+    "cancel" => "İptal",
+    "job_close_date" => "İ. Kapanışı",
+
 
     "default_select" => "Farketmez",
 
@@ -114,7 +135,38 @@ $lang = [
 
     "user_type" => "Kullanıcı Tipi",
     "company" => "Firma",
-    "company_profile" => "Firma Paneli"
+    "company_profile" => "Firma Paneli",
+
+
+    "var_job_title" => "Başlık",
+    "var_job_desc" => "Açıklama",
+    "var_job_description" => "Açıklama",
+    "var_job_location" => "Konum",
+    "var_job_type" => "Çalışma Şekli",
+    "var_job_category" => "Kategori",
+    "var_category" => "Kategori",
+    "var_district" => "Konum",
+    "hint_job_title" => "Tecrübeli CNC Operatörü",
+    "hint_job_desc" => "En az 4 Yıl Tecrübeli, Terchien İngilizce Bilen",
+    "var_job_id" => "İş İlanı",
+    "var_keyword" => "Aranacak Kelime",
+    "add_job" => "İş İlanı Ekle",
+    "apply" => "Tamamla",
+    "var_active" => "Aktiflik",
+    "var_user" => "Kullanıcı",
+
+    "failed_job_adv_update" => "İş İlanı Güncellenemedi",
+    "success_job_adv_update" => "İş İlanı Güncellendi",
+    "failed_update_job_adv_location" => "İş İlanı Güncellendi ama Konumlarda Sorun Oluştu",
+    "delete_certificate" => "Sertifikayı Sil",
+    "add_certificate" => "Sertifika Ekle",
+    "edit_certificate" => "Sertifika Düzenle",
+    "certificates" => "Sertifikalar",
+
+    "experiences" => "İş Deneyimleri",
+    "edit_experience" => "Deneyimi Düzenle",
+    "add_experience" => "Deneyim Ekle",
+    "delete_experience" => "Deneyimi Sil",
 
 ];
 
@@ -129,11 +181,11 @@ function lang($name, $firstParam = "", $secondParam = "")
     $result = $lang[$name];
 
     if ($firstParam != "") {
-        $result = str_replace("[%PARAM1 %]", $firstParam, $result);
+        $result = str_replace("[%PARAM1%]", $firstParam, $result);
     }
 
     if ($secondParam != "") {
-        $result = str_replace("[%PARAM2 %]", $secondParam, $result);
+        $result = str_replace("[%PARAM2%]", $secondParam, $result);
     }
 
     return $result;

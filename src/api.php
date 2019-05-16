@@ -555,6 +555,105 @@ if ($callCategory == "user") {
         goto nothing;
     }
     //endregion
+} else if ($callCategory == "job") {
+    //region JOB
+    if ($callRequest == "insert") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("job_title", "", 3, 512, ValidObject::Integer),
+            new ValidObject("job_desc", "", 3, 4096, ValidObject::Html),
+            new ValidObject("district", "", 1, 256, ValidObject::Check),
+            new ValidObject("job_type", "", 1, 12, ValidObject::Integer),
+            new ValidObject("category", "", 1, 8, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::insertJob(0, $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"]);
+        goto output;
+    } else if ($callRequest == "get") {
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::getJob($_POST["job_id"]);
+        goto output;
+    } else if ($callRequest == "update") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 12, ValidObject::Integer),
+            new ValidObject("job_title", "", 3, 512, ValidObject::Integer),
+            new ValidObject("job_desc", "", 3, 4096, ValidObject::Html),
+            new ValidObject("district", "", 1, 256, ValidObject::Check),
+            new ValidObject("job_type", "", 1, 12, ValidObject::Integer),
+            new ValidObject("category", "", 1, 8, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::editJob($_POST["job_id"], $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"]);
+        goto output;
+    } else if ($callRequest == "select") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("keyword", "", 0, 36, ValidObject::CleanText),
+            new ValidObject("page", "", 1, 16, ValidObject::Integer),
+            new ValidObject("count", "", 1, 16, ValidObject::Integer),
+            new ValidObject("active", "", 0, 16, ValidObject::Integer),
+            new ValidObject("user", "", 0, 16, ValidObject::Integer)
+            //new ValidObject("district", "", 1, 256, ValidObject::Check),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        if ($_POST["keyword"] != "" && strlen($_POST["keyword"]) < 3) {
+            $callResult = [false, message("check_short", "var_keyword", "3")];
+            goto output;
+        }
+
+        $callResult = Job::selectJobForAdmin($_POST["keyword"], $_POST["active"], $_POST["user"],  $_POST["page"], $_POST["count"]);
+        goto output;
+    }else if($callRequest == "close_apply"){
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::closeJobAdv($_POST["job_id"]);
+        goto output;
+    }else if($callRequest == "delete"){
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::deleteJob($_POST["job_id"]);
+        goto output;
+    }
+    //endregion
 } else {
     goto nothing;
 }
@@ -563,4 +662,4 @@ nothing:
 $callResult = [false, lang("call_null")];
 
 output:
-echo json_encode($callResult, JSON_FORCE_OBJECT);
+echo json_encode($callResult, true);

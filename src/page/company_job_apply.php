@@ -4,16 +4,14 @@
  * Project : Kariyer
  * Owner : Muhammed Kalender
  * Contact : muhammedkalender@protonmail.com
- * Date : 25-04-2019
- * Time : 16:29
+ * Date : 16-05-2019
+ * Time : 17:28
  */
 
 if (!isset($isAllowRequest)) {
     die();
 }
 
-$title = lang("page_main");
+$title = lang("page_company_job_apply");
 
-include_once $_SERVER['DOCUMENT_ROOT']."/page/header.php";
-
-?>
+include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";

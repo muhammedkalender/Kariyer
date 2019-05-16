@@ -18,11 +18,15 @@ include_once "include/functions.php";
 //Cache::categoryJSON();
 //Cache::locationJSON();
 
+$isAllowRequest = 1;
+
 if (isset($_GET["page"])) {
     $page = $_GET["page"];
 
     if ($page == "is-ilanlari") {
         include_once "./page/find_job.php";
+    }else if($page == "profile"){
+        include_once  "./page/user_profile.php";
     } //else if ($page == "firma-paneli") {
        // include_once "./page/company.php";
    // }

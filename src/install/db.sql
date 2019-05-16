@@ -96,7 +96,7 @@ create table if not exists certificate
     certificate_member  int           not null,
     certificate_name    varchar(128)  not null, ##Adı
     certificate_company varchar(128)  not null, ##Veren Kurum
-    certificate_url     varchar(1024) not null,
+    certificate_url     varchar(1024) default '#',
     certificate_desc    varchar(512)       default null,
     certificate_date    date          null default null,
     certificate_order   int                default 0,
@@ -220,7 +220,7 @@ create table if not exists job_adv
     job_adv_app         int        default 0,
     job_adv_category    int        default 0,    ##Yazılım > Web Yazışlım gibi
     job_adv_father      int        default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_close       date       default null, ##şu zaman kadar ...
+    job_adv_close       varchar(32)       default null, ##şu zaman kadar ...
     job_adv_insert      timestamp  default current_timestamp,
     job_adv_update      timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     job_adv_active      tinyint(1) default 1

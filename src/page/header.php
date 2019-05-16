@@ -1,3 +1,17 @@
+<?php
+/**
+ * Copyright (c) 2019
+ * Project : Kariyer
+ * Owner : Muhammed Kalender
+ * Contact : muhammedkalender@protonmail.com
+ * Date : 16-05-2019
+ * Time : 17:31
+ */
+
+if (!isset($isAllowRequest)) {
+    die();
+}
+?>
 <http>
     <head>
         <meta charset="utf-8">
@@ -19,8 +33,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-      <script src="https://cloud.tinymce.com/5/tinymce.min.js"></script>
-        <script>tinymce.init({selector:'textarea'});</script>
+  <!--    <script src="https://cloud.tinymce.com/5/tinymce.min.js"></script>
+        <script>tinymce.init({selector:'textarea'});</script>-->
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
               integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
               crossorigin="anonymous">
@@ -61,7 +75,7 @@
                             <?= $user->name . " " . $user->surname ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#"><?= lang("my_profile") ?></a>
+                            <a class="dropdown-item" href="index.php?page=profile&user=<?=$user->memberId?>"><?= lang("my_profile") ?></a>
                             <a class="dropdown-item" href="company.php"><?= lang("company_profile") ?></a>
                             <a class="dropdown-item" href="#"><?= lang("settings") ?></a>
                             <div class="dropdown-divider"></div>
