@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2019 at 01:00 AM
+-- Generation Time: May 17, 2019 at 12:57 AM
 -- Server version: 10.1.36-MariaDB
 -- PHP Version: 7.2.10
 
@@ -112,7 +112,7 @@ CREATE TABLE `certificate` (
   `certificate_member` int(11) NOT NULL,
   `certificate_name` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   `certificate_company` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
-  `certificate_url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
+  `certificate_url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL DEFAULT '#',
   `certificate_desc` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
   `certificate_date` date DEFAULT NULL,
   `certificate_order` int(11) DEFAULT '0',
@@ -214,11 +214,19 @@ CREATE TABLE `job_adv` (
   `job_adv_app` int(11) DEFAULT '0',
   `job_adv_category` int(11) DEFAULT '0',
   `job_adv_father` int(11) DEFAULT '0',
-  `job_adv_close` date DEFAULT NULL,
+  `job_adv_close` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
   `job_adv_insert` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `job_adv_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `job_adv_active` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `job_adv`
+--
+
+INSERT INTO `job_adv` (`job_adv_id`, `job_adv_author`, `job_adv_experience`, `job_adv_title`, `job_adv_count`, `job_adv_type`, `job_adv_sex`, `job_adv_description`, `job_adv_view`, `job_adv_app`, `job_adv_category`, `job_adv_father`, `job_adv_close`, `job_adv_insert`, `job_adv_update`, `job_adv_active`) VALUES
+(1, 4, '', 'aaa1', 1, 2, 0, 'asd2', 0, 0, 10032, 0, '16.05.19', '2019-05-15 15:43:36', '2019-05-16 13:58:56', 0),
+(2, 4, '', 'baaa', 1, 2, 0, 'zaaa', 0, 0, 10020, 0, NULL, '2019-05-16 11:01:19', '2019-05-16 13:50:55', 1);
 
 -- --------------------------------------------------------
 
@@ -246,6 +254,19 @@ CREATE TABLE `job_adv_location` (
   `job_adv_location_active` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `job_adv_location`
+--
+
+INSERT INTO `job_adv_location` (`job_adv_location_id`, `job_adv_id`, `location_id`, `job_adv_location_active`) VALUES
+(6, 1, 1451, 1),
+(7, 1, 1811, 1),
+(8, 1, 1959, 1),
+(9, 1, 2037, 1),
+(10, 2, 1246, 1),
+(11, 2, 1354, 1),
+(12, 2, 1425, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -257,6 +278,23 @@ CREATE TABLE `job_adv_military` (
   `job_adv_military_type` int(11) NOT NULL,
   `job_adv_id` int(11) DEFAULT NULL,
   `job_adv_military_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_apply`
+--
+
+CREATE TABLE `job_apply` (
+  `job_apply_id` int(11) NOT NULL,
+  `job_apply_member` int(11) NOT NULL,
+  `job_apply_message` varchar(256) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `job_apply_job_adv_id` int(11) NOT NULL,
+  `job_apply_review` tinyint(1) DEFAULT '0',
+  `job_apply_insert` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `job_apply_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `job_apply_active` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1482,7 +1520,7 @@ INSERT INTO `member` (`member_id`, `member_type`, `member_power`, `member_email`
 (8, 0, 1, 'mehme1t@gmail.com', NULL, NULL, 'Ali', 'Veli', NULL, 1, 1, '536b234a7bb6380a7657de469f921880a024e436', 'dnBjXNusgEL3TBY9nDX8nR3NR8TRVG9TCtZoz4WARiK6i1cz6WGcUR8aHVkCuJ2vgjLCtlWHXmoRo2HSDG2dttgIDTk9juCyLC5Ipw6l8HxaAjbxs1fT8etwBmUvNdSv', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-04-23 20:11:46', NULL, 1),
 (9, 0, 1, 'mehme1t1@gmail.com', NULL, NULL, 'Ali', 'Veli', NULL, 1, 1, '4cb5855826f905ffb96aa925f9ea98e3caeb54eb', '9BP8KOqfiG34H96Fy3xtUxE0SWPa9mKzSsGPhgRJcPp2U7ddOe5dfRM9bsQP54jqm71jlNA1HtwFIxWDRYpPXPjTftjLY6wpp8BkDhsyZW6UWYvbbP1yC6Z7C84iiCbz', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-04-23 20:12:49', NULL, 1),
 (10, 0, 1, 'mehmet1212@gmail.com', NULL, NULL, 'Ali', 'Veli', NULL, 1, 1, 'fcf335641870787a2b079cae2c935b19e9ec0c1d', 'FQQWDhiFdelYErRg4NkBzCnDhjRmJS1fBYkdH0PSGY5OeLyvxqBCtGh2KhDn7FU8YdgnndLQq46uWtIe90LvBgmHX6bvWZzgfosBjsBzfyaaj3GSNsAIpWAffsIPzDVG', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-04-23 20:13:31', NULL, 1),
-(11, 0, 1, 'asdasd@gmail.com', NULL, NULL, 'Ali', 'Veli', NULL, 1, 1, '1d44e7c482c7fcf9690577d3ab4b8cf67b3612b6', 'raYekAfaWdKJvCjwzZ9oL3f1RIUeTp3wXFYmNh8XxnBAfSIrXm2EJ4OvF3LTj1BTgC1WtbnjEgZmJHtzNxZUukVJw46fDzCORnRlxXNoq4utpEac9Ev8NMkkowdqPrrl', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-04-23 21:38:44', NULL, 1),
+(11, 1, 1, 'asdasd@gmail.com', NULL, NULL, 'Ali', 'Veli', NULL, 1, 1, '1d44e7c482c7fcf9690577d3ab4b8cf67b3612b6', 'raYekAfaWdKJvCjwzZ9oL3f1RIUeTp3wXFYmNh8XxnBAfSIrXm2EJ4OvF3LTj1BTgC1WtbnjEgZmJHtzNxZUukVJw46fDzCORnRlxXNoq4utpEac9Ev8NMkkowdqPrrl', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-04-23 21:38:44', NULL, 1),
 (12, 1, 2, 'muhammedkalender@protonmail.com', NULL, NULL, 'Muhammed', 'Kalender', NULL, 1, 1, '9e4580b88aede42b72bce2b38db2caeec31c8153', '2TzUgupxn9rh5arqnOv6bOWjxXMyRbrivBhpYcqr9CUhHMWPoLU9gaEBTQX1PILAFYOmy6uBq0EZDhmxDGJqlMZqPBC2DashM2TlJrIPRp3deao98bQoJhJZq2qZGy4N', NULL, NULL, 'avatar.jpg', 0, 0, NULL, 0, 0, 0, NULL, '2019-05-13 16:02:18', NULL, 1);
 
 -- --------------------------------------------------------
@@ -1590,7 +1628,11 @@ INSERT INTO `token` (`token_id`, `token_member`, `token_key`, `token_lock`, `tok
 (27, 4, '8mIgmVMhVncYYuVAyRmexbZ4jZAIAThApwSgrsvgRUmQbyrsRglGtldk5L5WDA5Zd8EDex9nwoTyGdIpfgbEmLIgKD5l8Iv8vUnh7mgsyjC8OcDQVLJ8I8JtJISqxK3I', 'WXLdQp2RhtrRGYVIL1s1mnI3mt6Zv4dLhh98uc13xs3nnKsOVVHxKeFuFzgm97ptpUjjzRfSmPaJz0MdsCvFvIAJEKuWQNPn3Xnqw5L8v31O5O9dUnjYNXeIvVPxqdFG', '::1', '2019-05-13 14:12:56', '2019-05-13 14:12:56', 0),
 (28, 4, 'dY17EJK3wzSqV9vCtw6Kl8z0GDN41xnJh4fufyFL4CpYyShpqfS7GtClInAEkqPlLflXlqN449SGxEHSThgFXUAnGcNp5ZqyWm5QyCxuqcGrZthox55regbIcofje39c', 'D6VtQ5nIURnbSpdH8kmsQTPnwYRNfiorVg8ErBMPAKoCoVjXIBHPW3aoFOHRVoHPebPxMvGlAerUQ82u65C8zSaMaaqvmL0DjTCHbmeRkthFhh0YNS1LTTusN9P9iGTy', '::1', '2019-05-13 14:12:56', '2019-05-13 16:03:27', 0),
 (29, 4, 'wLw9Nsuau2j2Iyww1hP5n5rQ7DbgIThNZjruN9CqXqgJ95w0ToVu1YC4MBTafaRfgRMQRUau38GZSNJsrkuaZczikZ9XZd3uQ8F9z81XlyjT4rbQSuBJBT6uMFVrzx9M', 'BNk6qyJ9ChVJinSKmVioWr9eW9RgVLQBIC9yE1XEalHZyoeCDD8kj573j6SsmTk7rKiPA4xlva3jOEAZ1jm5LwyNWaLrE79ob7nCVzSHKNUVhqMMr7bpPqT6KABbc72v', '::1', '2019-05-13 16:03:27', '2019-05-13 16:03:32', 0),
-(30, 4, 'gMRButCSKHOqfsaEWkQVXwwizdXxxfGpE5Vwc9v4dUw93f9d1LpJbxDE4hyQ61ZqmvR1Im7cpfsV5Z9ahNIfDpBsqKq5ai9UhXRyIYHKfDey4zSH2FsBUU0zN6j7fmZY', 'lW56W79kiK0EmWP4Mbxr0UzA9LUbfZfjYtcW7aQ9bjRFk6TtnkUidLloVwAhhLO3tSnApCjvhyq9tLW5Ub6CGOzHB8278zGTtxWiXE7bCWO3XUYVfui3bAeonO4awb5H', '::1', '2019-05-13 16:03:32', '2019-05-13 16:03:32', 1);
+(30, 4, 'gMRButCSKHOqfsaEWkQVXwwizdXxxfGpE5Vwc9v4dUw93f9d1LpJbxDE4hyQ61ZqmvR1Im7cpfsV5Z9ahNIfDpBsqKq5ai9UhXRyIYHKfDey4zSH2FsBUU0zN6j7fmZY', 'lW56W79kiK0EmWP4Mbxr0UzA9LUbfZfjYtcW7aQ9bjRFk6TtnkUidLloVwAhhLO3tSnApCjvhyq9tLW5Ub6CGOzHB8278zGTtxWiXE7bCWO3XUYVfui3bAeonO4awb5H', '::1', '2019-05-13 16:03:32', '2019-05-14 18:54:27', 0),
+(31, 4, 'q8dIG4l42MU24J8gg65al95RaIEMtlIVqLIxonnlmWKQBbc8IXSxF8oFN4pNlq6J821QRG8TEHDPCISWqofMepLD1a4nj0FglQubv2wjLYnnKXNrDczMfl6gILvyJxtR', '4Vd0qFMdCJKAMpNhG4UioVbMBUmAcCiInwdtBt1xqdSUEdtES7QMVKmKjqCmLxmkOZ0v6R1M6y6scWE4D5sw6QiQh0H1ELjwtyf5vsi3MStlMX0ZbscIlazyEJCKfyeO', '::1', '2019-05-14 18:54:27', '2019-05-14 20:59:49', 0),
+(32, 4, 'PzOABccJmeHNyzQP940TcDFesOtr3cAZJFLGylY0SlPHU61xf2kZkkeVMzqQRMYeQq7wiUoAhzmSTn39A63soPRVk8I2Wp3TjThAx0H60jsSip1BNQ99HKwDS6LlcWHs', 'gxkH62Ak0kffXlkRPVmA32zu4b32z9aZFFZQgiJYJQ0SeoFbv4UmlIZBIAI8AoctLcjntoaJ31FmzO7I7ULZnVfkurnb3FdqEfO5MdQGQ8N6BUJqvcUd1DaNvUNelJNG', '::1', '2019-05-14 21:00:45', '2019-05-15 14:44:01', 0),
+(33, 4, 'y9r2NHIGW0aYxJ6TAmA8KqISg09D6QrwsgzsabzBFwIS3GrKeO3PRiWXleZVvQpQkp3DfLUxtaC9TxQNZh1hZXpPb1HJMBLaEi6B47VGm78wb1BkZjJUASmxDp6oWIIp', 'EkJpvrHN4CdfYIK3IrmHsVLOzU919auptCmUzR412IydOduDGl74t8PL9XXcemSMn1KlzFc0FU63ay42bydeDxTvuX0HFjW6LWszksyVUAPmwJAZ6dmZBFVad6LOkUHy', '::1', '2019-05-15 14:44:01', '2019-05-16 08:08:26', 0),
+(34, 4, '1sI2SNJGOYCLzl9wKJA79tIx86VbsTNY2riw83a1R6uPxtkQ5xOUtHmZLrb4UXra2Oy3wpBI04jOqbpqWnmfvp7AIbMhTnY43iPgcDLgJx9eOOvoUmSxGdAcy5SzsSYd', '5ddWniA6SBsqxuOBz6cHEKrGjpnvpp4CaCOCeVRSdUY0lYk4w4FNFY1zaPol4BMMiReYmduLOY2TmBuB0GMsTChTvVZxepy87bHyCt4LRhhkMEl7tT7VjCdcRrNOmGSt', '::1', '2019-05-16 08:08:26', '2019-05-16 08:08:26', 1);
 
 --
 -- Indexes for dumped tables
@@ -1649,6 +1691,12 @@ ALTER TABLE `job_adv_location`
 --
 ALTER TABLE `job_adv_military`
   ADD PRIMARY KEY (`job_adv_military_id`);
+
+--
+-- Indexes for table `job_apply`
+--
+ALTER TABLE `job_apply`
+  ADD PRIMARY KEY (`job_apply_id`);
 
 --
 -- Indexes for table `lang`
@@ -1736,7 +1784,7 @@ ALTER TABLE `experience`
 -- AUTO_INCREMENT for table `job_adv`
 --
 ALTER TABLE `job_adv`
-  MODIFY `job_adv_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `job_adv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `job_adv_language`
@@ -1748,13 +1796,19 @@ ALTER TABLE `job_adv_language`
 -- AUTO_INCREMENT for table `job_adv_location`
 --
 ALTER TABLE `job_adv_location`
-  MODIFY `job_adv_location_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `job_adv_location_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `job_adv_military`
 --
 ALTER TABLE `job_adv_military`
   MODIFY `job_adv_military_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `job_apply`
+--
+ALTER TABLE `job_apply`
+  MODIFY `job_apply_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `lang`
@@ -1802,7 +1856,7 @@ ALTER TABLE `skill`
 -- AUTO_INCREMENT for table `token`
 --
 ALTER TABLE `token`
-  MODIFY `token_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `token_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
