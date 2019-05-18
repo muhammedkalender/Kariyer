@@ -64,8 +64,8 @@ create table if not exists experience
     experience_name    varchar(128) not null,          ##İş
     experience_company varchar(128) not null,          ##Şirket
     experience_desc    varchar(512) not null,          ##Açıklama
-    experience_start   date         not null,          ##İşe Başlama
-    experience_end     date         null default null, ##Nullsa işe devam ediyor
+    experience_start   varchar(32)         not null,          ##İşe Başlama
+    experience_end     varchar(32)         null default null, ##Nullsa işe devam ediyor
     experience_order   int               default 0,
     experience_insert  timestamp         default current_timestamp,
     experience_update  timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

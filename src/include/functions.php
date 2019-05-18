@@ -166,7 +166,7 @@ class Valid
                     if ($correctMethod) {
                         $var = $_POST[$input->requestName];
 
-                        if ($var == "" && $input->minLength == 0) {
+                        if ($var == "" && $input->minLength == 0 && ($input->inputType == ValidObject::Integer || $input->inputType == ValidObject::Float)) {
                             $var = 0;
                             $_POST[$input->requestName] = 0;
                         }
@@ -317,22 +317,24 @@ class Valid
             }
 
             //todo Formatlanıp tekrar yhazılıyor
-            switch ($input->method) {
-                case ValidObject::GET:
-                    $_GET[$input->requestName] = $var;
-                    break;
-                case ValidObject::POST:
-                    $_POST[$input->requestName] = $var;
-                    break;
-                case ValidObject::REQUEST:
-                    $_REQUEST[$input->requestName] = $var;
-                    break;
-                case ValidObject::SESSION:
-                    Session::set($input->requestName, $var);
-                    break;
-                case ValidObject::VARIABLE:
-                    $input->value = $var;
-                    break;
+            if ($var != "") {
+                switch ($input->method) {
+                    case ValidObject::GET:
+                        $_GET[$input->requestName] = $var;
+                        break;
+                    case ValidObject::POST:
+                        $_POST[$input->requestName] = $var;
+                        break;
+                    case ValidObject::REQUEST:
+                        $_REQUEST[$input->requestName] = $var;
+                        break;
+                    case ValidObject::SESSION:
+                        Session::set($input->requestName, $var);
+                        break;
+                    case ValidObject::VARIABLE:
+                        $input->value = $var;
+                        break;
+                }
             }
         }
 
@@ -745,7 +747,7 @@ class User
         }
     }
 
-    public function getExperience($memberId = 0, $count = 0, $page = 0)
+    public function selectExperience($memberId = 0, $count = 0, $page = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -763,6 +765,19 @@ class User
 
         return DB::select("SELECT * FROM experience WHERE experience_member = $memberId AND experience_active = 1 ORDER BY experience_order DESC" . $suffix);
     }
+
+    public function getExperience($experienceId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM experience WHERE experience_id = $experienceId AND experience_active = 1");
+    }
     //endregion
 
     //region Education
@@ -775,7 +790,7 @@ class User
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
             return $auth;
         }
-        echo $name;
+
         $result = DB::executeId("INSERT INTO education (
                        education_member, 
                        education_name, 
@@ -848,7 +863,7 @@ class User
         }
     }
 
-    public function getEducation($memberId = 0, $count = 0, $page = 0)
+    public function selectEducation($memberId = 0, $count = 0, $page = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -865,6 +880,19 @@ class User
         }
 
         return DB::select("SELECT * FROM education WHERE education_member = $memberId AND education_active = 1 ORDER BY education_order DESC" . $suffix);
+    }
+
+    public function getEducation($educationId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM education WHERE education_id = $educationId AND education_active = 1");
     }
     //endregion
 
@@ -891,7 +919,7 @@ class User
                        ) VALUES ($memberId, '$name', '$company', '$title','$email', '$gsm', '$description',$order)");
 
         if ($result[0]) {
-            return [false, message("success_insert", "reference"), $result[1]];
+            return [true, message("success_insert", "reference"), $result[1]];
         } else {
             return [false, message("failed_insert", "reference")];
         }
@@ -932,10 +960,10 @@ class User
     {
         $memberId = DB::select("SELECT reference_member FROM reference WHERE reference_id = $referenceId");
 
-        if ($memberId[0] && count($memberId) > 0) {
+        if ($memberId[0] && count($memberId[1]) > 0) {
             $memberId = $memberId[1][0]["reference_member"];
         } else {
-            return [false, message("404_", "reference")];
+            return [false, message("404_", "reference") . var_dump($memberId)];
         }
 
 
@@ -952,7 +980,7 @@ class User
         }
     }
 
-    public function getReference($memberId = 0, $count = 0, $page = 0)
+    public function selectReference($memberId = 0, $count = 0, $page = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -969,6 +997,19 @@ class User
         }
 
         return DB::select("SELECT * FROM reference WHERE reference_member = $memberId AND reference_active = 1  ORDER BY reference_order DESC " . $suffix);
+    }
+
+    public function getReference($referenceId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM reference WHERE reference_id = $referenceId");
     }
     //endregion
 
@@ -1055,7 +1096,7 @@ class User
         }
     }
 
-    public function getCertificate($memberId = 0, $count = 0, $page = 0)
+    public function selectCertificate($memberId = 0, $count = 0, $page = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -1073,6 +1114,19 @@ class User
 
         return DB::select("SELECT * FROM certificate WHERE certificate_member = $memberId AND certificate_active = 1 ORDER BY certificate_order DESC " . $suffix);
     }
+
+    public function getCertificate($certificateId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM certificate WHERE certificate_id = $certificateId");
+    }
     //endregion
 
     //region Skill
@@ -1086,12 +1140,18 @@ class User
             return $auth;
         }
 
-        return DB::executeId("INSERT INTO skill (
+        $result = DB::executeId("INSERT INTO skill (
                        skill_member, 
                        skill_name, 
                        skill_level,
                        skill_order
                        ) VALUES ($memberId, '$name', $level, $order)");
+
+        if ($result[0]) {
+            return [true, lang("success_insert_skill"), $result[1]];
+        } else {
+            return [true, lang("failure_insert_skill")];
+        }
     }
 
     public function setSkill($skillId, $name, $level, $order = 0)
@@ -1148,7 +1208,7 @@ class User
         }
     }
 
-    public function getSkill($memberId = 0, $count = 0, $page = 0)
+    public function selectSkill($memberId = 0, $count = 0, $page = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -1165,6 +1225,19 @@ class User
         }
 
         return DB::select("SELECT * FROM skill WHERE skill_member = $memberId AND skill_active = 1 ORDER BY skill_order DESC " . $suffix);
+    }
+
+    public function getSkill($skillId, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM skill WHERE skill_id = $skillId");
     }
     //endregion
 
@@ -1580,36 +1653,36 @@ WHERE jl.job_adv_id = " . intval($jobId));
 
         if ($puser == 0) {
             if ($user->power >= Perm::SUPPORT) {
-                if(intval($puser) != 0){
+                if (intval($puser) != 0) {
                     $query = " WHERE job_adv_author = " . $puser;
                 }
             } else {
-                if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
+                if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $puser))[0] == false) {
                     return $auth;
                 }
 
                 $query = " WHERE job_adv_author = " . $user->memberId;
             }
-        }else{
-            $query = " WHERE job_adv_author = ".$user->memberId;
+        } else {
+            $query = " WHERE job_adv_author = " . $user->memberId;
 
-            if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
+            if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $puser))[0] == false) {
                 return $auth;
             }
         }
 
-        if($active != ""){
-            if($query == ""){
-                $query = " WHERE job_adv_active = ".intval($active);
-            }else{
-                $query .= " AND job_adv_active = ".intval($active);
+        if ($active != "") {
+            if ($query == "") {
+                $query = " WHERE job_adv_active = " . intval($active);
+            } else {
+                $query .= " AND job_adv_active = " . intval($active);
             }
         }
 
         if ($keyword != "") {
-            if($query == ""){
+            if ($query == "") {
                 $query = " WHERE ";
-            }else{
+            } else {
                 $query .= " AND ";
             }
 
@@ -1721,7 +1794,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
             return $auth;
         }
 
-        if (DB::execute("UPDATE job_adv SET  job_adv_close = '" . date("d.m.y") . "' WHERE  job_adv_close IS NULL AND job_adv_id = " . $jobAdvId)[0]."") {
+        if (DB::execute("UPDATE job_adv SET  job_adv_close = '" . date("d.m.y") . "' WHERE  job_adv_close IS NULL AND job_adv_id = " . $jobAdvId)[0] . "") {
             return [true, message("success_close_job_adv")];
         } else {
             return [true, message("failed_close_job_adv")];

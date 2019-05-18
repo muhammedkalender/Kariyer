@@ -107,7 +107,20 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->getSkill($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        $callResult = $user->selectSkill($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "get") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("skill_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getSkill($_POST["skill_id"]);
         goto output;
     } else if ($callRequest == "delete") {
         //[OK]
@@ -211,7 +224,19 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->getCertificate($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        $callResult = $user->selectCertificate($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "get") {
+        $inputs = Valid::check([
+            new ValidObject("certificate_id", "certificate_id", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getCertificate($_POST["certificate_id"]);
         goto output;
     } else if ($callRequest == "update") {
         //[OK]
@@ -221,7 +246,7 @@ if ($callCategory == "user") {
             new ValidObject("certificate_company", "", 0, 64, ValidObject::CleanText),
             new ValidObject("certificate_url", "", 0, 1024, ValidObject::URL),
             new ValidObject("certificate_description", "", 0, 1024, ValidObject::CleanText),
-            new ValidObject("certificate_date", "", 0, 32, ValidObject::Date),
+            new ValidObject("certificate_date", "", 0, 10, ValidObject::Date),
             new ValidObject("certificate_order", "", 0, 3, ValidObject::Integer)
         ]);
 
@@ -237,10 +262,10 @@ if ($callCategory == "user") {
         $inputs = Valid::check([
             new ValidObject("certificate_member", "", 1, 32, ValidObject::Integer),
             new ValidObject("certificate_name", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("certificate_company", "", 0, 64, ValidObject::CleanText),
+            new ValidObject("certificate_company", "", 1, 64, ValidObject::CleanText),
             new ValidObject("certificate_url", "", 0, 1024, ValidObject::URL),
             new ValidObject("certificate_description", "", 0, 1024, ValidObject::CleanText),
-            new ValidObject("certificate_date", "", 0, 32, ValidObject::Date),
+            new ValidObject("certificate_date", "", 0, 10, ValidObject::Date),
             new ValidObject("certificate_order", "", 0, 3, ValidObject::Integer)
         ]);
 
@@ -283,18 +308,31 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->getExperience($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        $callResult = $user->selectExperience($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    }else if ($callRequest == "get") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("experience_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getExperience($_POST["experience_id"]);
         goto output;
     } else if ($callRequest == "insert") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("experience_member", "", 1, 32, ValidObject::Integer),
-            new ValidObject("experience_name", "", 1, 32, ValidObject::CleanText),
-            new ValidObject("experience_company", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("experience_description", "", 0, 1024, ValidObject::CleanText),
-            new ValidObject("experience_start", "", 1, 32, ValidObject::Date),
-            new ValidObject("experience_end", "", 0, 32, ValidObject::Date),
-            new ValidObject("experience_order", "", 0, 3, ValidObject::Integer)
+            new ValidObject("experience_member", "experience_member", 1, 32, ValidObject::Integer),
+            new ValidObject("experience_name", "experience_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("experience_company", "experience_company", 1, 64, ValidObject::CleanText),
+            new ValidObject("experience_description", "experience_description", 0, 1024, ValidObject::CleanText),
+            new ValidObject("experience_start", "experience_start", 1, 32, ValidObject::Date),
+            new ValidObject("experience_end", "experience_end", 0, 32, ValidObject::Date),
+            new ValidObject("experience_order", "experience_order", 0, 3, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
@@ -307,12 +345,12 @@ if ($callCategory == "user") {
     } else if ($callRequest == "update") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("experience_id", "", 1, 32, ValidObject::Integer),
-            new ValidObject("experience_name", "", 1, 32, ValidObject::CleanText),
-            new ValidObject("experience_company", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("experience_description", "", 0, 1024, ValidObject::CleanText),
-            new ValidObject("experience_start", "", 1, 32, ValidObject::Date),
-            new ValidObject("experience_end", "", 0, 32, ValidObject::Date),
+            new ValidObject("experience_id", "experience_id", 1, 32, ValidObject::Integer),
+            new ValidObject("experience_name", "experience_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("experience_company", "experience_company", 1, 64, ValidObject::CleanText),
+            new ValidObject("experience_description", "experience_description", 0, 1024, ValidObject::CleanText),
+            new ValidObject("experience_start", "experience_start", 1, 32, ValidObject::Date),
+            new ValidObject("experience_end", "experience_end", 0, 32, ValidObject::Date),
             new ValidObject("experience_order", "", 0, 3, ValidObject::Integer)
         ]);
 
@@ -355,19 +393,32 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->getEducation($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        $callResult = $user->selectEducation($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "get") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("education_id", "education", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getEducation($_POST["education_id"]);
         goto output;
     } else if ($callRequest == "insert") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("education_member", "", 1, 32, ValidObject::Integer),
-            new ValidObject("education_name", "", 1, 32, ValidObject::CleanText),
-            new ValidObject("education_department", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("education_type", "", 1, 16, ValidObject::Integer),
-            new ValidObject("education_start", "", 1, 32, ValidObject::Date),
-            new ValidObject("education_end", "", 0, 32, ValidObject::Date),
-            new ValidObject("education_order", "", 0, 3, ValidObject::Integer),
-            new ValidObject("education_note", "", 0, 4, ValidObject::Float)
+            new ValidObject("education_member", "education_member", 1, 32, ValidObject::Integer),
+            new ValidObject("education_name", "education_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("education_department", "education_department", 1, 64, ValidObject::CleanText),
+            new ValidObject("education_type", "education_type", 1, 16, ValidObject::Integer),
+            new ValidObject("education_start", "education_start", 1, 32, ValidObject::Date),
+            new ValidObject("education_end", "education_end", 0, 32, ValidObject::Date),
+            new ValidObject("education_order", "education_order", 0, 3, ValidObject::Integer),
+            new ValidObject("education_note", "education_note", 0, 4, ValidObject::Float)
         ]);
 
         if ($inputs[0] == false) {
@@ -380,14 +431,14 @@ if ($callCategory == "user") {
     } else if ($callRequest == "update") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("education_id", "", 1, 32, ValidObject::Integer),
-            new ValidObject("education_name", "", 1, 32, ValidObject::CleanText),
-            new ValidObject("education_department", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("education_type", "", 1, 16, ValidObject::Integer),
-            new ValidObject("education_start", "", 1, 32, ValidObject::Date),
-            new ValidObject("education_end", "", 0, 32, ValidObject::Date),
-            new ValidObject("education_order", "", 0, 3, ValidObject::Integer),
-            new ValidObject("education_note", "", 0, 4, ValidObject::Float)
+            new ValidObject("education_id", "education_id", 1, 32, ValidObject::Integer),
+            new ValidObject("education_name", "education_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("education_department", "education_department", 1, 64, ValidObject::CleanText),
+            new ValidObject("education_type", "education_type", 1, 16, ValidObject::Integer),
+            new ValidObject("education_start", "education_start", 1, 32, ValidObject::Date),
+            new ValidObject("education_end", "education_end", 0, 32, ValidObject::Date),
+            new ValidObject("education_order", "education_order", 0, 3, ValidObject::Integer),
+            new ValidObject("education_note", "education_note", 0, 4, ValidObject::Float)
         ]);
 
         if ($inputs[0] == false) {
@@ -428,47 +479,59 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->getReference($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        $callResult = $user->selectReference($_POST["member_id"], $_POST["count"], $_POST["page"]);
+        goto output;
+    } else if ($callRequest == "get") {
+        $inputs = Valid::check([
+            new ValidObject("reference_id", "", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getReference($_POST["reference_id"]);
         goto output;
     } else if ($callRequest == "insert") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("reference_member", "", 1, 32, ValidObject::Integer),
-            new ValidObject("reference_name", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_company", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_title", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_email", "", 0, 32, ValidObject::Email),
-            new ValidObject("reference_gsm", "", 0, 32, ValidObject::Phone),
-            new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
-            new ValidObject("reference_order", "", 0, 3, ValidObject::Integer)
+            new ValidObject("reference_member", "reference_member", 1, 32, ValidObject::Integer),
+            new ValidObject("reference_name", "reference_name", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_company", "reference_company", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_title", "reference_title", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_email", "reference_email", 0, 32, ValidObject::Email),
+            new ValidObject("reference_gsm", "reference_gsm", 0, 32, ValidObject::Phone),
+            // new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("reference_order", "reference_order", 0, 3, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
             $callResult = $inputs;
             goto output;
         }
-
-        $callResult = $user->addReference($_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], $_POST["reference_description"], $_POST["reference_order"], $_POST["reference_member"]);
+        //$_POST["reference_description"]
+        $callResult = $user->addReference($_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], "", $_POST["reference_order"], $_POST["reference_member"]);
         goto output;
     } else if ($callRequest == "update") {
         //[OK]
         $inputs = Valid::check([
-            new ValidObject("reference_id", "", 1, 32, ValidObject::Integer),
-            new ValidObject("reference_name", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_company", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_title", "", 1, 64, ValidObject::CleanText),
-            new ValidObject("reference_email", "", 0, 32, ValidObject::Email),
-            new ValidObject("reference_gsm", "", 0, 32, ValidObject::Phone),
-            new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
-            new ValidObject("reference_order", "", 0, 3, ValidObject::Integer)
+            new ValidObject("reference_id", "reference", 1, 32, ValidObject::Integer),
+            new ValidObject("reference_name", "reference_name", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_company", "reference_company", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_title", "reference_title", 1, 64, ValidObject::CleanText),
+            new ValidObject("reference_email", "reference_email", 0, 32, ValidObject::Email),
+            new ValidObject("reference_gsm", "reference_gsm", 0, 32, ValidObject::Phone),
+            // new ValidObject("reference_description", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("reference_order", "reference_order", 0, 3, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
             $callResult = $inputs;
             goto output;
         }
-
-        $callResult = $user->setReference($_POST["reference_id"], $_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], $_POST["reference_description"], $_POST["reference_order"]);
+        //$_POST["reference_description"]
+        $callResult = $user->setReference($_POST["reference_id"], $_POST["reference_name"], $_POST["reference_company"], $_POST["reference_title"], $_POST["reference_email"], $_POST["reference_gsm"], "", $_POST["reference_order"]);
         goto output;
     } else if ($callRequest == "delete") {
         //[OK]
@@ -625,9 +688,9 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = Job::selectJobForAdmin($_POST["keyword"], $_POST["active"], $_POST["user"],  $_POST["page"], $_POST["count"]);
+        $callResult = Job::selectJobForAdmin($_POST["keyword"], $_POST["active"], $_POST["user"], $_POST["page"], $_POST["count"]);
         goto output;
-    }else if($callRequest == "close_apply"){
+    } else if ($callRequest == "close_apply") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
@@ -640,7 +703,7 @@ if ($callCategory == "user") {
 
         $callResult = Job::closeJobAdv($_POST["job_id"]);
         goto output;
-    }else if($callRequest == "delete"){
+    } else if ($callRequest == "delete") {
         $inputs = Valid::check([
             new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
         ]);

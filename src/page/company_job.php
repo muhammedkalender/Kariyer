@@ -263,7 +263,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                     button.disabled = false;
                 }
             });
-
     }
 
     function lmjaItemActions(id) {

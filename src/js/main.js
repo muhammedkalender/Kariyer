@@ -11,6 +11,14 @@ function item(id) {
     return document.getElementById(id);
 }
 
+function itemValue(id) {
+    return document.getElementById(id).value;
+}
+
+function setValue(id, val = ""){
+    document.getElementById(id).value = val;
+}
+
 class Message {
     static error(message, title = "") {
         if (title == "") {
@@ -303,4 +311,15 @@ function loadCheck(URL, TAG, OBJECT, DB, callback) {
             callback();
         }
     });
+}
+
+
+function hideErrorArea(id) {
+    item(id).style.display = "none";
+    item(id).innerHTML = "";
+}
+
+function showErrorArea(id, msg) {
+    item(id).style.display = "block";
+    item(id).innerHTML = msg;
 }

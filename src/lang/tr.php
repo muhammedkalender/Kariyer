@@ -126,7 +126,70 @@ $lang = [
     "education_level_phd" => "Doktora ( Öğrenci )",
     "education_level_phdg" => "Doktora ( Mezun )",
 
+    "education_level_1" => "İlkokul",
+    "education_level_2" => "Lise",
+    "education_level_3" => "Ön Lisans",
+    "education_level_4" => "Lisans",
+    "education_level_5" => "Yüksek Lisans",
+    "education_level_6" => "Doktora",
 
+    "edit_add_education" => "Eğitim Ekle / Düzenle",
+"education" => "Okul",
+    "education_type" => "Okul Türü",
+    "education_department" => "Bölüm",
+    "education_start" => "Başlangıç Tarihi",
+    "education_end" => "Bitiş Tarihi",
+    "education_name" => "Okul Adı",
+
+"edit_add_experience" => "Deneyim Ekle / Düzenle",
+    "experience_name" => "Pozisyon",
+    "experience_desc" => "Açıklama",
+    "experience_company" => "Firma",
+    "experience_start" =>"İşe Giriş" ,
+    "experience_end" => "İşten Çıkış",
+"load_more_job" => "Daha Fazla Yükle",
+
+"search_job" => "Başka İlan",
+
+    "education_note" => "Not Ortalaması ( 4.0 Üzerinden )",
+
+    "educations" => "Eğitimler",
+
+    "success_insert_skill" => "Yetenek Başarıyla Eklendi",
+    "failed_insert_skill" => "Yetenek Eklenemedi",
+
+
+    "references" => "Referanslar",
+    "add_reference" => "Referans Ekle",
+    "delete_reference" => "Referansı Sil",
+    "edit_reference" => "Referansı Düzenle",
+
+    "reference_name" => "Referans Sahibi",
+    "reference_company" => "Referansın Firması",
+    "reference_title" => "Referansın Ünvanı",
+    "reference_gsm" => "Referansın Telefonu",
+    "reference_email" => "Referansın Emaili",
+    "edit_add_reference" => "Referans Ekle / Düzenle",
+    "reference" => "Referans",
+
+"edit_add_certificate" => "Sertifika Ekle / Düzenle",
+    "certificate_url" => "Sertifika Bağlantısı",
+    "certificate_date" => "Sertifika Tarihi",
+    "certificate_desc" => "Sertifika Açıklaması",
+    "certificate_company" => "Sertifika Firması",
+    "certificate_name" => "Sertifika Adı",
+
+    "skills" => "Yetenekler",
+    "add_skill" => "Yetenek Ekle",
+
+    "skill_name" => "Yetenek Adı",
+    "skill_level" => "Yetenek Seviyesi",
+    "edit_add_skill" => "Yetenek Ekle / Düzenle",
+"resuming" => "Devam Ediyor",
+    "add_education" => "Eğitim Ekle",
+    "add_edu" => "Eğitim Ekle",
+    "delete_education" => "Eğitimi Sil",
+    "edit_education" => "Eğitimi Düzenle",
     "success_insert_job_adv" => "İş İlanı Başarıyla Yayınlanadı",
     "failed_insert_job_adv" => "İş İlanı Yayınlanırken Sorun Oluştu",
     "failed_insert_job_adv_location" => "İş İlanı Eklendi ama konumlar eklenirken sorun oluştu",
@@ -154,6 +217,7 @@ $lang = [
     "apply" => "Tamamla",
     "var_active" => "Aktiflik",
     "var_user" => "Kullanıcı",
+    "delete" => "Sil",
 
     "failed_job_adv_update" => "İş İlanı Güncellenemedi",
     "success_job_adv_update" => "İş İlanı Güncellendi",
@@ -167,6 +231,7 @@ $lang = [
     "edit_experience" => "Deneyimi Düzenle",
     "add_experience" => "Deneyim Ekle",
     "delete_experience" => "Deneyimi Sil",
+    "var_skill_member" => "Kullanıcı"
 
 ];
 
