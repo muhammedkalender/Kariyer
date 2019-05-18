@@ -1657,7 +1657,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
                     $query = " WHERE job_adv_author = " . $puser;
                 }
             } else {
-                if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $puser))[0] == false) {
+                if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
                     return $auth;
                 }
 
@@ -1666,7 +1666,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
         } else {
             $query = " WHERE job_adv_author = " . $user->memberId;
 
-            if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $puser))[0] == false) {
+            if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $puser))[0] == false) {
                 return $auth;
             }
         }

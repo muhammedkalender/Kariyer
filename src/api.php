@@ -351,7 +351,7 @@ if ($callCategory == "user") {
             new ValidObject("experience_description", "experience_description", 0, 1024, ValidObject::CleanText),
             new ValidObject("experience_start", "experience_start", 1, 32, ValidObject::Date),
             new ValidObject("experience_end", "experience_end", 0, 32, ValidObject::Date),
-            new ValidObject("experience_order", "", 0, 3, ValidObject::Integer)
+            new ValidObject("experience_order", "experience_order", 0, 3, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
