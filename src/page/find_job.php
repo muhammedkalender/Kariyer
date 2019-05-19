@@ -28,133 +28,126 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
             </div>
 
-            <button class="form-control bg-warning text-white" onclick="loadMoreJob(this)"><?=lang("load_more_job")?></button>
+            <button class="form-control bg-warning text-white"
+                    onclick="loadMoreJob(this)"><?= lang("load_more_job") ?></button>
 
-            <form id="form_search_job">
+            <div class="form-group">
+                <input type="submit" class="form-control bg-primary text-white" onclick="searchJob(this)" value="<?= lang('search_now') ?>"
+            </div>
+            <div class="card">
+                <div class="card-body">
 
-
-                <div class="form-group">
-                    <input type="submit" class="form-control bg-primary" value="<?= lang('search_now') ?>"
-                </div>
-                <div class="card">
-                    <div class="card-body">
-
-                        <div class="form-group">
-                            <label for="fj_keyword"><?= lang("lbl_fj_keyword") ?></label>
-                            <input type="text" class="form-control" name="fj_keyword"
-                                   placeholder="<?= lang('hint_fj_keyword') ?>">
-                        </div>
+                    <div class="form-group">
+                        <label for="fj_keyword"><?= lang("lbl_fj_keyword") ?></label>
+                        <input type="text" class="form-control" id="fj_keyword" name="fj_keyword"
+                               placeholder="<?= lang('hint_fj_keyword') ?>">
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
+            </div>
+            <div class="card">
+                <div class="card-body">
 
-                        <div class="form-group">
-                            <label for="fj_country"><?= lang("lbl_country") ?></label>
-                            <select class="form-control" id="fj_country" name="fj_country"
-                                    onchange="getLocation(this.value,1, 'fj_city')"
-                            >
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="fj_country"><?= lang("lbl_country") ?></label>
+                        <select class="form-control" id="fj_country" name="fj_country"
+                                onchange="getLocation(this.value,1, 'fj_city')"
+                        >
+                        </select>
                     </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-body">
 
-                        <div class="form-group">
-                            <label for="fj_city"><?= lang("lbl_city") ?></label>
-                            <select class="form-control" id="fj_city" name="fj_city" onclick="getDistrict(this.value)"
-                            >
-                                <?php
-                                    $category = file_get_contents( $_SERVER["DOCUMENT_ROOT"]."/const/category.json", true);
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="card" id="card-distinct">
-
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label><?= lang("lbl_country") ?></label>
-                        </div>
-                        <div id="content-distinct">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" id="card-work-type">
-
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label><?= lang("lbl_country") ?></label>
-                        </div>
-                        <div class="form-group">
+                    <div class="form-group">
+                        <label for="fj_city"><?= lang("lbl_city") ?></label>
+                        <select class="form-control" id="fj_city" name="fj_city" onclick="getDistrict(this.value)"
+                        >
                             <?php
-                            $workType = json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/const/work_type_" . $currentLang . ".json"), true);
-
-                            for ($i = 0; $i < count($workType); $i++) {
-                                echo '<div class="custom-control custom-checkbox custom-control-inline">';
-                                echo '<input type="checkbox" class="custom-control-input" id="work_type' . $workType[$i]["id"] . '" name="work_type[]" value="' . $workType[$i]["id"] . '">';
-                                echo '<label class="custom-control-label" for="work_type' . $workType[$i]["id"] . '">' . $workType[$i]["text"] . '</label>';
-                                echo '</div>';
-                            }
+                            $category = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/const/category.json", true);
                             ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= lang("lbl_distinct") ?></label>
+                    </div>
+                    <div id="content-distinct">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="card-work-type">
+
+                <div class="card-body">
+                    <div class="form-group">
+                        <label><?= lang("lbl_work_type") ?></label>
+                    </div>
+                    <div class="form-group">
+                        <?php
+                        $workType = json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/const/work_type_" . $currentLang . ".json"), true);
+
+                        for ($i = 0; $i < count($workType); $i++) {
+                            echo '<div class="custom-control custom-checkbox custom-control-inline">';
+                            echo '<input type="checkbox" class="custom-control-input" id="work_type' . $workType[$i]["id"] . '" name="work_type[]" value="' . $workType[$i]["id"] . '">';
+                            echo '<label class="custom-control-label" for="work_type' . $workType[$i]["id"] . '">' . $workType[$i]["text"] . '</label>';
+                            echo '</div>';
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="form-group">
+                        <label for="fj_category"><?= lang("lbl_category") ?></label>
+                        <select class="form-control" id="fj_category" name="fj_category"
+                                onchange='loadCheck("category_"+this.value, "category", "content_sub_category", "category")'
+                        >
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div id="content_sub_category">
+
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-
-                        <div class="form-group">
-                            <label for="fj_category"><?= lang("lbl_country") ?></label>
-                            <select class="form-control" id="fj_category" name="fj_category"
-                                    onchange='loadCheck("category_"+this.value, "category", "content_sub_category", "category")'
-                            >
-
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="form-group">
-                            <div class="form-group">
-                                <label><?= lang("lbl_country") ?></label>
-                            </div>
-                            <div id="content_sub_category">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 
 <script>
-    function jobView(){
+
+    var workType = [];
+
+    workType["work_type_1"] = "Tam Zamanlı";
+    workType["work_type_2"] = "Part Time";
+    workType["work_type_3"] = "Staj";
+    workType["work_type_4"] = "Freelancer";
+    workType["work_type_5"] = "Proje";
+    workType["work_type_6"] = "Serbest";
+
+    function jobView(id, name, company_id, company_name, company_image, category_path, locations, location_father, type) {
         var html = '<div class="container-fluid">' +
             '            <div class="row">' +
             '            <div class="col-12 mt-3">' +
             '            <div class="card">' +
             '            <div class="card-horizontal">' +
             '            <div class="img-square-wrapper">' +
-            '            <img class="" src="http://via.placeholder.com/180x180" alt="Card image cap">' +
-            '            <b><p class="card-text text-center text-bold">Arslan Company</p></b>' +
+            '            <a href="index.php?page=company_profile&company_id=' + company_id + '"><img class="" style="width: 180px; height: 180px" src="' + company_image + '" alt="' + company_name + '">' +
+            '            <b><p class="card-text text-center text-bold">' + company_name + '</p></b></a>' +
             '        </div>' +
             '        <div class="card-body">' +
-            '            <h4 class="card-title">Senior Android Devoloper</h4>' +
-            '        <p class="card-text">Tam Zamanlı</p>' +
-            '        <p class="align-text-bottom">Bilgisyaar / Yazılım Mimarı</p>' +
-            '        <p class="align-text-bottom">İstanbul ( Tuzla, Pendik, Kartar )</p>' +
+            '            <h4 class="card-title">' + name + '</h4>' +
+            '        <p class="card-text">' + workType["work_type_" + type] + '</p>' +
+            '        <p class="align-text-bottom">' + category_path + '</p>' +
+            '        <p class="align-text-bottom">' + location_father + '( ' + locations + ' )</p>' +
             '            </div>' +
             '            </div>' +
             '            <div class="card-footer">' +
-            '            <button class="form-control bg-success text-white">İncele</button>' +
+            '            <a href="index.php?page=ilani-gor&job_id=' + id + '"><button class="form-control bg-success text-white"><?=lang("view")?></button></a>' +
             '            </div>' +
             '            </div>' +
             '            </div>' +
@@ -164,12 +157,42 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         $("#area_search_job").append(html);
     }
 
-    var  keyword = "";
+    function searchJob(button) {
+        keyword = itemValue("fj_keyword");
+
+        if(keyword.length < 3){
+            //todo
+            return;
+        }
+
+        if(lastKeyword == keyword){
+            return;
+        }
+
+        lastKeyword = keyword;
+
+
+
+        //locations = document.getElementsByName("district[]")[0].value;
+
+        page = 0;
+
+        $("#area_search_job").html("");
+
+        loadMoreJob(button);
+
+    }
+
+    var lastKeyword = "";
+    var keyword = "";
     var page = 0;
     var count = 5;
     var active = "";
+    var type = 0;
+    var cat = 0;
+    var locations = "";
 
-    function loadMoreJob(button){
+    function loadMoreJob(button) {
         if (button != null) {
             button.disabled = true;
         }
@@ -177,15 +200,18 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         $.post("api.php",
             {
                 "call_category": "job",
-                "call_request": "select",
+                "call_request": "search",
                 "keyword": keyword,
                 "page": page,
                 "count": count,
-                "user":0,
-                "active": active
+                "user": 0,
+                "active": active,
+                "type": type,
+                "cat": cat,
+                "locations": locations
             }, function (data, status) {
 
-            console.log(data);
+                console.log(data);
 
                 if (status == "success") {
 
@@ -197,27 +223,21 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                         var html = "";
 
                         for (var i = 0; i < result.length; i++) {
-                            if(result[i]["job_adv_close"] == null){
+                            if (result[i]["job_adv_close"] == null) {
                                 result[i]["job_adv_close"] = "-";
                             }
 
-
-                            html += "<tr><td><b>" + result[i]["job_adv_id"] + "</b></td>";
-                            html += "<td>" + result[i]["job_adv_title"] + "</td>";
-                            html += "<td>" + result[i]["company_name"] + "</td>";
-                            html += "<td>" + result[i]["job_adv_close"] +"</td>";
-                            html += "<td>" + result[i]["job_adv_app"] + "</td>";
-                            html += "<td>" + result[i]["job_adv_view"] + "</td>";
-                            html += "<td>" + lmjaItemActions(result[i]["job_adv_id"]) + "</td></tr>";
+                            jobView(result[i]["job_adv_id"], result[i]["job_adv_title"], result[i]["job_adv_author"], result[i]["company_name"], "", result[i]["category"], result[i]["locations"], result[i]["fatherLocation"], result[i]["job_adv_type"]);
                         }
 
-                        if (append) {
-                            $("#table_job").append(html);
+                        //todo
+                        if (true) {
+                            $("#area_search_job").append(html);
                         } else {
-                            $("#table_job").html(html);
+                            $("#area_search_job").html(html);
                         }
-                    }else{
-                        Message.error(result[1],"");
+                    } else {
+                        Message.error(result[1], "");
                     }
                 }
 

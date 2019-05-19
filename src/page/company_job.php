@@ -57,7 +57,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
             </tbody>
         </table>
 
-        <input type="button" class="form-control" onclick="loadMoreJob(this)" value="<?= message('load_more') ?>">
+        <input type="button" class="form-control" onclick="loadMoreJob(this, true)" value="<?= message('load_more') ?>">
     </div>
 
     <div class="modal" id="modal-close-job">
@@ -204,11 +204,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         keyword = item('lmjaSearch').value;
         page = 0;
 
-        loadMoreJob(button, false)
+        loadMoreJob(button, false);
     }
 
     function loadMoreJob(button) {
-        loadMoreJob(button, true)
+        loadMoreJob(button, true);
     }
 
     function loadMoreJob(button, append) {
@@ -266,11 +266,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     }
 
     function lmjaItemActions(id) {
-        return " <a href=\"company.php?page=job_edit&job_id=" + id + "\" target=\"_blank\"><button class=\"btn\" title=\"<?=message('view_job_adv')?>\"><i class=\"fa fa-search\"></i></button></a><button class=\"btn\" onclick=\"item('modalCloseJobId').value = " + id + "; openModal('modal-close-job')\" title=\"<?=message('close_job_apply')?>\"><i class=\"fa fa-lock\"></i></button><button class=\"btn\" onclick=\"viewJobAdv(" + id + ")\" title=\"<?=message('view_job_applys')?>\"><i class=\"fa fa-check\"></i></button><button class=\"btn\" onclick=\"item('modalDeleteJobId').value = " + id + "; openModal('modal-delete-job')\" title=\"<?=message('delete_job')?>\"><i class=\"fa fa-trash\"></i></button>";
+        return " <a href=\"company.php?page=job_edit&job_id=" + id + "\" target=\"_blank\"><button class=\"btn\" title=\"<?=message('view_job_adv')?>\"><i class=\"fa fa-search\"></i></button></a><button class=\"btn\" onclick=\"item('modalCloseJobId').value = " + id + "; openModal('modal-close-job')\" title=\"<?=message('close_job_apply')?>\"><i class=\"fa fa-lock\"></i></button><a target=\"_blank\" href=\"company.php?page=job_apply&job_id="+id+"\"><button class=\"btn\" title=\"<?=message('view_job_applys')?>\"><i class=\"fa fa-check\"></i></button></a><button class=\"btn\" onclick=\"item('modalDeleteJobId').value = " + id + "; openModal('modal-delete-job')\" title=\"<?=message('delete_job')?>\"><i class=\"fa fa-trash\"></i></button>";
     }
 
     $(document).ready(function () {
-        loadMoreJob(null)
+        loadMoreJob(null, true);
     });
 
 </script>

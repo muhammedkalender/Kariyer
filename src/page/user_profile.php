@@ -21,6 +21,12 @@ if (isset($_GET["user"])) {
 $profile = $user;
 
 if ($userId > 0 && $userId != $user->memberId) {
+    if (!DB::isAvailable("SELECT job_adv_author FROM job_apply INNER JOIN job_adv ON job_adv_id = job_apply_job_adv_id INNER JOIN member ON job_adv_author = member_id WHERE job_apply_member = $userId  AND job_adv_author =" . $user->memberId) && $user->power < Perm::ADMIN) {
+        include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
+        echo lang("perm_error");
+        die();
+    }
+
     $profile = new User($userId);
 } else {
     $profile = $user;
@@ -29,30 +35,55 @@ if ($userId > 0 && $userId != $user->memberId) {
 $title = $profile->name . " " . $profile->surname;
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
+
+var_dump($profile);
 ?>
 
 <div class="container">
-    <form class="">
-        <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                   placeholder="Enter email">
+    <div class="card">
+        <div class="card-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 mt-3">
+                        <div class="card">
+                            <div class="card-horizontal">
+                                <div class="img-square-wrapper">
+                                    <img
+                                            class=""
+                                            style="width: 180px; height: 180px"
+                                            src="<?= $profile->image ?>"
+                                            alt="<?= $title ?>">
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group form-inline">
+                                        <label for="name"  class="form-control"><?=lang("user_name")?></label>
+                                        <input type="text" id="name" lang="name" class="form-control" value="<?=$user->name?>">
+                                        <div  class="col-2"></div>
+                                        <label for="surname"  class="form-control"><?=lang("user_surname")?></label>
+                                        <input type="text" id="surname" lang="surname" class="form-control" value="<?=$user->surname?>">
+                                    </div>
+
+                                    <div class="form-group form-inline">
+                                        <label for="email"  class="form-control"><?=lang("user_email")?></label>
+                                        <input type="text" id="email" lang="email" class="form-control" value="<?=$user->email?>">
+                                        <div  class="col-2"></div>
+                                        <label for="gsm""  class="form-control"><?=lang("user_gsm")?></label>
+                                        <input type="text" id="gsm"" lang="gsm"" class="form-control" value="<?=$user->gsm?>">
+                                    </div>
+                                    <p class="card-text"><?= $profile->email ?></p>
+                                    <p class="align-text-bottom"><?= $profile->gsm ?></p>
+                                    <p class="align-text-bottom"><?= $profile->website ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
-    <div class="row">
-        <div class="col-md-1">
-
-        </div>
-
-        <div class="text-center">
-            <img src="./images/profile.jpg" class="rounded" style="width: 256px" alt="...">
-        </div>
-
-
-        <br>
-        <p class="font-weight-bold"><?= $profile->name . " " . $profile->surname ?></p>
-        <p class="font-weight-bold"><?= $profile->name . " " . $profile->surname ?></p>
     </div>
+    <br>
+
+
     <?php
     $exps = $profile->selectExperience();
 
@@ -829,21 +860,22 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         var id = itemValue("delete-exp-id");
 
         $.post("api.php", {
-            "call_category": "user_experience",
-            "call_request": "delete",
-            "experience_id": id
-        }, function (data, result) {
-            closeModal("modal-delete-exp");
+                "call_category": "user_experience",
+                "call_request": "delete",
+                "experience_id": id
+            }, function (data, result) {
+                closeModal("modal-delete-exp");
 
-            if (result == "success") {
-                data = JSON.parse(data);
+                if (result == "success") {
+                    data = JSON.parse(data);
 
-                if (data[0]) {
+                    if (data[0]) {
                         Message.success(data[1]);
-                } else {
-                    Message.error(data[1]);
+                    } else {
+                        Message.error(data[1]);
+                    }
                 }
-            }}
+            }
         );
     }
 

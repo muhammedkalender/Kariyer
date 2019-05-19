@@ -310,7 +310,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->selectExperience($_POST["member_id"], $_POST["count"], $_POST["page"]);
         goto output;
-    }else if ($callRequest == "get") {
+    } else if ($callRequest == "get") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("experience_id", "", 1, 32, ValidObject::Integer)
@@ -690,6 +690,35 @@ if ($callCategory == "user") {
 
         $callResult = Job::selectJobForAdmin($_POST["keyword"], $_POST["active"], $_POST["user"], $_POST["page"], $_POST["count"]);
         goto output;
+    } else if ($callRequest == "search") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("keyword", "", 0, 36, ValidObject::CleanText),
+            new ValidObject("page", "", 1, 16, ValidObject::Integer),
+            new ValidObject("count", "", 1, 16, ValidObject::Integer),
+            new ValidObject("type", "", 0, 16, ValidObject::Integer),
+            new ValidObject("cat", "", 0, 16, ValidObject::Integer),
+            new ValidObject("locations", "", 0, 64, ValidObject::Check)
+
+            //new ValidObject("district", "", 1, 256, ValidObject::Check),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        if ($_POST["keyword"] != "" && strlen($_POST["keyword"]) < 3) {
+            $callResult = [false, message("check_short", "var_keyword", "3")];
+            goto output;
+        }
+
+//        for ($i = 0; $i < count($_POST["locations"]); $i++) {
+//            $_POST["locations"][$i] = Valid::clear( $_POST["locations"][$i]);
+//        }
+
+        $callResult = Job::selectJob($_POST["keyword"], $_POST["locations"], $_POST["type"], $_POST["cat"], $_POST["page"], $_POST["count"]);
+        goto output;
     } else if ($callRequest == "close_apply") {
         //[OK]
         $inputs = Valid::check([
@@ -703,7 +732,49 @@ if ($callCategory == "user") {
 
         $callResult = Job::closeJobAdv($_POST["job_id"]);
         goto output;
-    } else if ($callRequest == "delete") {
+    } else if ($callRequest == "apply_job") {
+        //[OK]
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::applyJob($_POST["job_id"]);
+        goto output;
+    } else if ($callRequest == "select_job_apply") {
+        //OK
+        $inputs = Valid::check([
+            new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
+            new ValidObject("page", "", 1, 16, ValidObject::Integer),
+            new ValidObject("count", "", 1, 16, ValidObject::Integer),
+            new ValidObject("keyword", "", 0, 32, ValidObject::CleanText),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::selectJobApply($_POST["job_id"], $_POST["keyword"], $_POST["page"], $_POST["count"]);
+        goto output;
+    } else if ($callRequest == "mark_apply") {
+        //OK
+        $inputs = Valid::check([
+            new ValidObject("apply_id", "", 1, 16, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = Job::markApply($_POST["apply_id"]);
+        goto output;
+    }else if ($callRequest == "delete") {
         $inputs = Valid::check([
             new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
         ]);
