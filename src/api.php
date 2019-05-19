@@ -698,7 +698,7 @@ if ($callCategory == "user") {
             new ValidObject("count", "", 1, 16, ValidObject::Integer),
             new ValidObject("type", "", 0, 16, ValidObject::Integer),
             new ValidObject("cat", "", 0, 16, ValidObject::Integer),
-            new ValidObject("locations", "", 0, 64, ValidObject::Check)
+            new ValidObject("locations", "", 0, 256, ValidObject::CleanText)
 
             //new ValidObject("district", "", 1, 256, ValidObject::Check),
         ]);

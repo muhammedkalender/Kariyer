@@ -295,6 +295,11 @@ function loadCheck(URL, TAG, OBJECT, DB) {
 }
 
 function loadCheck(URL, TAG, OBJECT, DB, callback) {
+    if(URL == "category_0"){
+        $("#" + OBJECT).html("");
+        return;
+    }
+
     var file = "/const/" + URL + ".json";
 
     $.getJSON(file, function (result) {

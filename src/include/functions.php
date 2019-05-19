@@ -1758,7 +1758,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
         $query = "";
 
         if ($keyword != "") {
-            $query .= " AND ((job_adv_title LIKE '%" . Valid::clear($keyword) . "%' OR  job_adv_description LIKE '%" . Valid::clear($keyword) . "%') ";
+            $query .= " AND (job_adv_title LIKE '%" . Valid::clear($keyword) . "%' OR  job_adv_description LIKE '%" . Valid::clear($keyword) . "%') ";
         }
 
         if (intval($type) > 0) {
@@ -1771,17 +1771,33 @@ WHERE jl.job_adv_id = " . intval($jobId));
 
         if (intval($cat) > 0) {
             if ($query != "") {
-                $query .= " AND job_adv_category = " . intval($cat);
+                $query .= " AND job_adv_category = " . intval($cat).")";
             } else {
-                $query .= " AND (job_adv_category = " . intval($cat);
+                $query .= " AND (job_adv_category = " . intval($cat).")";
             }
         }
 
-        //todo location ??? if($query != "" && )
+        $locations = explode(",", $locations);
 
-        if ($query != "") {
-            $query .= ")";
+        if ($locations != "" && count($locations) > 0) {
+            $subQuery = "";
+
+            for ($i = 0; $i < count($locations); $i++) {
+                if(intval($locations[$i]) < 1){
+                    continue;
+                }
+
+                if($subQuery != ""){
+                    $subQuery .= " OR ";
+                }
+                $subQuery .= " loc.location_id = ".intval($locations[$i]);
+            }
+
+            if($subQuery != ""){
+                $query .= " AND (".$subQuery.") ";
+            }
         }
+
 
         $query .= " GROUP BY ja.job_adv_id ORDER BY job_adv_id ";
 
@@ -1794,7 +1810,8 @@ INNER JOIN category ct ON ct.category_id = ja.job_adv_category
 INNER JOIN category fct ON ct.category_father = fct.category_id
 INNER JOIN member mb ON ja.job_adv_author = mb.member_id
 INNER JOIN job_adv_location jal ON jal.job_adv_id = ja.job_adv_id
-INNER JOIN location loc ON jal.location_id = loc.location_id WHERE ja.job_adv_active = 1" . $query);
+INNER JOIN location loc ON jal.location_id = loc.location_id
+WHERE ja.job_adv_active = 1" . $query);
 
         if ($job[0] && count($job[1]) > 0) {
             return [true, $job];
@@ -1922,11 +1939,11 @@ INNER JOIN location loc ON jal.location_id = loc.location_id WHERE ja.job_adv_ac
             return $auth;
         }
 
-        $result =  DB::execute("UPDATE job_apply SET job_apply_review = ((job_apply_review+1) % 2) WHERE job_apply_id = ".intval($jobId));
+        $result = DB::execute("UPDATE job_apply SET job_apply_review = ((job_apply_review+1) % 2) WHERE job_apply_id = " . intval($jobId));
 
-        if($result[0]){
+        if ($result[0]) {
             return [true, lang("success_mark_job")];
-        }else{
+        } else {
             return [false, lang("failure_mark_job")];
         }
     }

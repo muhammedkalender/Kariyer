@@ -43,6 +43,7 @@ $lang = [
     "var_licence_date" => "Lisans Tarihi",
     "var_member_id" => "Kullanıcı",
     "var_count" => "Adet",
+    "var_location" => "Konum",
     "var_page" => "Sayfa",
     "skill" => "Yetenek",
     "404_" => "[%PARAM1%] Bulunamadı",

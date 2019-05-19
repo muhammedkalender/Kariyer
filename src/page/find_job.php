@@ -30,10 +30,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
             <button class="form-control bg-warning text-white"
                     onclick="loadMoreJob(this)"><?= lang("load_more_job") ?></button>
-
+            <br>
             <div class="form-group">
-                <input type="submit" class="form-control bg-primary text-white" onclick="searchJob(this)" value="<?= lang('search_now') ?>"
+                <input type="submit" class="form-control bg-primary text-white" onclick="searchJob(this)"
+                       value="<?= lang('search_now') ?>"
             </div>
+
+            <br>
             <div class="card">
                 <div class="card-body">
 
@@ -44,6 +47,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                     </div>
                 </div>
             </div>
+
+            <br>
             <div class="card">
                 <div class="card-body">
 
@@ -74,26 +79,32 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                 </div>
             </div>
 
+            <br>
             <div class="card" id="card-work-type">
-
                 <div class="card-body">
                     <div class="form-group">
                         <label><?= lang("lbl_work_type") ?></label>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group ">
                         <?php
+                        echo '<div class="form-check custom-control-inline" onclick="type=0">';
+                        echo '<input class="form-check-input" type="radio" name="job_type" id="work_type0" value="0"checked>';
+                        echo '<label class="form-check-label" for="work_type0">' . lang("default_select") . '</label>';
+                        echo '</div>';
+
                         $workType = json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/const/work_type_" . $currentLang . ".json"), true);
 
                         for ($i = 0; $i < count($workType); $i++) {
-                            echo '<div class="custom-control custom-checkbox custom-control-inline">';
-                            echo '<input type="checkbox" class="custom-control-input" id="work_type' . $workType[$i]["id"] . '" name="work_type[]" value="' . $workType[$i]["id"] . '">';
-                            echo '<label class="custom-control-label" for="work_type' . $workType[$i]["id"] . '">' . $workType[$i]["text"] . '</label>';
+                            echo '<div class="form-check custom-control-inline" onclick="type=' . $workType[$i]["id"] . ';">';
+                            echo '<input class="form-check-input" type="radio" name="job_type" id="work_type' . $workType[$i]["id"] . '" value="' . $workType[$i]["id"] . '">';
+                            echo '<label class="form-check-label" for="work_type' . $workType[$i]["id"] . '">' . $workType[$i]["text"] . '</label>';
                             echo '</div>';
                         }
                         ?>
                     </div>
                 </div>
             </div>
+            <br>
             <div class="card">
                 <div class="card-body">
 
@@ -160,18 +171,52 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     function searchJob(button) {
         keyword = itemValue("fj_keyword");
 
-        if(keyword.length < 3){
+        if (keyword.length < 3) {
             //todo
             return;
         }
 
-        if(lastKeyword == keyword){
-            return;
+        if (lastKeyword == keyword) {
+            //todo return;
         }
 
         lastKeyword = keyword;
 
+        var cats = document.getElementsByName("category");
 
+        if (cats.length > 0) {
+            var avaible = false;
+
+            for (var i = 0; i < cats.length; i++) {
+                if (cats[i].checked) {
+                    cat = cats[i].value;
+                    avaible = true;
+                }
+            }
+
+            if (!avaible) {
+                cat = 0;
+            }
+        } else {
+            cat = 0;
+        }
+
+        locations = "";
+
+        var locationsObjs = document.getElementsByName("district[]");
+
+        if (locationsObjs.length > 0) {
+            for (var i = 0; i < locationsObjs.length; i++) {
+                if(locationsObjs[i].checked){
+                    if(locations != ""){
+                        locations += ",";
+                    }
+                    locations += locationsObjs[i].value;
+                }
+            }
+        } else {
+            locations = "";
+        }
 
         //locations = document.getElementsByName("district[]")[0].value;
 
@@ -251,5 +296,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         getLocation(0, 0, "fj_country");
         getLocation(0, 1, "fj_city");
         loadSelect("category", "category", "fj_category", "category");
+
+        loadMoreJob(null);
     });
 </script>
