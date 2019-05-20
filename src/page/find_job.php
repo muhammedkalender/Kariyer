@@ -124,6 +124,22 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                     </div>
                 </div>
             </div>
+            <br>
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label><?= lang("lbl_special") ?></label>
+                    </div>
+                    <div class="form-group ">
+                       <select class="form-control" id="special">
+                           <option value="0" selected><?=lang("job_special_0")?></option>
+                           <option value="1"><?=lang("job_special_1")?></option>
+                           <option value="2"><?=lang("job_special_2")?></option>
+                       </select>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -147,7 +163,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
             '            <div class="card">' +
             '            <div class="card-horizontal">' +
             '            <div class="img-square-wrapper">' +
-            '            <a href="index.php?page=company_profile&company_id=' + company_id + '"><img class="" style="width: 180px; height: 180px" src="' + company_image + '" alt="' + company_name + '">' +
+            '            <a href="index.php?page=firma&company=' + company_id + '"><img class="" style="width: 180px; height: 180px" src="/images/profile/' + company_image + '" alt="' + company_name + '">' +
             '            <b><p class="card-text text-center text-bold">' + company_name + '</p></b></a>' +
             '        </div>' +
             '        <div class="card-body">' +
@@ -173,7 +189,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
         if (keyword.length < 3) {
             //todo
-            return;
+            //return;
         }
 
         if (lastKeyword == keyword) {
@@ -218,6 +234,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
             locations = "";
         }
 
+        special = 0;
+
+        if(itemValue("special") > 0){
+            special = itemValue("special");
+        }
+
         //locations = document.getElementsByName("district[]")[0].value;
 
         page = 0;
@@ -236,6 +258,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     var type = 0;
     var cat = 0;
     var locations = "";
+    var company = 0;
+    var special =0;
 
     function loadMoreJob(button) {
         if (button != null) {
@@ -253,7 +277,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                 "active": active,
                 "type": type,
                 "cat": cat,
-                "locations": locations
+                "locations": locations,
+                "company":company,
+                "special":special
             }, function (data, status) {
 
                 console.log(data);
@@ -272,7 +298,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                                 result[i]["job_adv_close"] = "-";
                             }
 
-                            jobView(result[i]["job_adv_id"], result[i]["job_adv_title"], result[i]["job_adv_author"], result[i]["company_name"], "", result[i]["category"], result[i]["locations"], result[i]["fatherLocation"], result[i]["job_adv_type"]);
+                            jobView(result[i]["job_adv_id"], result[i]["job_adv_title"], result[i]["job_adv_author"], result[i]["company_name"], result[i]["companyImage"], result[i]["category"], result[i]["locations"], result[i]["fatherLocation"], result[i]["job_adv_type"]);
                         }
 
                         //todo

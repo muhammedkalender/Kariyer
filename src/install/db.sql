@@ -27,6 +27,8 @@ create table if not exists member
     member_prefix        VARCHAR(256) NOT NULL,
     member_description   VARCHAR(4096)     DEFAULT NULL, #Kişide yazı, Firmada tanıtım
     member_website       VARCHAR(256)      DEFAULT NULL,
+    member_address       VARCHAR(256)      DEFAULT NULL,
+    member_bd            VARCHAR(32)       DEFAULT NULL,
     member_picture       VARCHAR(256)      DEFAULT 'avatar.jpg',
     member_gender        TINYINT(1)        DEFAULT 0,    ##0 => Belirtilmemiş, 1 = Erkek, 2 = Kadın, 3 = Diğer
     member_military      TINYINT(1)        DEFAULT 0,## 0 => Belirtilmemiş, 1 = Yapıldı, 2 = Muaf, 3 = Tecilli
@@ -64,8 +66,8 @@ create table if not exists experience
     experience_name    varchar(128) not null,          ##İş
     experience_company varchar(128) not null,          ##Şirket
     experience_desc    varchar(512) not null,          ##Açıklama
-    experience_start   varchar(32)         not null,          ##İşe Başlama
-    experience_end     varchar(32)         null default null, ##Nullsa işe devam ediyor
+    experience_start   varchar(32)  not null,          ##İşe Başlama
+    experience_end     varchar(32)  null default null, ##Nullsa işe devam ediyor
     experience_order   int               default 0,
     experience_insert  timestamp         default current_timestamp,
     experience_update  timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -93,16 +95,16 @@ create table if not exists reference
 create table if not exists certificate
 (
     certificate_id      int auto_increment primary key,
-    certificate_member  int           not null,
-    certificate_name    varchar(128)  not null, ##Adı
-    certificate_company varchar(128)  not null, ##Veren Kurum
-    certificate_url     varchar(1024) default '#',
-    certificate_desc    varchar(512)       default null,
-    certificate_date    date          null default null,
-    certificate_order   int                default 0,
-    certificate_insert  timestamp          default current_timestamp,
-    certificate_update  timestamp          default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    certificate_active  tinyint(1)         default 1
+    certificate_member  int          not null,
+    certificate_name    varchar(128) not null, ##Adı
+    certificate_company varchar(128) not null, ##Veren Kurum
+    certificate_url     varchar(1024)     default '#',
+    certificate_desc    varchar(512)      default null,
+    certificate_date    date         null default null,
+    certificate_order   int               default 0,
+    certificate_insert  timestamp         default current_timestamp,
+    certificate_update  timestamp         default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    certificate_active  tinyint(1)        default 1
     #,foreign key certificate (certificate_member) references member (member_id)
 );
 
@@ -211,19 +213,20 @@ create table if not exists job_adv
     ## sornadan çekme job_ad
     job_adv_experience  int           not null,
     job_adv_title       varchar(256)  not null,
-    job_adv_count       int        default 1,
-    job_adv_type        int           not null,  ## çalışma şekli, free tam part
-##  job_adv_military_type int           not null,
-    job_adv_sex         int        default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
+    job_adv_count       int         default 1,
+    job_adv_type        int           not null,   ## çalışma şekli, free tam part
+  job_adv_military_type varchar(32)           not null,
+    job_adv_sex         int         default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
     job_adv_description varchar(4096) not null,
-    job_adv_view        int        default 0,
-    job_adv_app         int        default 0,
-    job_adv_category    int        default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_father      int        default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_close       varchar(32)       default null, ##şu zaman kadar ...
-    job_adv_insert      timestamp  default current_timestamp,
-    job_adv_update      timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    job_adv_active      tinyint(1) default 1
+    job_adv_view        int         default 0,
+    job_adv_app         int         default 0,
+    job_adv_special         int         default 0,
+    job_adv_category    int         default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_father      int         default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_close       varchar(32) default null, ##şu zaman kadar ...
+    job_adv_insert      timestamp   default current_timestamp,
+    job_adv_update      timestamp   default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_adv_active      tinyint(1)  default 1
 );
 ##todo function
 ###TODO  sadece en küçük birimi alsın ( tuzla seçilsin, üstüne doğru istanbul bilmmene oraya bağlı olanlar felan
@@ -302,13 +305,28 @@ create table if not exists category
 );
 
 
-create table if not exists job_apply(
-    job_apply_id int auto_increment primary key ,
-    job_apply_member int not null ,
-    job_apply_message varchar(256),
-    job_apply_job_adv_id int not null ,
-    job_apply_review tinyint(1) default 0,
-    job_apply_insert      timestamp  default current_timestamp,
-    job_apply_update      timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    job_apply_active      tinyint(1) default 1
+create table if not exists job_apply
+(
+    job_apply_id         int auto_increment primary key,
+    job_apply_member     int not null,
+    job_apply_message    varchar(256),
+    job_apply_job_adv_id int not null,
+    job_apply_review     tinyint(1) default 0,
+    job_apply_insert     timestamp  default current_timestamp,
+    job_apply_update     timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_apply_active     tinyint(1) default 1
+);
+
+
+create table if not exists cv
+(
+    cv_id     int auto_increment primary key,
+    cv_member int          not null,
+    cv_name   varchar(36)  not null,
+    cv_desc   varchar(512) not null,
+    cv_file   varchar(256) not null,
+    cv_order int default 0,
+    cv_insert timestamp  default current_timestamp,
+    cv_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cv_active tinyint(1) default 1
 );

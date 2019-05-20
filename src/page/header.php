@@ -34,8 +34,7 @@ if (!isset($isAllowRequest)) {
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
         <link  rel="stylesheet" type="text/css" href="../css/theme.css">
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-  <!--    <script src="https://cloud.tinymce.com/5/tinymce.min.js"></script>
-        <script>tinymce.init({selector:'textarea'});</script>-->
+     <script src="https://cloud.tinymce.com/5/tinymce.min.js"></script>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
               integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
               crossorigin="anonymous">
@@ -76,7 +75,7 @@ if (!isset($isAllowRequest)) {
                             <?= $user->name . " " . $user->surname ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="index.php?page=profile&user=<?=$user->memberId?>"><?= lang("my_profile") ?></a>
+                            <a class="dropdown-item" href="index.php?page=<?=$user->type == 0?"profile&user":"firma&company"?>=<?=$user->memberId?>"><?= lang("my_profile") ?></a>
                             <a class="dropdown-item" href="company.php"><?= lang("company_profile") ?></a>
                             <a class="dropdown-item" href="#"><?= lang("settings") ?></a>
                             <div class="dropdown-divider"></div>
@@ -191,6 +190,41 @@ if (!isset($isAllowRequest)) {
         </div>
     </div>
 
+    <div class="modal" id="modal-forgot">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title"><?= lang("forgot_password") ?></h4>
+                    <button type="button" class="close text-white" data-dismiss="modal"
+                            onclick="closeModal('modal-forgot')">&times;
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="modal-forgot-form" onsubmit="return false">
+                        <input type="hidden" name="call_category" value="user">
+                        <input type="hidden" name="call_request" value="forgot_password">
+                        <!-- alert-danger, alert-success, alert-primary -->
+                        <div class="alert" id="modal-forgot-result" style="display: none">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_email"><?= lang("email") ?></label>
+                            <input type="email" class="form-control" name="user_email" placeholder="example@mail.com"
+                                   minlength="3" maxlength="64" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"
+                                onclick="postForm('forgot', '/', 5000)"><?= lang("send_forgot") ?></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="modal-login">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -224,6 +258,9 @@ if (!isset($isAllowRequest)) {
                         </div>
                         <button type="submit" class="btn btn-primary"
                                 onclick="postForm('login', '/', 5000)"><?= lang("login") ?></button>
+
+                        <br>
+                        <small onclick="closeModal('modal-login'); openModal('modal-forgot')"><?=lang("i_forgot")?></small>
                     </form>
                 </div>
             </div>

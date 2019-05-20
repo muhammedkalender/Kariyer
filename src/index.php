@@ -27,6 +27,8 @@ if (isset($_GET["page"])) {
         include_once "./page/find_job.php";
     }else if($page == "profile"){
         include_once  "./page/user_profile.php";
+    }else if($page == "firma"){
+        include_once  "./page/company_profile.php";
     }else if($page == "ilani-gor"){
         include_once  "./page/job_page.php";
     } //else if ($page == "firma-paneli") {

@@ -452,12 +452,55 @@ class User
     public $name, $surname, $description, $picture;
     public $website, $fax, $gsm;
     public $isLogged = false;
+    public $address;
+    public $birt_date;
 
     public function __construct($memberId = 0)
     {
+        $memberId = intval($memberId);
         if ($memberId == -1) {
             //nothing todo
         } else if ($memberId != 0) {
+            $qUser = DB::Select("SELECT * FROM member WHERE member_id = $memberId");
+
+            if ($qUser[0] == false || isset($qUser[1][0]) == false) {
+                return false;
+            }
+
+            $qUser = $qUser[1][0];
+
+            $this->memberId = $qUser["member_id"];
+            $this->nick = $qUser["member_nick"];
+            $this->type = $qUser["member_type"];
+            $this->power = $qUser["member_power"];
+            $this->email = $qUser["member_email"];
+
+            $this->name = $qUser["member_name"];
+            $this->surname = $qUser["member_surname"];
+
+            $this->gsm = $qUser["member_gsm"];
+            //$this->tel = $qUser["member_tel"];
+            $this->fax = $qUser["member_fax"];
+
+            $this->birt_date = $qUser["member_bd"];
+
+            $this->address = $qUser["member_address"];
+
+            $this->special = $qUser["member_special"];
+
+            $this->smoke = $qUser["member_smoke"];
+            $this->military = $qUser["member_military"];
+
+            $this->military_date = $qUser["member_military_date"];
+
+            $this->gender = $qUser["member_gender"];
+
+            $this->description = $qUser["member_description"];
+            $this->picture = $qUser["member_picture"];
+            $this->website = $qUser["member_website"];
+
+            $this->isLogged = true;
+            //todo user bulunamayabilir
             //todo, hariciden user çağırılıyor
         } else {
             $this->checkLogin();
@@ -475,7 +518,7 @@ class User
             }
         }
 
-        return [true, lang("success_exit")];
+        return [true, lang("failure_exit")];
     }
 
     private function checkLogin($customMember = 0)
@@ -524,6 +567,10 @@ class User
         //$this->tel = $qUser["member_tel"];
         $this->fax = $qUser["member_fax"];
 
+        $this->birt_date = $qUser["member_bd"];
+
+        $this->address = $qUser["member_address"];
+
         $this->special = $qUser["member_special"];
 
         $this->smoke = $qUser["member_smoke"];
@@ -547,7 +594,7 @@ class User
 
     public function login($usernameOrEmail, $password)
     {
-        $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = 'asd@gmail.com' OR member_nick = '$usernameOrEmail')");
+        $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = '$usernameOrEmail' OR member_nick = '$usernameOrEmail')");
 
         if ($prefix[0] == false) {
             return [false, lang("wrong_login")];
@@ -621,6 +668,37 @@ class User
         return sha1(md5($password) . $prefix);
     }
 
+    public function changePassword($currentPassword, $newPassword)
+    {
+        $prefix = DB::Select("SELECT member_prefix, member_id, member_password FROM member WHERE (member_email = '$this->email')");
+
+        if ($prefix[0] == false) {
+            return [true, lang("wrong_password")];
+        }
+
+        if (isset($prefix[1][0]["member_id"]) == false) {
+            return [false, lang("wrong_password")];
+        }
+
+        $prefix = $prefix[1][0];
+
+        $password = $this->encPassword($currentPassword, $prefix["member_prefix"]);
+
+        if ($prefix["member_password"] != $password) {
+            return [false, lang("wrong_password")];
+        }
+
+        $newPassword = $this->encPassword($newPassword, $prefix["member_prefix"]);
+
+        $res = DB::execute("UPDATE member SET member_password = '$newPassword' WHERE member_id = " . $this->memberId);
+
+        if ($res[0]) {
+            return [true, lang("success_change_password")];
+        } else {
+            return [false, lang("failure_success_change_password")];
+        }
+    }
+
     public function register($type, $email, $name, $surname, $password)
     {
         if ($this->checkAuth(Perm::OR_UPPER, Perm::VISITOR)[0] == false) {
@@ -645,6 +723,65 @@ class User
             return [true, message("success_register"), $result];
         } else {
             return [false, $result];
+        }
+    }
+
+    public function updateUserInfo($userId, $email, $name, $surname, $gsm, $bd, $website, $gender, $smoke, $mil, $mil_date, $address, $special)
+    {
+        if ($userId == 0) {
+            $userId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
+        }
+
+        $result = DB::execute("UPDATE member SET member_email = '$email', member_name = '$name', member_surname = '$surname', member_gsm = '$gsm', member_bd = '$bd', member_website = '$website', member_gender = $gender, member_smoke = $smoke, member_military = $mil, member_military_date = '$mil_date', member_address = '$address', member_special = $special WHERE member_id = $userId AND member_type = 0");
+
+        if ($result[0]) {
+            return [true, lang("success_update_user")];
+        } else {
+            return [false, lang("failure_update_user")];
+        }
+    }
+
+    public function updateCompanyInfo($userId, $email, $name, $gsm, $fax, $bd, $website, $address)
+    {
+        if ($userId == 0) {
+            $userId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
+        }
+
+        $result = DB::execute("UPDATE member SET member_email = '$email', member_name = '$name', member_gsm = '$gsm', member_fax = '$fax', member_bd = '$bd', member_website = '$website', member_address = '$address' WHERE member_id = $userId AND member_type = 1");
+
+        if ($result[0]) {
+            return [true, lang("success_update_company")];
+        } else {
+            return [false, lang("failure_update_company")];
+        }
+    }
+
+    public function updateUserDesc($userId, $desc)
+    {
+        if ($userId == 0) {
+            $userId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
+        }
+
+        $desc = Valid::encode($desc);
+
+        $result = DB::execute("UPDATE member SET member_description = '$desc' WHERE member_id = $userId");
+
+        if ($result[0]) {
+            return [true, lang("success_update_user_desc")];
+        } else {
+            return [false, lang("failure_update_user_desc")];
         }
     }
 
@@ -673,6 +810,53 @@ class User
         //todo
 
         return "tr";
+    }
+
+    public function forgotPassword($email)
+    {
+        try {
+
+            $us = DB::select("SELECT * FROM member WHERE  member_email = '$email'");
+
+            if($us[0] == false || count($us[1]) < 1){
+                return [false, lang("unknow_user")];
+            }
+
+            $token = Valid::generate(16);
+
+            $newPassword = $this->encPassword($token, $us[1][0]["member_prefix"]);
+
+            if(DB::execute("UPDATE member SET member_password = '$newPassword' WHERE member_id = ".$us[1][0]["member_id"])[0] == false){
+                return [false, lang("failure_send_password")];
+            }
+
+            $html = "<html>Yeni Şifreniz : <br><b>" . $token . "</b></html>";
+
+            include 'class.phpmailer.php';
+            $mail = new PHPMailer();
+            $mail->IsSMTP();
+            $mail->SMTPAuth = true;
+            $mail->Host = 'smtp.gmail.com';
+            $mail->Port = 587;
+            $mail->SMTPSecure = 'tls';
+            $mail->Username = 'muhammedkalender.kariyer@gmail.com';
+            $mail->Password = '123456.aA';
+            $mail->SetFrom($mail->Username, 'Kariyer');
+            $mail->AddAddress($us[1][0]["member_email"], $us[1][0]["member_name"]. " ".$us[1][0]["member_surname"]);
+            $mail->CharSet = 'UTF-8';
+            $mail->Subject = 'Yeni Şifre';
+            $content = $html;
+            $mail->MsgHTML($content);
+
+            if($mail->Send()){
+                return [true, lang("success_send_password")];
+
+            }else{
+                return [false, lang("failure_send_password")];
+            }
+        } catch (Exception $e) {
+            return [false, lang("failure_send_password")];
+        }
     }
 
     //region Experience
@@ -1137,6 +1321,123 @@ class User
     }
     //endregion
 
+    //region CV
+    public function addCV($name, $file, $desc, $order = 0, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $result = DB::executeId("INSERT INTO cv (
+                       cv_member, 
+                       cv_name, 
+                        cv_file,
+                       cv_desc, 
+                       cv_order
+                       ) VALUES ($memberId, '$name', '$file', '$desc', $order)");
+
+        if ($result[0]) {
+            return [true, message("success_insert", "cv")];
+        } else {
+            return [false, message("failed_insert", "cv")];
+        }
+    }
+
+    public function setCV($cvId, $name, $desc, $file, $order = 0)
+    {
+        $memberId = DB::select("SELECT cv_member FROM cv WHERE cv_id = $cvId");
+
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["cv_member"];
+        } else {
+            return [false, message("404_", "cv")];
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $fileQuery = "";
+
+        if ($file != "") {
+            $fileQuery = " cv_file = '$file', ";
+        }
+
+        $result = DB::execute("UPDATE cv SET 
+                     cv_name = '$name',
+                     " . $fileQuery . "
+                     cv_desc = '$desc',
+                     cv_order = $order
+                     WHERE cv_id = $cvId");
+
+        if ($result[0]) {
+            return [true, message("success_update", "cv")];
+        } else {
+            return [false, message("failed_update", "cv")];
+        }
+    }
+
+    public function delCV($cvID)
+    {
+        $memberId = DB::select("SELECT cv_member FROM cv WHERE cv_id = $cvID");
+
+        if ($memberId[0] && count($memberId[1]) > 0) {
+            $memberId = $memberId[1][0]["cv_member"];
+        } else {
+            return [false, message("404_", "cv")];
+        }
+
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $result = DB::execute("UPDATE cv SET cv_active = 0 WHERE cv_id = $cvID");
+
+        if ($result[0]) {
+            return [true, message("success_delete", "cv")];
+        } else {
+            return [false, message("success_delete", "cv")];
+        }
+    }
+
+    public function selectCV($memberId = 0, $count = 0, $page = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        $suffix = "";
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM cv WHERE cv_member = $memberId AND cv_active = 1 ORDER BY cv_order DESC " . $suffix);
+    }
+
+    public function getCV($cvID, $memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        return DB::select("SELECT * FROM cv WHERE cv_id = $cvID");
+    }
+    //endregion
+
     //region Skill
     public function addSkill($name, $level, $order = 0, $memberId = 0)
     {
@@ -1513,7 +1814,7 @@ class Job
      * silicne kapansın
      */
 
-    public static function insertJob($companyId, $title, $description, $type, $category, $locations)
+    public static function insertJob($companyId, $title, $description, $type, $category, $locations, $special)
     {
         global $user;
 
@@ -1532,7 +1833,7 @@ class Job
         $title = Valid:: clear($title);
         $description = Valid::encode($description);
 
-        $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_title, job_adv_type,  job_adv_description,  job_adv_category) VALUES ($companyId, '$title', $type, '$description', $category)");
+        $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_title, job_adv_type,  job_adv_description,  job_adv_category, job_adv_special) VALUES ($companyId, '$title', $type, '$description', $category, $special)");
 
         if ($result[0] == false) {
             return [false, message("failed_job_adv")];
@@ -1554,7 +1855,7 @@ class Job
         return [true, message("success_insert_job_adv")];
     }
 
-    public static function editJob($jobId, $title, $description, $type, $category, $locations)
+    public static function editJob($jobId, $title, $description, $type, $category, $locations, $special)
     {
         global $user;
 
@@ -1575,7 +1876,7 @@ class Job
         $title = Valid:: clear($title);
         $description = Valid::encode($description);
 
-        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" . Valid::clear($title) . "', job_adv_type =  $type,  job_adv_description = '" . Valid::encode($description) . "',  job_adv_category = $category WHERE job_adv_id = $jobId");
+        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" . Valid::clear($title) . "', job_adv_type =  $type,  job_adv_description = '" . Valid::encode($description) . "',  job_adv_category = $category, job_adv_special = $special WHERE job_adv_id = $jobId");
 
         if ($result[0] == false) {
             return [false, message("failed_job_adv_update")];
@@ -1655,7 +1956,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
     {
         global $user;
 
-        $job = DB::select("SELECT ja.*, CONCAT_WS(' - ', fct.category_name_tr, ct.category_name_tr) as category, CONCAT_WS(' ', mb.member_name, mb.member_surname) as company_name, GROUP_CONCAT(loc.location_name SEPARATOR ', ') as locations, (SELECT location_name FROM location WHERE location_id = loc.location_father) as fatherLocation FROM job_adv ja
+        $job = DB::select("SELECT ja.*, CONCAT_WS(' - ', fct.category_name_tr, ct.category_name_tr) as category, CONCAT_WS(' ', mb.member_name, mb.member_surname) as company_name, mb.member_picture as companyImage, GROUP_CONCAT(loc.location_name SEPARATOR ', ') as locations, (SELECT location_name FROM location WHERE location_id = loc.location_father) as fatherLocation FROM job_adv ja
 INNER JOIN category ct ON ct.category_id = ja.job_adv_category
 INNER JOIN category fct ON ct.category_father = fct.category_id
 INNER JOIN member mb ON ja.job_adv_author = mb.member_id
@@ -1752,7 +2053,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
         }
     }
 
-    public static function selectJob($keyword, $locations, $type, $cat, $page, $count)
+    public static function selectJob($keyword, $locations, $type, $cat, $page, $count, $company, $special)
     {
         //todo close olmuşşsa select etmesin
         $query = "";
@@ -1771,9 +2072,9 @@ WHERE jl.job_adv_id = " . intval($jobId));
 
         if (intval($cat) > 0) {
             if ($query != "") {
-                $query .= " AND job_adv_category = " . intval($cat).")";
+                $query .= " AND job_adv_category = " . intval($cat) . ")";
             } else {
-                $query .= " AND (job_adv_category = " . intval($cat).")";
+                $query .= " AND (job_adv_category = " . intval($cat) . ")";
             }
         }
 
@@ -1783,21 +2084,28 @@ WHERE jl.job_adv_id = " . intval($jobId));
             $subQuery = "";
 
             for ($i = 0; $i < count($locations); $i++) {
-                if(intval($locations[$i]) < 1){
+                if (intval($locations[$i]) < 1) {
                     continue;
                 }
 
-                if($subQuery != ""){
+                if ($subQuery != "") {
                     $subQuery .= " OR ";
                 }
-                $subQuery .= " loc.location_id = ".intval($locations[$i]);
+                $subQuery .= " loc.location_id = " . intval($locations[$i]);
             }
 
-            if($subQuery != ""){
-                $query .= " AND (".$subQuery.") ";
+            if ($subQuery != "") {
+                $query .= " AND (" . $subQuery . ") ";
             }
         }
 
+        if ($company > 0) {
+            $query .= " AND job_adv_author = " . $company;
+        }
+
+        if ($special > 0) {
+            $query .= " AND job_adv_special = " . $special;
+        }
 
         $query .= " GROUP BY ja.job_adv_id ORDER BY job_adv_id ";
 
@@ -1805,7 +2113,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
             $query .= " LIMIT " . ($page * $count) . ", " . intval($count);
         }
 
-        $job = DB::select("SELECT ja.*, CONCAT_WS(' - ', fct.category_name_tr, ct.category_name_tr) as category, CONCAT_WS(' ', mb.member_name, mb.member_surname) as company_name, GROUP_CONCAT(loc.location_name SEPARATOR ', ') as locations, (SELECT location_name FROM location WHERE location_id = loc.location_father) as fatherLocation FROM job_adv ja
+        $job = DB::select("SELECT ja.*, CONCAT_WS(' - ', fct.category_name_tr, ct.category_name_tr) as category, CONCAT_WS(' ', mb.member_name, mb.member_surname) as company_name, mb.member_picture as companyImage, GROUP_CONCAT(loc.location_name SEPARATOR ', ') as locations, (SELECT location_name FROM location WHERE location_id = loc.location_father) as fatherLocation FROM job_adv ja
 INNER JOIN category ct ON ct.category_id = ja.job_adv_category
 INNER JOIN category fct ON ct.category_father = fct.category_id
 INNER JOIN member mb ON ja.job_adv_author = mb.member_id

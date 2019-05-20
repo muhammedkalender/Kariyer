@@ -150,6 +150,7 @@ function postForm(NAME, HREF = "", WAIT = 0, BUTTON) {
     $.post("api.php",
         $("#modal-" + NAME + "-form").serializeArray(),
         function (data, status) {
+        console.log(data);
             if (status === "success") {
                 var result = JSON.parse(data);
 

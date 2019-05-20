@@ -38,6 +38,7 @@ if (isset($_GET["job_id"])) {
                 <input type="hidden" name="call_category" value="job">
                 <input type="hidden" name="call_request" value="<?= $jobId != 0 ? "update" : "insert" ?>">
                 <input type="hidden" name="job_id" value="<?= $jobId ?>">
+                <input type="hidden" name="job_desc" id="job_desc" value="">
                 <!-- alert-danger, alert-success, alert-primary -->
 
                 <div class="card">
@@ -54,8 +55,8 @@ if (isset($_GET["job_id"])) {
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label for="job_desc"><?= lang("var_job_description") ?></label>
-                            <textarea minlength="3" maxlength="2048" id="job_desc" name="job_desc" class="form-control"
+                            <label for="job_desc_tiny"><?= lang("var_job_description") ?></label>
+                            <textarea  minlength="3" maxlength="2048" id="job_desc_tiny" name="job_desc_tiny" class="form-control itsmce"
                                       placeholder="<?= lang('hint_job_desc') ?>"></textarea>
 
                         </div>
@@ -105,6 +106,20 @@ if (isset($_GET["job_id"])) {
                                 echo '</div>';
                             }
                             ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label><?= lang("lbl_special") ?></label>
+                        </div>
+                        <div class="form-group ">
+                            <select class="form-control" name="special" id="special">
+                                <option value="0" selected><?=lang("job_special_0")?></option>
+                                <option value="1"><?=lang("job_special_1")?></option>
+                                <option value="2"><?=lang("job_special_2")?></option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -177,7 +192,8 @@ if (isset($_GET["job_id"])) {
                         }
 
                         item("job_title").value = job["job_adv_title"];
-                        item("job_desc").value = job["job_adv_description"];
+
+                        tinyMCE.get('job_desc_tiny').setContent(job["job_adv_description"]);
 
                         var objs = item("card-work-type").getElementsByTagName("input");
 
@@ -202,8 +218,10 @@ if (isset($_GET["job_id"])) {
                             }
                         });
 
+                        setValue("special", job["job_adv_special"]);
+
                         if (result[1]["job_adv_id"] !== 1) {
-                            Message.success(result[1]["job_adv_id"])
+                          //  Message.success(result[1]["job_adv_id"])
                         }
                     } else {
                         Message.error(result[1])
@@ -216,7 +234,9 @@ if (isset($_GET["job_id"])) {
 
     function jobEdit(button) {
         //check todo
+        var desc = tinyMCE.get('job_desc_tiny').getContent();
 
+        item("job_desc").value = desc;
         postForm("edit-job", "", 0, button);
 
 //        postForm('form_edit_job', '/', 5000);
@@ -226,6 +246,8 @@ if (isset($_GET["job_id"])) {
         getLocation(0, 0, "fj_country");
         getLocation(0, 1, "fj_city");
         loadSelect("category", "category", "fj_category", "category");
+
+        tinymce.init({mode: "specific_textareas", editor_selector: 'itsmce'});
 
         var jobId = <?=$jobId?>;
 

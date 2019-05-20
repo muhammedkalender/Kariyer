@@ -37,7 +37,32 @@ if ($callCategory == "user") {
 
         $callResult = $user->register($_POST["user_type"], $_POST["user_email"], $_POST["user_name"], $_POST["user_surname"], $_POST["user_password"]);
         goto output;
-    } else if ($callRequest == "login") {
+    }else if($callRequest == "forgot_password"){
+        $inputs = Valid::check([
+            new ValidObject("user_email", "email", 6, 32, ValidObject::Email)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->forgotPassword($_POST["user_email"]);
+        goto output;
+    } else if($callRequest == "change_password"){
+        $inputs = Valid::check([
+            new ValidObject("password", "password", 6, 32, ValidObject::CleanText),
+            new ValidObject("current_password", "current_password", 6, 32, ValidObject::CleanText)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->changePassword($_POST["current_password"], $_POST["password"]);
+        goto output;
+    }else if ($callRequest == "login") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("user_email", "", 3, 64, ValidObject::Email),
@@ -55,7 +80,203 @@ if ($callCategory == "user") {
         //[OK]
         $callResult = $user->logout();
         goto output;
+    } else if ($callRequest == "upload_profile_image") {
+        //[OK]
+        if (!isset($_FILES['file']) || count($_FILES["file"]) < 1) {
+            $callResult = [false, lang("must_image_select")];
+            goto output;
+        }
+
+        if ($_FILES['file']["size"] > (1024 * 1024 * 2)) {
+            $callResult = [false, lang("allow_image_size")];
+            goto output;
+        }
+
+        $imageFileType = pathinfo($_FILES['file']["name"], PATHINFO_EXTENSION);
+
+        if (!($imageFileType == "jpg" || $imageFileType == "jpeg")) {
+            $callResult = [false, lang("allow_image_ext")];
+            goto output;
+        }
+
+        $img = getimagesize($_FILES['file']["tmp_name"]);
+
+        if ($img[0] != $img[1]) {
+            $callResult = [false, lang("must_image_square")];
+            goto output;
+        }
+
+        if ($img[0] < 128 || $img[0] > 512 || $img[1] < 128 || $img[1] > 512) {
+            $callResult = [false, lang("must_image_size")];
+            goto output;
+        }
+
+        $location = md5($_FILES['file']['name'] . $user->memberId . time()) . ".jpeg";
+
+        if (move_uploaded_file($_FILES['file']['tmp_name'], "./images/profile/" . $location)) {
+            if (DB::execute("UPDATE member SET member_picture = '$location' WHERE member_id = $user->memberId")[0]) {
+                $callResult = [true, lang("success_upload_image"), $location];
+                goto output;
+            } else {
+                $callResult = [false, lang("failure_upload_image_sql")];
+                goto output;
+            }
+        } else {
+            $callResult = [true, lang("failure_upload_image")];
+            goto output;
+        }
+    } else if ($callRequest == "update_user_info") {
+        $inputs = Valid::check([
+            new ValidObject("user_id", "user_id", 1, 64, ValidObject::Integer),
+            new ValidObject("user_email", "user_email", 3, 64, ValidObject::Email),
+            new ValidObject("user_name", "user_name", 3, 32, ValidObject::CleanText),
+            new ValidObject("user_surname", "user_surname", 3, 32, ValidObject::CleanText),
+            new ValidObject("user_gsm", "user_gsm", 0, 32, ValidObject::CleanText),
+            new ValidObject("user_bd", "user_bd", 8, 32, ValidObject::Date),
+            new ValidObject("user_website", "user_website", 0, 32, ValidObject::URL),
+            new ValidObject("user_gender", "user_gender", 1, 2, ValidObject::Integer),
+            new ValidObject("user_smoke", "user_smoke", 1, 2, ValidObject::Integer),
+            new ValidObject("user_military", "user_military", 1, 2, ValidObject::Integer),
+            new ValidObject("user_military_date", "user_military_date", 0, 16, ValidObject::Date),
+            new ValidObject("user_address", "user_address", 0, 64, ValidObject::CleanText),
+            new ValidObject("user_special", "user_special", 1, 2, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->updateUserInfo($_POST["user_id"], $_POST["user_email"], $_POST["user_name"], $_POST["user_surname"], $_POST["user_gsm"], $_POST["user_bd"], $_POST["user_website"], $_POST["user_gender"], $_POST["user_smoke"], $_POST["user_military"], $_POST["user_military_date"], $_POST["user_address"], $_POST["user_special"]);
+        goto output;
+    } else if ($callRequest == "update_company_info") {
+        $inputs = Valid::check([
+            new ValidObject("user_id", "user_id", 1, 64, ValidObject::Integer),
+            new ValidObject("user_email", "user_email", 3, 64, ValidObject::Email),
+            new ValidObject("company_name", "user_name", 3, 32, ValidObject::CleanText),
+            new ValidObject("user_gsm", "user_gsm", 0, 32, ValidObject::CleanText),
+            new ValidObject("user_fax", "user_fax", 0, 32, ValidObject::CleanText),
+            new ValidObject("company_bd", "company_bd", 8, 32, ValidObject::Date),
+            new ValidObject("user_website", "user_website", 0, 32, ValidObject::URL),
+            new ValidObject("user_address", "user_address", 0, 64, ValidObject::CleanText)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->updateCompanyInfo($_POST["user_id"], $_POST["user_email"], $_POST["company_name"],  $_POST["user_gsm"], $_POST["user_fax"],$_POST["company_bd"], $_POST["user_website"], $_POST["user_address"]);
+        goto output;
+    }else if ($callRequest == "update_desc") {
+        $inputs = Valid::check([
+            new ValidObject("user_id", "user_id", 1, 64, ValidObject::Integer),
+            new ValidObject("user_desc", "user_desc", 0, 512, ValidObject::Html)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->updateUserDesc($_POST["user_id"], $_POST["user_desc"]);
+        goto output;
     } else {
+        goto nothing;
+    }
+
+    //endregion
+} else if ($callCategory == "cv") {
+    //region CV
+    if ($callRequest == "upload_file") {
+        if (!isset($_FILES['file']) || count($_FILES["file"]) < 1) {
+            $callResult = [false, lang("must_file_select")];
+            goto output;
+        }
+
+        if ($_FILES['file']["size"] > (1024 * 1024 * 2)) {
+            $callResult = [false, lang("allow_file_size")];
+            goto output;
+        }
+
+        $fileType = pathinfo($_FILES['file']["name"], PATHINFO_EXTENSION);
+
+        if (!($fileType == "pdf")) {
+            $callResult = [false, lang("allow_file_ext")];
+            goto output;
+        }
+
+        $location = md5($_FILES['file']['name'] . $user->memberId . time()) . ".pdf";
+
+        if (move_uploaded_file($_FILES['file']['tmp_name'], "./cvs/" . $location)) {
+            $callResult = [true, lang("success_upload_cv"), $location];
+            goto output;
+        } else {
+            $callResult = [true, lang("failure_upload_cv")];
+            goto output;
+        }
+    } else if($callRequest == "insert"){
+        if($_POST["cv_file"] == ""){
+            unset($_POST["cv_file"]);
+        }
+
+        $inputs = Valid::check([
+            new ValidObject("cv_name", "cv_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("cv_desc", "cv_desc", 0, 256, ValidObject::CleanText),
+            new ValidObject("cv_file", "cv_file", 1, 512, ValidObject::CleanText)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->addCV($_POST["cv_name"], $_POST["cv_file"], $_POST["cv_desc"]);
+        goto output;
+    } else if($callRequest == "get"){
+        $inputs = Valid::check([
+            new ValidObject("cv_id", "cv_id", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->getCV($_POST["cv_id"]);
+        goto output;
+    }else if($callRequest == "update"){
+        if($_POST["cv_file"] == ""){
+            unset($_POST["cv_file"]);
+        }
+
+        $inputs = Valid::check([
+            new ValidObject("cv_id", "cv_id", 1, 32, ValidObject::Integer),
+            new ValidObject("cv_name", "cv_name", 1, 32, ValidObject::CleanText),
+            new ValidObject("cv_desc", "cv_desc", 0, 256, ValidObject::CleanText),
+            new ValidObject("cv_file", "cv_file", 1, 512, ValidObject::CleanText)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->setCv($_POST["cv_id"],$_POST["cv_name"], $_POST["cv_desc"],$_POST["cv_file"]);
+        goto output;
+    }else if($callRequest == "delete"){
+        $inputs = Valid::check([
+            new ValidObject("cv_id", "cv_id", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->delCV($_POST["cv_id"]);
+        goto output;
+    }else {
         goto nothing;
     }
 
@@ -627,7 +848,8 @@ if ($callCategory == "user") {
             new ValidObject("job_desc", "", 3, 4096, ValidObject::Html),
             new ValidObject("district", "", 1, 256, ValidObject::Check),
             new ValidObject("job_type", "", 1, 12, ValidObject::Integer),
-            new ValidObject("category", "", 1, 8, ValidObject::Integer)
+            new ValidObject("category", "", 1, 8, ValidObject::Integer),
+            new ValidObject("special", "", 1, 8, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
@@ -635,7 +857,7 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = Job::insertJob(0, $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"]);
+        $callResult = Job::insertJob(0, $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"], $_POST["special"]);
         goto output;
     } else if ($callRequest == "get") {
         $inputs = Valid::check([
@@ -657,7 +879,8 @@ if ($callCategory == "user") {
             new ValidObject("job_desc", "", 3, 4096, ValidObject::Html),
             new ValidObject("district", "", 1, 256, ValidObject::Check),
             new ValidObject("job_type", "", 1, 12, ValidObject::Integer),
-            new ValidObject("category", "", 1, 8, ValidObject::Integer)
+            new ValidObject("category", "", 1, 8, ValidObject::Integer),
+            new ValidObject("special", "", 1, 8, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
@@ -665,7 +888,7 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = Job::editJob($_POST["job_id"], $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"]);
+        $callResult = Job::editJob($_POST["job_id"], $_POST["job_title"], $_POST["job_desc"], $_POST["job_type"], $_POST["category"], $_POST["district"], $_POST["special"]);
         goto output;
     } else if ($callRequest == "select") {
         //[OK]
@@ -698,8 +921,9 @@ if ($callCategory == "user") {
             new ValidObject("count", "", 1, 16, ValidObject::Integer),
             new ValidObject("type", "", 0, 16, ValidObject::Integer),
             new ValidObject("cat", "", 0, 16, ValidObject::Integer),
-            new ValidObject("locations", "", 0, 256, ValidObject::CleanText)
-
+            new ValidObject("locations", "", 0, 256, ValidObject::CleanText),
+            new ValidObject("company", "", 1, 8, ValidObject::Integer),
+            new ValidObject("special", "", 1, 8, ValidObject::Integer)
             //new ValidObject("district", "", 1, 256, ValidObject::Check),
         ]);
 
@@ -717,7 +941,7 @@ if ($callCategory == "user") {
 //            $_POST["locations"][$i] = Valid::clear( $_POST["locations"][$i]);
 //        }
 
-        $callResult = Job::selectJob($_POST["keyword"], $_POST["locations"], $_POST["type"], $_POST["cat"], $_POST["page"], $_POST["count"]);
+        $callResult = Job::selectJob($_POST["keyword"], $_POST["locations"], $_POST["type"], $_POST["cat"], $_POST["page"], $_POST["count"], $_POST["company"], $_POST["special"]);
         goto output;
     } else if ($callRequest == "close_apply") {
         //[OK]
@@ -774,7 +998,7 @@ if ($callCategory == "user") {
 
         $callResult = Job::markApply($_POST["apply_id"]);
         goto output;
-    }else if ($callRequest == "delete") {
+    } else if ($callRequest == "delete") {
         $inputs = Valid::check([
             new ValidObject("job_id", "", 1, 16, ValidObject::Integer),
         ]);

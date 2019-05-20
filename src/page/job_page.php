@@ -53,7 +53,7 @@ Job::addView($jobId);
                                     <a href="index.php?page=company_profile&company_id=<?= $job["job_adv_author"] ?>"><img
                                                 class=""
                                                 style="width: 180px; height: 180px"
-                                                src="<?= $job["company_image"] ?>"
+                                                src="/images/profile/<?= $job["companyImage"] ?>"
                                                 alt="<?= $job["company_name"] ?>">
                                         <b><p class="card-text text-center text-bold"><?= $job["company_name"] ?></p>
                                         </b></a>
@@ -69,7 +69,7 @@ Job::addView($jobId);
                             <div class="card-footer">
                                 <button onclick="showApplyJob(<?= $job["job_adv_id"] ?>)"
                                         id="btn_job_apply"
-                                        class="form-control bg-info text-white" <?= $applied ?"disabled":""?>><?= $applied ? lang("already_apply_job") : lang("apply_job") ?></button>
+                                        class="form-control bg-info text-white" <?= $applied||$user->type == 1 ?"disabled":""?>><?= $applied ? lang("already_apply_job") : lang("apply_job") ?></button>
                             </div>
                         </div>
                     </div>
