@@ -90,9 +90,12 @@ $html = '
 
         <h1 class="fn">' . $profile->name . ' ' . $profile->surname . '</h1>
 
-        <p>
-            Cell: <span class="tel">' . $profile->gsm . '</span><br />
-            Email: <a class="email" href="mailto:' . $profile->email . '">' . $profile->email . '</a>
+        <p>';
+            if($profile->gsm != ""){
+                $html .= lang("user_gsm").': <span class="tel">' . $profile->gsm . '</span><br />';
+            }
+
+           $html .= lang("user_email").': <a class="email" href="mailto:' . $profile->email . '">' . $profile->email . '</a>
         </p>
     </div>
 

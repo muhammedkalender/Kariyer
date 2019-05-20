@@ -22,6 +22,10 @@ if (isset($_GET["job_id"])) {
 //todo
 }
 
+if($user->type != 1&& $user->power < Perm::SUPPORT){
+    echo lang("perm_error");
+    die();
+}
 ?>
 
 

@@ -21,10 +21,16 @@ if (isset($_GET["company"])) {
 
 $profile = $user;
 $ro = "";
+$dasAdmin = false;
 
 if ($userId > 0 && $userId != $user->memberId) {
     $ro = "readonly";
     $profile = new User($userId);
+
+    if($user->power >= Perm::SUPPORT && $user->power > $profile->power){
+        $ro = "";
+        $dasAdmin = true;
+    }
 } else {
     $profile = $user;
 }
@@ -42,6 +48,12 @@ if ($profile->type != 1) {
 <div class="container">
     <div class="card">
         <div class="card-body">
+            <?php
+            if ($dasAdmin) {
+                echo '<button class="btn btn-danger" onclick="changeUserStatus()" >' . lang("change_status_user") . '</button><br>';
+                echo '<p>Status : '.($profile->active?'Aktif':'Pasif');
+            }
+            ?>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 mt-3">
@@ -204,6 +216,24 @@ if ($profile->type != 1) {
 
 </div>
 <script>
+    function changeUserStatus() {
+        $.post("api.php", {
+            "call_category": "user",
+            "call_request": "change_status",
+            "user":<?=$profile->memberId?>
+        }, function (data, result) {
+            if(result == "success"){
+                data = JSON.parse(data);
+
+                if(data[0]){
+                    Message.success(data[1]);
+                }else{
+                    Message.error(data[1]);
+                }
+            }
+        });
+    }
+
     var workType = [];
 
     workType["work_type_1"] = "Tam Zamanlı";
@@ -346,7 +376,8 @@ if ($profile->type != 1) {
             "call_category": "user",
             "call_request": "change_password",
             "current_password": itemValue("current_password"),
-            "password": itemValue("n_password")
+            "password": itemValue("n_password"),
+            "member":<?=$profile->memberId?>
         }, function (data, status) {
             if (status == "success") {
                 data = JSON.parse(data);
@@ -383,7 +414,7 @@ if ($profile->type != 1) {
         fd.append('file', files);
         fd.append('call_category', "user");
         fd.append('call_request', "upload_profile_image");
-
+        fd.append("user",<?=$profile->memberId?>)
         //https://makitweb.com/how-to-upload-image-file-using-ajax-and-jquery/
         $.ajax({
             url: 'api.php',

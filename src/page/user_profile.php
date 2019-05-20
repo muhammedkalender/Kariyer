@@ -20,6 +20,7 @@ if (isset($_GET["user"])) {
 
 $profile;
 $ro = "";
+$dasAdmin = false;
 
 if ($userId > 0 && $userId != $user->memberId) {
     if (!DB::isAvailable("SELECT job_adv_author FROM job_apply INNER JOIN job_adv ON job_adv_id = job_apply_job_adv_id INNER JOIN member ON job_adv_author = member_id WHERE job_apply_member = $userId  AND job_adv_author =" . $user->memberId) && $user->power < Perm::ADMIN) {
@@ -30,6 +31,11 @@ if ($userId > 0 && $userId != $user->memberId) {
 
     $ro = "readonly";
     $profile = new User($userId);
+
+    if ($user->power > $profile->power && $user->power >= Perm::SUPPORT) {
+        $ro = "";
+        $dasAdmin = true;
+    }
 } else {
     $profile = $user;
 }
@@ -48,7 +54,13 @@ if ($profile->type != 0) {
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <div class="container-fluid">
+            <?php
+            if ($dasAdmin) {
+                echo '<button class="btn btn-danger" onclick="changeUserStatus()" >' . lang("change_status_user") . '</button><br>';
+                echo '<p>Status : '.($profile->active?'Aktif':'Pasif');
+            }
+            ?>
+            <a class="container-fluid">
                 <div class="row">
                     <div class="col-12 mt-3">
                         <div class="card">
@@ -156,8 +168,8 @@ if ($profile->type != 0) {
 
                                     <?php
                                     if ($profile->gender != 1) {
-                                        echo '<input type="hidden" name="military" value="' . $profile->military . '">';
-                                        echo '<input type="hidden" name="mil_date" value="' . $profile->military_date . '">';
+                                        echo '<input type="hidden" name="military" id="military" value="' . $profile->military . '">';
+                                        echo '<input type="hidden" name="mil_date" id="mil_date" value="' . $profile->military_date . '">';
                                         goto noMil;
                                     }
                                     ?>
@@ -199,14 +211,20 @@ if ($profile->type != 0) {
                         </div>
                     </div>
                 </div>
-            </div>
+                <a href="user_cv.php?user=<?= $profile->memberId ?>" target="_blank">
+                    <button type="button" class="btn btn-warning text-white"><?= lang("view_pdf") ?></button>
+                </a>
         </div>
 
-        <?php
-        if ($ro == "") {
-            echo '<div class="card-footer"> <button type="button" onclick="saveUser(this)" class=" form-control btn btn-success">' . lang("save") . '</button></div>';
-        }
-        ?>
+        <div class="card-footer">
+            <?php
+            if ($ro == "") {
+                echo '<button type="button" onclick="saveUser(this)" class=" form-control btn btn-success">' . lang("save") . '</button><br>';
+            }
+            ?>
+
+
+        </div>
     </div>
     <br>
 
@@ -240,7 +258,7 @@ if ($profile->type != 0) {
     $exps = $profile->selectExperience();
 
     if ($exps[0] == false || count($exps[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noExps;
         }
     }
@@ -250,7 +268,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("experiences");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_experience") . "' onclick='showExperience(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -280,7 +298,7 @@ if ($profile->type != 0) {
                 <footer class="blockquote-footer">' . $expDate . ' <cite title="Source Title">' . $exps[$i]["experience_company"] . '</cite></footer>
             </blockquote>';
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $expHTML .= "<div class='row'><button class='btn' title='" . lang("edit_experience") . "' onclick='showExperience(" . $exps[$i]["experience_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_experience") . "' onclick='openModal(\"modal-delete-exp\"); item(\"delete-exp-id\").value = " . $exps[$i]["experience_id"] . "'><i class='fa fa-trash'></i></button></div>";
                     }
                 }
@@ -300,7 +318,7 @@ if ($profile->type != 0) {
     $edus = $profile->selectEducation();
 
     if ($edus[0] == false || count($edus[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noEdus;
         }
     }
@@ -310,7 +328,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("educations");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_edu") . "' onclick='showEducation(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -340,7 +358,7 @@ if ($profile->type != 0) {
                 <footer class="blockquote-footer">' . $eduDate . ' <cite title="Source Title">' . ($edus[$i]["education_note"] == "0" ? "" : "<b>" . $edus[$i]["education_note"] . "</b>") . '</cite></footer>
             </blockquote>';
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $eduHTML .= "<div class='row'><button class='btn' title='" . lang("edit_education") . "' onclick='showEducation(" . $edus[$i]["education_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_education") . "' onclick='openModal(\"modal-delete-edu\"); item(\"delete-edu-id\").value = " . $edus[$i]["education_id"] . "'><i class='fa fa-trash'></i></button></div>";
                     }
                 }
@@ -360,7 +378,7 @@ if ($profile->type != 0) {
     $certs = $profile->selectCertificate();
 
     if ($certs[0] == false || count($certs[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noCerts;
         }
     }
@@ -371,7 +389,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("certificates");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_certificate") . "' onclick='showCertificate(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -402,7 +420,7 @@ if ($profile->type != 0) {
                 <footer class="blockquote-footer">' . $certs[$i]["certificate_date"] . ' <cite title="Source Title">' . $certs[$i]["certificate_company"] . '</cite></footer>
             </blockquote>';
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $certsHTML .= "<div class='row'><button class='btn' title='" . lang("edit_certificate") . "' onclick='showCertificate(" . $certs[$i]["certificate_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_certificate") . "' onclick='openModal(\"modal-delete-certificate\"); item(\"delete-certificate-id\").value = " . $certs[$i]["certificate_id"] . "'><i class='fa fa-trash'></i></button></div>";
                     }
                 }
@@ -424,7 +442,7 @@ if ($profile->type != 0) {
     $refs = $profile->selectReference();
 
     if ($refs[0] == false || count($refs[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noRefs;
         }
     }
@@ -435,7 +453,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("references");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_reference") . "' onclick='showReference(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -456,7 +474,7 @@ if ($profile->type != 0) {
                 <footer class="blockquote-footer">' . $refs[$i]["reference_email"] . ' <cite title="Source Title">' . $refs[$i]["reference_gsm"] . '</cite></footer>
             </blockquote>';
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $refsHTML .= "<div class='row'><button class='btn' title='" . lang("edit_reference") . "' onclick='showReference(" . $refs[$i]["reference_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_reference") . "' onclick='openModal(\"modal-delete-ref\"); item(\"edit-reference-id\").value = " . $refs[$i]["reference_id"] . "'><i class='fa fa-trash'></i></button></div>";
                     }
                 }
@@ -476,7 +494,7 @@ if ($profile->type != 0) {
     $skills = $profile->selectSkill();
 
     if ($skills[0] == false || count($skills[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noSkills;
         }
     }
@@ -487,7 +505,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("skills");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_skill") . "' onclick='showSkill(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -513,14 +531,14 @@ if ($profile->type != 0) {
                     $admin = "";
                     $adminClose = "";
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $admin = "<a style=' cursor:pointer;' onclick='showSkill(" . $skills[$i]["skill_id"] . ");'>";
                         $adminClose = "</a>";
                     }
 
                     $skillsHTML .= $admin . '<span class="badge badge-pill badge-dark">' . $skills[$i]["skill_name"] . $star . '</span>' . $adminClose;
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         //  $skillsHTML .= "<div class='row'><button class='btn' title='" . lang("edit_reference") . "' onclick='showEditSkill(" . $skills[$i]["reference_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_skill") . "' onclick='openModal(\"modal-delete-ref\"); item(\"delete-ref-id\").value = " . $refs[$i]["reference_id"] . "'><i class='fa fa-trash'></i></button></div>";
                     }
                 }
@@ -541,7 +559,7 @@ if ($profile->type != 0) {
     $cvs = $profile->selectCV();
 
     if ($cvs[0] == false || count($cvs[1]) < 1) {
-        if ($profile->memberId != $user->memberId) {
+        if ($profile->memberId != $user->memberId && !$dasAdmin) {
             goto noCVs;
         }
     }
@@ -552,7 +570,7 @@ if ($profile->type != 0) {
             <?php
             echo lang("cvs");
 
-            if ($profile->memberId == $user->memberId) {
+            if ($profile->memberId == $user->memberId || $dasAdmin) {
                 echo "<button class='btn' title='" . lang("add_cv") . "' onclick='showCV(0)'><i class='fa fa-plus'></i></button>";
             }
             ?>
@@ -574,7 +592,7 @@ if ($profile->type != 0) {
                 <footer class="blockquote-footer"><cite>' . $cvs[$i]["cv_insert"] . '</cite></footer>
             </blockquote><div class="row"><a target="_blank" href="/cvs/' . $cvs[$i]["cv_file"] . '"><button class="btn" title="' . lang("view_cv") . '"><i class="fa fa-eye"></i></button></a>';
 
-                    if ($profile->memberId == $user->memberId) {
+                    if ($profile->memberId == $user->memberId || $dasAdmin) {
                         $cvsHTML .= "<button class='btn' title='" . lang("edit_cv") . "' onclick='showCV(" . $cvs[$i]["cv_id"] . ")'><i class='fa fa-edit'></i></button><button class='btn' title='" . lang("delete_cv") . "' onclick='openModal(\"modal-delete-cv\"); item(\"delete-cv-id\").value = " . $cvs[$i]["cv_id"] . "'><i class='fa fa-trash'></i></button>";
                     }
 
@@ -1188,6 +1206,25 @@ if ($profile->type != 0) {
         </div>
     </div>
     <script>
+
+        function changeUserStatus() {
+            $.post("api.php", {
+                "call_category": "user",
+                "call_request": "change_status",
+                "user":<?=$profile->memberId?>
+            }, function (data, result) {
+                if(result == "success"){
+                    data = JSON.parse(data);
+
+                    if(data[0]){
+                        Message.success(data[1]);
+                    }else{
+                        Message.error(data[1]);
+                    }
+                }
+            });
+        }
+
         function deleteCV() {
             var id = itemValue("delete-cv-id");
 
@@ -1267,7 +1304,8 @@ if ($profile->type != 0) {
                 "cv_id": id,
                 "cv_file": file,
                 "cv_desc": itemValue("cv_desc"),
-                "cv_name": itemValue("cv_name")
+                "cv_name": itemValue("cv_name"),
+                "cv_member":<?=$profile->memberId?>
             }, function (data, result) {
                 if (result == "success") {
                     data = JSON.parse(data);
@@ -1306,7 +1344,8 @@ if ($profile->type != 0) {
                 "call_category": "user",
                 "call_request": "change_password",
                 "current_password": itemValue("current_password"),
-                "password": itemValue("n_password")
+                "password": itemValue("n_password"),
+                "member":<?=$profile->memberId?>
             }, function (data, status) {
                 if (status == "success") {
                     data = JSON.parse(data);
@@ -1386,6 +1425,7 @@ if ($profile->type != 0) {
             fd.append('file', files);
             fd.append('call_category', "user");
             fd.append('call_request', "upload_profile_image");
+            fd.append("user", <?=$profile->memberId?>);
 
             //https://makitweb.com/how-to-upload-image-file-using-ajax-and-jquery/
             $.ajax({
@@ -1520,7 +1560,7 @@ if ($profile->type != 0) {
             $.post("api.php", {
                 "call_category": "user_experience",
                 "call_request": method,
-                "experience_member": id,
+                "experience_member": <?=$profile->memberId?>,
                 "experience_id": id,
                 "experience_name": itemValue("experience_name"),
                 "experience_company": itemValue("experience_company"),
@@ -1617,7 +1657,7 @@ if ($profile->type != 0) {
                 $.post("api.php", {
                     "call_category": "user_education",
                     "call_request": "insert",
-                    "education_member": 0,
+                    "education_member": <?=$profile->memberId?>,
                     "education_name": itemValue("education_name"),
                     "education_department": itemValue("education_department"),
                     "education_type": itemValue("education_type"),
@@ -1751,7 +1791,7 @@ if ($profile->type != 0) {
                 $.post("api.php", {
                         "call_category": "user_certificate",
                         "call_request": "insert",
-                        "certificate_member": 0,
+                        "certificate_member": <?=$profile->memberId?>,
                         "certificate_name": item("certificate_name").value,
                         "certificate_company": item("certificate_company").value,
                         "certificate_url": item("certificate_url").value,
@@ -1865,7 +1905,7 @@ if ($profile->type != 0) {
                     "reference_email": item("reference_email").value,
                     "reference_title": item("reference_title").value,
                     "reference_order": item("edit-reference-order").value,
-                    "reference_member": 0
+                    "reference_member": <?=$profile->memberId?>
 
                 }, function (data, result) {
                     if (result == "success") {
@@ -1892,7 +1932,7 @@ if ($profile->type != 0) {
                     "reference_email": item("reference_email").value,
                     "reference_title": item("reference_title").value,
                     "reference_order": item("edit-reference-order").value,
-                    "reference_member": 0
+                    "reference_member": <?=$profile->memberId?>
 
                 }, function (data, result) {
                     if (result == "success") {
@@ -2030,7 +2070,7 @@ if ($profile->type != 0) {
                     "skill_name": item("skill_name").value,
                     "skill_level": item("edit-skill-point").value,
                     "skill_order": item("edit-skill-order").value,
-                    "skill_member": 0
+                    "skill_member": <?=$profile->memberId?>
 
                 }, function (data, result) {
                     if (result == "success") {
@@ -2053,7 +2093,7 @@ if ($profile->type != 0) {
                     "skill_name": item("skill_name").value,
                     "skill_level": item("edit-skill-point").value,
                     "skill_order": item("edit-skill-order").value,
-                    "skill_member": 0
+                    "skill_member": <?=$profile->memberId?>
                 }, function (data, result) {
                     if (result == "success") {
                         data = JSON.parse(data);

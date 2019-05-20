@@ -19,6 +19,14 @@ $title = lang("page_company_job");
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
+if($user->type != 1 && $user->power < Perm::SUPPORT){
+    echo lang("perm_error");
+    die();
+}
+
+if($user->power >= Perm::SUPPORT){
+    $isAdminView = true;
+}
 ?>
 
 <div class="container">
@@ -34,9 +42,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
             <div class="col-md-7"></div>
 
-            <a href="company.php?page=job_edit">
-                <button type="button" class="btn btn-primary"><?= message('add_job') ?></button>
-            </a>
+            <?php
+            if($user->type == 1){
+            echo '<a href="company.php?page=job_edit">  <button type="button" class="btn btn-primary">'.message('add_job').'</button></a>';
+            }
+            ?>
+
         </div>
 
 
@@ -223,7 +234,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                 "keyword": keyword,
                 "page": page,
                 "count": count,
-                "user": <?=$isAdminView ? '' : $user->memberId?>,
+                "user": <?=$isAdminView ? 0 : $user->memberId?>,
                 "active": active
             }, function (data, status) {
                 if (status == "success") {

@@ -454,6 +454,7 @@ class User
     public $isLogged = false;
     public $address;
     public $birt_date;
+    public $active;
 
     public function __construct($memberId = 0)
     {
@@ -475,6 +476,7 @@ class User
             $this->power = $qUser["member_power"];
             $this->email = $qUser["member_email"];
 
+            $this->active = $qUser["member_active"];
             $this->name = $qUser["member_name"];
             $this->surname = $qUser["member_surname"];
 
@@ -560,6 +562,7 @@ class User
         $this->power = $qUser["member_power"];
         $this->email = $qUser["member_email"];
 
+        $this->active = $qUser["member_active"];
         $this->name = $qUser["member_name"];
         $this->surname = $qUser["member_surname"];
 
@@ -726,6 +729,35 @@ class User
         }
     }
 
+    public function changeStatus($userId)
+    {
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
+            return $auth;
+        }
+
+        $prefix = DB::Select("SELECT member_power FROM member WHERE member_id = $userId");
+
+        if ($prefix[0] == false) {
+            return [true, lang("unknown_user")];
+        }
+
+        if (isset($prefix[1][0]["member_power"]) == false) {
+            return [false, lang("unknown_user")];
+        }
+
+        if ($prefix[1][0]["member_power"] >= $this->power) {
+            return [false, lang("perm_error")];
+        }
+
+        $res = DB::execute("UPDATE member SET  member_active = ((member_active+1) % 2) WHERE  member_id = $userId");
+
+        if ($res[0]) {
+            return [true, lang("success_update_status")];
+        } else {
+            return [false, lang("failure_update_status")];
+        }
+    }
+
     public function updateUserInfo($userId, $email, $name, $surname, $gsm, $bd, $website, $gender, $smoke, $mil, $mil_date, $address, $special)
     {
         if ($userId == 0) {
@@ -818,7 +850,7 @@ class User
 
             $us = DB::select("SELECT * FROM member WHERE  member_email = '$email'");
 
-            if($us[0] == false || count($us[1]) < 1){
+            if ($us[0] == false || count($us[1]) < 1) {
                 return [false, lang("unknow_user")];
             }
 
@@ -826,7 +858,7 @@ class User
 
             $newPassword = $this->encPassword($token, $us[1][0]["member_prefix"]);
 
-            if(DB::execute("UPDATE member SET member_password = '$newPassword' WHERE member_id = ".$us[1][0]["member_id"])[0] == false){
+            if (DB::execute("UPDATE member SET member_password = '$newPassword' WHERE member_id = " . $us[1][0]["member_id"])[0] == false) {
                 return [false, lang("failure_send_password")];
             }
 
@@ -842,16 +874,16 @@ class User
             $mail->Username = 'muhammedkalender.kariyer@gmail.com';
             $mail->Password = '123456.aA';
             $mail->SetFrom($mail->Username, 'Kariyer');
-            $mail->AddAddress($us[1][0]["member_email"], $us[1][0]["member_name"]. " ".$us[1][0]["member_surname"]);
+            $mail->AddAddress($us[1][0]["member_email"], $us[1][0]["member_name"] . " " . $us[1][0]["member_surname"]);
             $mail->CharSet = 'UTF-8';
             $mail->Subject = 'Yeni Şifre';
             $content = $html;
             $mail->MsgHTML($content);
 
-            if($mail->Send()){
+            if ($mail->Send()) {
                 return [true, lang("success_send_password")];
 
-            }else{
+            } else {
                 return [false, lang("failure_send_password")];
             }
         } catch (Exception $e) {
@@ -1322,7 +1354,7 @@ class User
     //endregion
 
     //region CV
-    public function addCV($name, $file, $desc, $order = 0, $memberId = 0)
+    public function addCV($name, $file, $desc, $memberId = 0, $order = 0)
     {
         if ($memberId == 0) {
             $memberId = $this->memberId;
@@ -2196,7 +2228,7 @@ WHERE ja.job_adv_active = 1" . $query);
             return [false, lang("perm_error")];
         }
 
-        $query = "WHERE job_apply_active = 1 ";
+        $query = "WHERE job_apply_active = 1 AND job_apply_job_adv_id = " . $jobId;
 
         if ($keyword != "") {
             $keyword = Valid::clear($keyword);

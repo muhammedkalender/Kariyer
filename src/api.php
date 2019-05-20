@@ -37,7 +37,19 @@ if ($callCategory == "user") {
 
         $callResult = $user->register($_POST["user_type"], $_POST["user_email"], $_POST["user_name"], $_POST["user_surname"], $_POST["user_password"]);
         goto output;
-    }else if($callRequest == "forgot_password"){
+    }else if($callRequest == "change_status"){
+        $inputs = Valid::check([
+            new ValidObject("user", "user", 1, 32, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->changeStatus($_POST["user"]);
+        goto output;
+    } else if($callRequest == "forgot_password"){
         $inputs = Valid::check([
             new ValidObject("user_email", "email", 6, 32, ValidObject::Email)
         ]);
@@ -82,6 +94,22 @@ if ($callCategory == "user") {
         goto output;
     } else if ($callRequest == "upload_profile_image") {
         //[OK]
+        if(!isset($_POST["user"])){
+            $callResult =[false, lang("unknow_member")];
+            goto output;
+        }
+
+        $memberId = intval($_POST["user"]);
+
+        if($memberId == 0){
+            $memberId = $user->memberId;
+        }
+
+        if($memberId != $user->memberId && $user->power < Perm::SUPPORT){
+            $callResult =[false, lang("perm_error")];
+            goto output;
+        }
+
         if (!isset($_FILES['file']) || count($_FILES["file"]) < 1) {
             $callResult = [false, lang("must_image_select")];
             goto output;
@@ -111,10 +139,10 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $location = md5($_FILES['file']['name'] . $user->memberId . time()) . ".jpeg";
+        $location = md5($_FILES['file']['name'] .$memberId. time()) . ".jpeg";
 
         if (move_uploaded_file($_FILES['file']['tmp_name'], "./images/profile/" . $location)) {
-            if (DB::execute("UPDATE member SET member_picture = '$location' WHERE member_id = $user->memberId")[0]) {
+            if (DB::execute("UPDATE member SET member_picture = '$location' WHERE member_id = $memberId")[0]) {
                 $callResult = [true, lang("success_upload_image"), $location];
                 goto output;
             } else {
@@ -122,7 +150,7 @@ if ($callCategory == "user") {
                 goto output;
             }
         } else {
-            $callResult = [true, lang("failure_upload_image")];
+            $callResult = [false, lang("failure_upload_image")];
             goto output;
         }
     } else if ($callRequest == "update_user_info") {
@@ -223,7 +251,8 @@ if ($callCategory == "user") {
         $inputs = Valid::check([
             new ValidObject("cv_name", "cv_name", 1, 32, ValidObject::CleanText),
             new ValidObject("cv_desc", "cv_desc", 0, 256, ValidObject::CleanText),
-            new ValidObject("cv_file", "cv_file", 1, 512, ValidObject::CleanText)
+            new ValidObject("cv_file", "cv_file", 1, 512, ValidObject::CleanText),
+            new ValidObject("cv_member", "cv_member", 1, 32, ValidObject::Integer)
         ]);
 
         if ($inputs[0] == false) {
@@ -231,7 +260,7 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->addCV($_POST["cv_name"], $_POST["cv_file"], $_POST["cv_desc"]);
+        $callResult = $user->addCV($_POST["cv_name"], $_POST["cv_file"], $_POST["cv_desc"], $_POST["cv_member"]);
         goto output;
     } else if($callRequest == "get"){
         $inputs = Valid::check([

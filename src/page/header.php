@@ -50,7 +50,7 @@ if (!isset($isAllowRequest)) {
     </head>
     <title><?= lang("site_title") . " - " . $title ?></title>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#"><?= lang("site_title") ?></a>
+        <a class="navbar-brand" href="index.php"><?= lang("site_title") ?></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -58,7 +58,7 @@ if (!isset($isAllowRequest)) {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="index.php"><?=lang("cat_home")?></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="index.php?page=is-ilanlari"><?= lang("page_find_job") ?></a>
@@ -76,8 +76,20 @@ if (!isset($isAllowRequest)) {
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="index.php?page=<?=$user->type == 0?"profile&user":"firma&company"?>=<?=$user->memberId?>"><?= lang("my_profile") ?></a>
-                            <a class="dropdown-item" href="company.php"><?= lang("company_profile") ?></a>
-                            <a class="dropdown-item" href="#"><?= lang("settings") ?></a>
+
+                            <?php
+
+                            if($user->type == 1 ||$user->power >= Perm::SUPPORT){
+                                echo '<a class="dropdown-item" href="company.php">'.lang("company_profile").'</a>';
+                            }
+
+                            if($user->power >= Perm::SUPPORT){
+                                echo '<a class="dropdown-item" href="admin.php">'.lang("admin_page").'</a>';
+                            }
+
+                            ?>
+
+                            <!--<a class="dropdown-item" href="#"><?= lang("settings") ?></a>-->
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" onclick="logout()" href="#"><?= lang("exit") ?></a>
                         </div>

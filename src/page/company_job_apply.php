@@ -27,6 +27,11 @@ if (!isset($_GET["job_id"]) || intval($_GET["job_id"]) < 1) {
 }
 
 $jobId = intval($_GET["job_id"]);
+
+if($user->type != 1 && $user->power < Perm::SUPPORT){
+    echo lang("perm_error");
+    die();
+}
 ?>
 
 <div class="container">
