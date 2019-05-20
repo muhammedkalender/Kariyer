@@ -51,7 +51,7 @@ if($user->type != 1 && $user->power < Perm::SUPPORT){
                 <th scope="col">#</th>
                 <th scope="col"><?= message('user_name') ?></th>
                 <th scope="col"><?= message('user_surname') ?></th>
-                <th scope="col"><?= message('user_surname') ?></th>
+                <th scope="col"><?= message('mark') ?></th>
                 <th scope="col"><?= message('date') ?></th>
                 <th scope="col"><?= message('actions') ?></th>
             </tr>

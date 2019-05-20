@@ -525,7 +525,7 @@ if ($profile->type != 0) {
                     $star = "";
 
                     for ($j = 0; $j < $skills[$i]["skill_level"]; $j++) {
-                        $star .= "<span class=\"fa fa-star\">";
+                        $star .= "<span class=\"fa fa-star\"/>";
                     }
 
                     $admin = "";

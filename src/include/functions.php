@@ -2224,7 +2224,7 @@ WHERE ja.job_adv_active = 1" . $query);
             return $auth;
         }
 
-        if ($user->type != User::COMPANY) {
+        if ($user->type != User::COMPANY && $user->power < Perm::SUPPORT) {
             return [false, lang("perm_error")];
         }
 

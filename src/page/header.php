@@ -82,11 +82,6 @@ if (!isset($isAllowRequest)) {
                             if($user->type == 1 ||$user->power >= Perm::SUPPORT){
                                 echo '<a class="dropdown-item" href="company.php">'.lang("company_profile").'</a>';
                             }
-
-                            if($user->power >= Perm::SUPPORT){
-                                echo '<a class="dropdown-item" href="admin.php">'.lang("admin_page").'</a>';
-                            }
-
                             ?>
 
                             <!--<a class="dropdown-item" href="#"><?= lang("settings") ?></a>-->
