@@ -172,7 +172,7 @@ if($user->type != 1&& $user->power < Perm::SUPPORT){
                     if (result[0]) {
                         var job = result[1];
                         var locations = JSON.parse(result[2]);
-
+console.log(job);
                         if (locations.length > 0) {
                             getLocation(locations[0]["big_father"], 1, 'fj_city', (function () {
                                 item("fj_country").value = locations[0]["big_father"];

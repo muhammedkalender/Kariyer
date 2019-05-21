@@ -11,7 +11,7 @@
 if (!isset($isAllowRequest)) {
     die();
 }
-//todo auth sadece başvurduğu şirket yada kendi
+
 $userId = "";
 
 if (isset($_GET["user"])) {
@@ -24,8 +24,9 @@ $dasAdmin = false;
 
 if ($userId > 0 && $userId != $user->memberId) {
     if (!DB::isAvailable("SELECT job_adv_author FROM job_apply INNER JOIN job_adv ON job_adv_id = job_apply_job_adv_id INNER JOIN member ON job_adv_author = member_id WHERE job_apply_member = $userId  AND job_adv_author =" . $user->memberId) && $user->power < Perm::ADMIN) {
+        $title = lang("perm_error");
         include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
-        echo lang("perm_error");
+        echo '<script>Message.error("'.lang("perm_error").'"); href("/", 3000);</script>';
         die();
     }
 
@@ -45,7 +46,9 @@ $title = $profile->name . " " . $profile->surname;
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
 if ($profile->type != 0) {
-    echo lang("unknown_user");
+    $title = lang("unknown_user");
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
+    echo '<script>Message.error("'.lang("unknown_user").'"); href("/", 3000);</script>';
     die();
 }
 
@@ -244,10 +247,15 @@ if ($profile->type != 0) {
                 <?= $profile->description ?>
             </textarea>
         </div>
+        <?php
 
-        <div class="card-footer">
-            <button type="button" class="btn btn-info" onclick="saveDesc(this)"><?= lang("save") ?></button>
-        </div>
+        if($ro == ""){
+            echo '<div class="card-footer">
+            <button type="button" class="btn btn-info" onclick="saveDesc(this)">'. lang("save").'</button>
+        </div>';
+        }
+
+        ?>
     </div>
 
     <br>
@@ -525,7 +533,7 @@ if ($profile->type != 0) {
                     $star = "";
 
                     for ($j = 0; $j < $skills[$i]["skill_level"]; $j++) {
-                        $star .= "<span class=\"fa fa-star\"/>";
+                        $star .= "<span class='fa fa-star'></span>";
                     }
 
                     $admin = "";

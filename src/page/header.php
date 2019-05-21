@@ -12,7 +12,7 @@ if (!isset($isAllowRequest)) {
     die();
 }
 ?>
-<http>
+<html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -29,7 +29,7 @@ if (!isset($isAllowRequest)) {
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
                 integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
                 crossorigin="anonymous"></script>
-
+        <link rel="shortcut icon" type="image/png" href="/favicon.png"/>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
         <link  rel="stylesheet" type="text/css" href="../css/theme.css">
@@ -50,18 +50,18 @@ if (!isset($isAllowRequest)) {
     </head>
     <title><?= lang("site_title") . " - " . $title ?></title>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="index.php"><?= lang("site_title") ?></a>
+        <a class="navbar-brand font-weight-bold" href="index.php"><?= lang("site_title") ?></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php"><?=lang("cat_home")?></a>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold" href="index.php"><?=lang("cat_home")?></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php?page=is-ilanlari"><?= lang("page_find_job") ?></a>
+                    <a class="nav-link font-weight-bold" href="index.php?page=is-ilanlari"><?= lang("page_find_job") ?></a>
                 </li>
 
 
@@ -225,7 +225,7 @@ if (!isset($isAllowRequest)) {
                         </div>
 
                         <button type="submit" class="btn btn-primary"
-                                onclick="postForm('forgot', '/', 5000)"><?= lang("send_forgot") ?></button>
+                                onclick="postForm('forgot', '/', 5000, this)"><?= lang("send_forgot") ?></button>
                     </form>
                 </div>
             </div>

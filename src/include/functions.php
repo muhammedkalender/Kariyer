@@ -56,7 +56,7 @@ class ValidObject
     const Email = 6;
     const Boolean = 7;
     const Date = 8; //standart tyok
-    const Html = 9; //todo bu sakat
+    const Html = 9;
     const Radio = 10;
     const Check = 11;
 
@@ -121,20 +121,19 @@ class Valid
 
     public static function encode($rawText)
     {
-        return $rawText;
-//todo
+        return htmlspecialchars($rawText, ENT_QUOTES);
     }
 
     public static function decode($rawText)
     {
-        return $rawText;
-//todo
+        return htmlspecialchars_decode($rawText, ENT_QUOTES);
     }
-
+//todo bu ve düz text ayrı olmalı, işaretler var bunda
     public static function clear($rawText)
     {
-        //todo
-        return $rawText;
+        //https://stackoverflow.com/questions/25507489/slug-url-turkish-character
+
+        return preg_replace("/[^a-zA-Z0-9.,+-?^<> #$!%&()?:;\x{00E7}\x{011F}\x{0131}\x{015F}\x{00F6}\x{00FC}\x{00C7}\x{011E}\x{0130}\x{015E}\x{00D6}\x{00DC} _-]/u", "",$rawText);
     }
 
     public static function day($timestampFirst, $timestampSecond)
@@ -1908,7 +1907,7 @@ class Job
         $title = Valid:: clear($title);
         $description = Valid::encode($description);
 
-        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" . Valid::clear($title) . "', job_adv_type =  $type,  job_adv_description = '" . Valid::encode($description) . "',  job_adv_category = $category, job_adv_special = $special WHERE job_adv_id = $jobId");
+        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" .$title . "', job_adv_type =  $type,  job_adv_description = '" .$description . "',  job_adv_category = $category, job_adv_special = $special WHERE job_adv_id = $jobId");
 
         if ($result[0] == false) {
             return [false, message("failed_job_adv_update")];
@@ -1980,7 +1979,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
         }
 
         $jobLocations = $jobLocation[1];
-
+$job["job_adv_description"] = Valid::decode($job["job_adv_description"]);
         return [true, $job, json_encode($jobLocations, true)];
     }
 
@@ -2066,6 +2065,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
             }
 
             $keyword = Valid::clear($keyword);
+            $keyword = Valid::encode($keyword);
 
             $query .= "(co.member_name LIKE '%$keyword%' OR co.member_surname LIKE '%$keyword%' OR ja.job_adv_title LIKE '%$keyword%' OR ja.job_adv_description LIKE '%$keyword%')";
         }
@@ -2087,11 +2087,13 @@ WHERE jl.job_adv_id = " . intval($jobId));
 
     public static function selectJob($keyword, $locations, $type, $cat, $page, $count, $company, $special)
     {
-        //todo close olmuşşsa select etmesin
         $query = "";
 
+
+        $keyword = Valid::encode($keyword);
+
         if ($keyword != "") {
-            $query .= " AND (job_adv_title LIKE '%" . Valid::clear($keyword) . "%' OR  job_adv_description LIKE '%" . Valid::clear($keyword) . "%') ";
+            $query .= " AND (job_adv_title LIKE '%" .$keyword . "%' OR  job_adv_description LIKE '%" . $keyword . "%' OR (SELECT location_name FROM location WHERE location_id = loc.location_father) LIKE '%$keyword%' OR loc.location_name LIKE '%$keyword%') ";
         }
 
         if (intval($type) > 0) {
@@ -2151,7 +2153,7 @@ INNER JOIN category fct ON ct.category_father = fct.category_id
 INNER JOIN member mb ON ja.job_adv_author = mb.member_id
 INNER JOIN job_adv_location jal ON jal.job_adv_id = ja.job_adv_id
 INNER JOIN location loc ON jal.location_id = loc.location_id
-WHERE ja.job_adv_active = 1" . $query);
+WHERE ja.job_adv_active = 1 AND (job_adv_close IS NULL || job_adv_close = '') " . $query);
 
         if ($job[0] && count($job[1]) > 0) {
             return [true, $job];

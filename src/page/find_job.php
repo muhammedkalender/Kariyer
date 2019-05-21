@@ -16,42 +16,34 @@ $title = lang("page_find_job");
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
+$keyword = "";
+
+if (isset($_GET["keyword"])) {
+    $keyword = $_GET["keyword"];
+}
+
 ?>
 
-<div class="contains">
+<div class="wrapper col-12">
+    <!-- Sidebar -->
     <div class="row">
-        <div class="col-md-2">
-
-        </div>
-        <div class="col-md-8">
-            <div id="area_search_job">
-
+        <nav id="sidebar" class="col-md-3" style="background-color: whitesmoke;">
+            <div class="sidebar-header">
+                <h3><?=lang("job_filter")?></h3>
             </div>
 
-            <button class="form-control bg-warning text-white"
-                    onclick="loadMoreJob(this)"><?= lang("load_more_job") ?></button>
-            <br>
             <div class="form-group">
-                <input type="submit" class="form-control bg-primary text-white" onclick="searchJob(this)"
-                       value="<?= lang('search_now') ?>"
+                <label for="fj_keyword"><?= lang("lbl_fj_keyword") ?></label>
+                <input type="text" class="form-control" id="fj_keyword" name="fj_keyword"
+                       placeholder="<?= lang('hint_fj_keyword') ?>" value="<?= $keyword ?>">
             </div>
 
-            <br>
-            <div class="card">
-                <div class="card-body">
-
-                    <div class="form-group">
-                        <label for="fj_keyword"><?= lang("lbl_fj_keyword") ?></label>
-                        <input type="text" class="form-control" id="fj_keyword" name="fj_keyword"
-                               placeholder="<?= lang('hint_fj_keyword') ?>">
-                    </div>
+            <div id="divLocation">
+                <div class="text-center sidebar-item" href="#searchLocation" data-toggle="collapse"
+                     aria-expanded="false" style="cursor: pointer">
+                    <a class="dropdown-toggle"><?= lang("lbl_location") ?></a>
                 </div>
-            </div>
-
-            <br>
-            <div class="card">
-                <div class="card-body">
-
+                <div class="collapse" id="searchLocation">
                     <div class="form-group">
                         <label for="fj_country"><?= lang("lbl_country") ?></label>
                         <select class="form-control" id="fj_country" name="fj_country"
@@ -63,7 +55,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
                     <div class="form-group">
                         <label for="fj_city"><?= lang("lbl_city") ?></label>
-                        <select class="form-control" id="fj_city" name="fj_city" onclick="getDistrict(this.value)"
+                        <select class="form-control" id="fj_city" name="fj_city"
+                                onclick="getDistrict(this.value)"
                         >
                             <?php
                             $category = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/const/category.json", true);
@@ -79,12 +72,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                 </div>
             </div>
 
-            <br>
-            <div class="card" id="card-work-type">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label><?= lang("lbl_work_type") ?></label>
-                    </div>
+            <div id="divWorkType">
+                <div class="text-center sidebar-item" href="#searchWorkType" data-toggle="collapse"
+                     aria-expanded="false" style="cursor: pointer">
+                    <a class="dropdown-toggle "><?= lang("lbl_work_type") ?></a>
+                </div>
+                <div class="collapse" id="searchWorkType">
                     <div class="form-group ">
                         <?php
                         echo '<div class="form-check custom-control-inline" onclick="type=0">';
@@ -104,12 +97,15 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                     </div>
                 </div>
             </div>
-            <br>
-            <div class="card">
-                <div class="card-body">
 
+            <div id="divCategory">
+                <div class=" text-center sidebar-item" href="#searchCategory" data-toggle="collapse"
+                     aria-expanded="false" style="cursor: pointer">
+                    <a class="dropdown-toggle "><?= lang("lbl_category") ?></a>
+                </div>
+
+                <div class="collapse" id="searchCategory">
                     <div class="form-group">
-                        <label for="fj_category"><?= lang("lbl_category") ?></label>
                         <select class="form-control" id="fj_category" name="fj_category"
                                 onchange='loadCheck("category_"+this.value, "category", "content_sub_category", "category")'
                         >
@@ -124,22 +120,40 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                     </div>
                 </div>
             </div>
-            <br>
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label><?= lang("lbl_special") ?></label>
-                    </div>
+
+            <div id="divSpecial">
+                <div class=" text-center sidebar-item" href="#searchSpecial" data-toggle="collapse"
+                     aria-expanded="false" style="cursor: pointer">
+                    <a class="dropdown-toggle"><?= lang("lbl_special") ?></a>
+                </div>
+
+                <div class="collapse" id="searchSpecial">
                     <div class="form-group ">
-                       <select class="form-control" id="special">
-                           <option value="0" selected><?=lang("job_special_0")?></option>
-                           <option value="1"><?=lang("job_special_1")?></option>
-                           <option value="2"><?=lang("job_special_2")?></option>
-                       </select>
+                        <select class="form-control" id="special">
+                            <option value="0" selected><?= lang("job_special_0") ?></option>
+                            <option value="1"><?= lang("job_special_1") ?></option>
+                            <option value="2"><?= lang("job_special_2") ?></option>
+                        </select>
                     </div>
                 </div>
             </div>
 
+            <hr>
+            <div class="form-group">
+                <input type="submit" class="btn btn-outline-primary btn-block" onclick="searchJob(this)"
+                       value="<?= lang('search_now') ?>"
+            </div>
+        </nav>
+        <!-- Page Content -->
+        <div id="content" class="col-md-9">
+
+            <div class="container-fluid">
+                <div id="area_search_job">
+                </div>
+                <hr>
+                <button class="form-control bg-warning text-white"
+                        onclick="loadMoreJob(this)"><?= lang("load_more_job") ?></button>
+            </div>
         </div>
     </div>
 </div>
@@ -163,7 +177,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
             '            <div class="card">' +
             '            <div class="card-horizontal">' +
             '            <div class="img-square-wrapper">' +
-            '            <a href="index.php?page=firma&company=' + company_id + '"><img class="" style="width: 180px; height: 180px" src="/images/profile/' + company_image + '" alt="' + company_name + '">' +
+            '            <a href="index.php?page=firma&company=' + company_id + '"><img class="img-thumbnail" style="" src="/images/profile/' + company_image + '" alt="' + company_name + '">' +
             '            <b><p class="card-text text-center text-bold">' + company_name + '</p></b></a>' +
             '        </div>' +
             '        <div class="card-body">' +
@@ -174,7 +188,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
             '            </div>' +
             '            </div>' +
             '            <div class="card-footer">' +
-            '            <a href="index.php?page=ilani-gor&job_id=' + id + '"><button class="form-control bg-success text-white"><?=lang("view")?></button></a>' +
+            '            <a target="_blank" href="index.php?page=ilani-gor&job_id=' + id + '"><button class="btn btn-outline-success btn-block"><?=lang("view")?></button></a>' +
             '            </div>' +
             '            </div>' +
             '            </div>' +
@@ -223,8 +237,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
         if (locationsObjs.length > 0) {
             for (var i = 0; i < locationsObjs.length; i++) {
-                if(locationsObjs[i].checked){
-                    if(locations != ""){
+                if (locationsObjs[i].checked) {
+                    if (locations != "") {
                         locations += ",";
                     }
                     locations += locationsObjs[i].value;
@@ -236,7 +250,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
         special = 0;
 
-        if(itemValue("special") > 0){
+        if (itemValue("special") > 0) {
             special = itemValue("special");
         }
 
@@ -251,7 +265,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     }
 
     var lastKeyword = "";
-    var keyword = "";
+    var keyword = "<?=$keyword?>";
     var page = 0;
     var count = 5;
     var active = "";
@@ -259,7 +273,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     var cat = 0;
     var locations = "";
     var company = 0;
-    var special =0;
+    var special = 0;
 
     function loadMoreJob(button) {
         if (button != null) {
@@ -278,8 +292,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
                 "type": type,
                 "cat": cat,
                 "locations": locations,
-                "company":company,
-                "special":special
+                "company": company,
+                "special": special
             }, function (data, status) {
 
                 console.log(data);

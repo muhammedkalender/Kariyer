@@ -11,7 +11,6 @@
 include_once $_SERVER['DOCUMENT_ROOT'] . "/include/functions.php";
 
 if (isset($_POST["call_category"]) == false || isset($_POST["call_request"]) == false) {
-    //todo
     goto nothing;
 }
 

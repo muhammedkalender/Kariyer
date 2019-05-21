@@ -69,7 +69,7 @@ Job::addView($jobId);
                             <div class="card-footer">
                                 <button onclick="showApplyJob(<?= $job["job_adv_id"] ?>)"
                                         id="btn_job_apply"
-                                        class="form-control bg-info text-white" <?= $applied||$user->type == 1 ?"disabled":""?>><?= $applied ? lang("already_apply_job") : lang("apply_job") ?></button>
+                                        class="btn btn-outline-info btn-block" <?= $applied||$user->type == 1 ?"disabled":""?>><?= $applied ? lang("already_apply_job") : lang("apply_job") ?></button>
                             </div>
                         </div>
                     </div>

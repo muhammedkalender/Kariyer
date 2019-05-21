@@ -8,7 +8,7 @@
  */
 
 
-.modal-body{
+.modal-body {
     max-height: 50%;
     overflow-x: auto;
 }
@@ -17,4 +17,25 @@
 .card-horizontal {
     display: flex;
     flex: 1 1 auto;
+}
+
+.shadow-black {
+    text-shadow: -1px 0 black, 0 2px black, 2px 0 black, 0 -1px black;
+}
+
+.statics-badge {
+    opacity: 0.7;
+}
+
+.statics-badge:hover {
+    opacity: 1;
+}
+
+.sidebar-item{
+    opacity: 0.7;
+
+}
+
+.sidebar-item:hover {
+    opacity: 1;
 }

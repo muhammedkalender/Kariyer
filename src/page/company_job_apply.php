@@ -16,7 +16,7 @@ if (!isset($isAllowRequest)) {
 //todo
 $isAdminView = false;
 
-//$title = lang("page_company_job");
+$title = lang("page_company_job_apply");
 
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 

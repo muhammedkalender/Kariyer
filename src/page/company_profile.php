@@ -40,7 +40,9 @@ $title = $profile->name . " " . $profile->surname;
 include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 
 if ($profile->type != 1) {
-    echo lang("unknown_company");
+    $title = lang("unknown_company");
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
+    echo '<script>Message.error("'.lang("unknown_company").'"); href("/", 3000);</script>';
     die();
 }
 ?>
@@ -261,7 +263,7 @@ if ($profile->type != 1) {
             '            </div>' +
             '            </div>' +
             '            <div class="card-footer">' +
-            '            <a href="index.php?page=ilani-gor&job_id=' + id + '"><button class="form-control bg-success text-white"><?=lang("view")?></button></a>' +
+            '            <a href="index.php?page=ilani-gor&job_id=' + id + '" target="_blank"><button class="btn btn-outline-success btn-block"><?=lang("view")?></button></a>' +
             '            </div>' +
             '            </div>' +
             '            </div>' +
