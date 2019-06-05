@@ -24,13 +24,15 @@ if (isset($_GET["page"])) {
         include_once "./page/company_job.php";
     } else if ($page == "job_edit") {
         include_once "./page/company_job_edit.php";
-    }else if($page == "job_apply"){
+    } else if ($page == "job_apply") {
         include_once "./page/company_job_apply.php";
-    }  //else if ($page == "firma-paneli") {
-    // include_once "./page/company.php";
-    // }
+    } else if ($page == "user_management") {
+        include_once "./page/user_management_user.php";
+    } else {
+        include_once "./page/admin_main.php";
+    }
 } else {
-    include_once "./page/company_main.php";
+    include_once "./page/admin_main.php";
 }
 
 include_once "./page/footer.php";

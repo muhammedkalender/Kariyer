@@ -889,6 +889,39 @@ class User
         }
     }
 
+    //region User Management
+    public function selectUser($keyword, $type, $page, $count){
+        $suffix = "";
+
+        if($keyword != ""){
+            //TODO Sorgu iyileştir
+            $suffix = " WHERE (member_email LIKE '$keyword' OR member_name LIKE '$keyword' OR member_surname LIKE '$keyword') AND member_type = $type";
+        }else{
+            $suffix = " WHERE member_type = $type";
+        }
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::OR_UPPER, Perm::SUPPORT, 0))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::select("SELECT member_id, member_name, member_surname, member_type, member_email, member_insert, member_gsm FROM member " . $suffix);
+
+        if($res[0]){
+            if(is_array($res[1]) &&count($res[1]) > 0){
+                return $res;
+            }else{
+                return [false, message("404_", "user")];
+            }
+        }else{
+            return $res;
+        }
+    }
+    //endregion
+
     //region Experience
     public function addExperience($name, $company, $description, $start, $end = null, $order = 0, $memberId = 0)
     {
@@ -1780,8 +1813,6 @@ class User
 }
 
 //TODO Cache hazırlama ( db de değşiklik oldukça json output
-//todo iş kategorileri
-//ilan ypaısı
 
 class Cache
 {

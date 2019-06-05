@@ -367,7 +367,17 @@ $lang = [
     "edit_experience" => "Deneyimi Düzenle",
     "add_experience" => "Deneyim Ekle",
     "delete_experience" => "Deneyimi Sil",
-    "var_skill_member" => "Kullanıcı"
+    "var_skill_member" => "Kullanıcı",
+
+    "user_management_title" => "Kullanıcı Yönetimi",
+    "user_management_desc" => "Kullanıcı ekleme, silme, yönetme",
+    "company_management_title" => "Firme Yönetimi",
+    "company_management_desc" => "Firma ekleme, silme, yönetme",
+    "admin_panel" => "Yönetim Paneli",
+    "page_admin_main" => "Yönetim Paneli",
+    "page_admin_user" => "Kullanıcılar",
+    "page_admin_company" => "Firmalar",
+    "register_date" => "Kayıt Tarihi",
 
 ];
 

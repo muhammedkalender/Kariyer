@@ -82,6 +82,10 @@ if (!isset($isAllowRequest)) {
                             if($user->type == 1 ||$user->power >= Perm::SUPPORT){
                                 echo '<a class="dropdown-item" href="company.php">'.lang("company_profile").'</a>';
                             }
+
+                            if($user->power >= Perm::SUPPORT){
+                                echo '<a class="dropdown-item" href="admin.php">' .lang("admin_panel").'</a>';
+                            }
                             ?>
 
                             <!--<a class="dropdown-item" href="#"><?= lang("settings") ?></a>-->
@@ -93,9 +97,6 @@ if (!isset($isAllowRequest)) {
                 } else { ?>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="openModal('modal-login')"><?= lang("login") ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="openModal('modal-register')"><?= lang("register") ?></a>
                     </li>
                 <?php } ?>
             </ul>
@@ -124,75 +125,6 @@ if (!isset($isAllowRequest)) {
                             onclick="$('#messageDialog').hide()"><?= lang("close") ?></button>
                 </div>
 
-            </div>
-        </div>
-    </div>
-
-    <!-- The Modal -->
-    <div class="modal" id="modal-register">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header bg-primary text-white">
-                    <h4 class="modal-title"><?= lang("register") ?></h4>
-                    <button type="button" class="close text-white" data-dismiss="modal"
-                            onclick="closeModal('modal-register')">&times;
-                    </button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body" id="messagePanel">
-                    <form id="modal-register-form" action="#" onsubmit="return false">
-                        <input type="hidden" name="call_category" value="user">
-                        <input type="hidden" name="call_request" value="register">
-                        <!-- alert-danger, alert-success, alert-primary -->
-                        <div class="alert" id="modal-register-result" style="display: none">
-                        </div>
-                        <div class="form-group">
-                            <label for="user_name"><?= lang("user_type") ?></label>
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" id="user_type0" name="user_type"
-                                       value="0">
-                                <label class="custom-control-label" for="user_type0"><?= lang("user") ?></label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" id="user_type1" name="user_type"
-                                       value="1">
-                                <label class="custom-control-label" for="user_type1"><?= lang("company") ?></label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="user_name"><?= lang("name") ?></label>
-                            <input type="text" class="form-control" name="user_name" minlength="3" maxlength="32"
-                                   placeholder="Muhammed" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="user_surname"><?= lang("surname") ?></label>
-                            <input type="text" class="form-control" name="user_surname" placeholder="Kalender"
-                                   minlength="3" maxlength="32" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="user_email"><?= lang("email") ?></label>
-                            <input type="email" class="form-control" name="user_email" placeholder="example@mail.com"
-                                   minlength="3" maxlength="64" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="user_password"><?= lang("password") ?></label>
-                            <input type="password" id="password" class="form-control" name="user_password"
-                                   placeholder="<?= lang("password") ?>" minlength="6" maxlength="32" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="registerPasswordRepeat"><?= lang("password_repeat") ?></label>
-                            <input type="password" id="password_repeat" class="form-control"
-                                   name="registerPasswordRepeat" placeholder="<?= lang("password_repeat") ?>"
-                                   minlength="6" maxlength="32" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary"
-                                onclick="register()"><?= lang("register") ?></button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

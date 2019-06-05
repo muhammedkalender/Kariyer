@@ -2,7 +2,12 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="f1dd9119-8117-4a84-b4f3-3f7537e5375a" name="XAMPP-HTDOCS" url="http://localhost">
+      <webServer id="f1dd9119-8117-4a84-b4f3-3f7537e5375a" name="muhammedkalender.com" url="http://localhost">
+        <fileTransfer host="37.247.111.239" port="21">
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="760b093c-1232-49e0-8adb-673cb26c8f2a" name="XAMPP" url="http://localhost">
         <fileTransfer port="0" mountedRoot="C:\xampp\htdocs" accessType="MOUNT" />
       </webServer>
     </option>

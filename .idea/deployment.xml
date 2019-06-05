@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="XAMPP-HTDOCS">
+  <component name="PublishConfigData" serverName="muhammedkalender.com">
     <serverData>
-      <paths name="XAMPP-HTDOCS">
+      <paths name="XAMPP">
+        <serverdata>
+          <mappings>
+            <mapping deploy="\" local="$PROJECT_DIR$/src" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="muhammedkalender.com">
         <serverdata>
           <mappings>
             <mapping deploy="\" local="$PROJECT_DIR$/src" web="/" />

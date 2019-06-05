@@ -36,7 +36,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->register($_POST["user_type"], $_POST["user_email"], $_POST["user_name"], $_POST["user_surname"], $_POST["user_password"]);
         goto output;
-    }else if($callRequest == "change_status"){
+    } else if ($callRequest == "change_status") {
         $inputs = Valid::check([
             new ValidObject("user", "user", 1, 32, ValidObject::Integer)
         ]);
@@ -48,7 +48,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->changeStatus($_POST["user"]);
         goto output;
-    } else if($callRequest == "forgot_password"){
+    } else if ($callRequest == "forgot_password") {
         $inputs = Valid::check([
             new ValidObject("user_email", "email", 6, 32, ValidObject::Email)
         ]);
@@ -60,7 +60,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->forgotPassword($_POST["user_email"]);
         goto output;
-    } else if($callRequest == "change_password"){
+    } else if ($callRequest == "change_password") {
         $inputs = Valid::check([
             new ValidObject("password", "password", 6, 32, ValidObject::CleanText),
             new ValidObject("current_password", "current_password", 6, 32, ValidObject::CleanText)
@@ -73,7 +73,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->changePassword($_POST["current_password"], $_POST["password"]);
         goto output;
-    }else if ($callRequest == "login") {
+    } else if ($callRequest == "login") {
         //[OK]
         $inputs = Valid::check([
             new ValidObject("user_email", "", 3, 64, ValidObject::Email),
@@ -93,19 +93,19 @@ if ($callCategory == "user") {
         goto output;
     } else if ($callRequest == "upload_profile_image") {
         //[OK]
-        if(!isset($_POST["user"])){
-            $callResult =[false, lang("unknow_member")];
+        if (!isset($_POST["user"])) {
+            $callResult = [false, lang("unknow_member")];
             goto output;
         }
 
         $memberId = intval($_POST["user"]);
 
-        if($memberId == 0){
+        if ($memberId == 0) {
             $memberId = $user->memberId;
         }
 
-        if($memberId != $user->memberId && $user->power < Perm::SUPPORT){
-            $callResult =[false, lang("perm_error")];
+        if ($memberId != $user->memberId && $user->power < Perm::SUPPORT) {
+            $callResult = [false, lang("perm_error")];
             goto output;
         }
 
@@ -138,7 +138,7 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $location = md5($_FILES['file']['name'] .$memberId. time()) . ".jpeg";
+        $location = md5($_FILES['file']['name'] . $memberId . time()) . ".jpeg";
 
         if (move_uploaded_file($_FILES['file']['tmp_name'], "./images/profile/" . $location)) {
             if (DB::execute("UPDATE member SET member_picture = '$location' WHERE member_id = $memberId")[0]) {
@@ -193,9 +193,9 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->updateCompanyInfo($_POST["user_id"], $_POST["user_email"], $_POST["company_name"],  $_POST["user_gsm"], $_POST["user_fax"],$_POST["company_bd"], $_POST["user_website"], $_POST["user_address"]);
+        $callResult = $user->updateCompanyInfo($_POST["user_id"], $_POST["user_email"], $_POST["company_name"], $_POST["user_gsm"], $_POST["user_fax"], $_POST["company_bd"], $_POST["user_website"], $_POST["user_address"]);
         goto output;
-    }else if ($callRequest == "update_desc") {
+    } else if ($callRequest == "update_desc") {
         $inputs = Valid::check([
             new ValidObject("user_id", "user_id", 1, 64, ValidObject::Integer),
             new ValidObject("user_desc", "user_desc", 0, 512, ValidObject::Html)
@@ -207,6 +207,21 @@ if ($callCategory == "user") {
         }
 
         $callResult = $user->updateUserDesc($_POST["user_id"], $_POST["user_desc"]);
+        goto output;
+    } else if ($callRequest == "select") {
+        $inputs = Valid::check([
+            new ValidObject("keyword", "keyword", 0, 32, ValidObject::CleanText),
+            new ValidObject("user_type", "user_type", 1, 32, ValidObject::Integer),
+            new ValidObject("page", "page", 0, 16, ValidObject::Integer),
+            new ValidObject("count", "count", 0, 16, ValidObject::Integer)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->selectUser($_POST["keyword"], $_POST["user_type"], $_POST["page"], $_POST["count"]);
         goto output;
     } else {
         goto nothing;
@@ -242,8 +257,8 @@ if ($callCategory == "user") {
             $callResult = [true, lang("failure_upload_cv")];
             goto output;
         }
-    } else if($callRequest == "insert"){
-        if($_POST["cv_file"] == ""){
+    } else if ($callRequest == "insert") {
+        if ($_POST["cv_file"] == "") {
             unset($_POST["cv_file"]);
         }
 
@@ -261,7 +276,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->addCV($_POST["cv_name"], $_POST["cv_file"], $_POST["cv_desc"], $_POST["cv_member"]);
         goto output;
-    } else if($callRequest == "get"){
+    } else if ($callRequest == "get") {
         $inputs = Valid::check([
             new ValidObject("cv_id", "cv_id", 1, 32, ValidObject::Integer)
         ]);
@@ -273,8 +288,8 @@ if ($callCategory == "user") {
 
         $callResult = $user->getCV($_POST["cv_id"]);
         goto output;
-    }else if($callRequest == "update"){
-        if($_POST["cv_file"] == ""){
+    } else if ($callRequest == "update") {
+        if ($_POST["cv_file"] == "") {
             unset($_POST["cv_file"]);
         }
 
@@ -290,9 +305,9 @@ if ($callCategory == "user") {
             goto output;
         }
 
-        $callResult = $user->setCv($_POST["cv_id"],$_POST["cv_name"], $_POST["cv_desc"],$_POST["cv_file"]);
+        $callResult = $user->setCv($_POST["cv_id"], $_POST["cv_name"], $_POST["cv_desc"], $_POST["cv_file"]);
         goto output;
-    }else if($callRequest == "delete"){
+    } else if ($callRequest == "delete") {
         $inputs = Valid::check([
             new ValidObject("cv_id", "cv_id", 1, 32, ValidObject::Integer)
         ]);
@@ -304,7 +319,7 @@ if ($callCategory == "user") {
 
         $callResult = $user->delCV($_POST["cv_id"]);
         goto output;
-    }else {
+    } else {
         goto nothing;
     }
 
