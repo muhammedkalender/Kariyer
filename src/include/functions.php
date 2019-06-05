@@ -128,12 +128,13 @@ class Valid
     {
         return htmlspecialchars_decode($rawText, ENT_QUOTES);
     }
+
 //todo bu ve düz text ayrı olmalı, işaretler var bunda
     public static function clear($rawText)
     {
         //https://stackoverflow.com/questions/25507489/slug-url-turkish-character
 
-        return preg_replace("/[^a-zA-Z0-9.,+-?^<> #$!%&()?:;\x{00E7}\x{011F}\x{0131}\x{015F}\x{00F6}\x{00FC}\x{00C7}\x{011E}\x{0130}\x{015E}\x{00D6}\x{00DC} _-]/u", "",$rawText);
+        return preg_replace("/[^a-zA-Z0-9.,+-?^<> #$!%&()?:;\x{00E7}\x{011F}\x{0131}\x{015F}\x{00F6}\x{00FC}\x{00C7}\x{011E}\x{0130}\x{015E}\x{00D6}\x{00DC} _-]/u", "", $rawText);
     }
 
     public static function day($timestampFirst, $timestampSecond)
@@ -267,12 +268,11 @@ class Valid
                     }
                     break;
                 case ValidObject::CleanText:
-                    //todo
                     $checkInputType = true;
+                    $var = Valid::clear($var);
                     break;
                 case ValidObject::SpecialText:
-                    //todo
-                    //todo encode
+                    $var = Valid::encode($_POST[$input->requestName]);
                     $checkInputType = true;
                     break;
                 case ValidObject::Phone:
@@ -281,9 +281,7 @@ class Valid
                     $checkInputType = true;
                     break;
                 case ValidObject::Html:
-                    //todo
-                    //todo encode
-                    $_POST[$input->requestName] = Valid::encode($_POST[$input->requestName]);
+                    $var = Valid::encode($_POST[$input->requestName]);
                     $checkInputType = true;
                     break;
                 case ValidObject::Date:
@@ -703,7 +701,8 @@ class User
 
     public function register($type, $email, $name, $surname, $password)
     {
-        if ($this->checkAuth(Perm::OR_UPPER, Perm::VISITOR)[0] == false) {
+        //Artık sadece admin
+        if ($this->checkAuth(Perm::OR_UPPER, Perm::SUPPORT)[0] == false) {
             return [false, lang("perm_error")];
         }
 
@@ -805,7 +804,7 @@ class User
             return $auth;
         }
 
-        $desc = Valid::encode($desc);
+//        $desc = Valid::encode($desc);
 
         $result = DB::execute("UPDATE member SET member_description = '$desc' WHERE member_id = $userId");
 
@@ -1861,8 +1860,8 @@ class Job
             return [false, lang("perm_error")];
         }
 
-        $title = Valid:: clear($title);
-        $description = Valid::encode($description);
+       // $title = Valid:: clear($title);
+       // $description = Valid::encode($description);
 
         $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_title, job_adv_type,  job_adv_description,  job_adv_category, job_adv_special) VALUES ($companyId, '$title', $type, '$description', $category, $special)");
 
@@ -1904,10 +1903,10 @@ class Job
             return [false, lang("perm_error")];
         }
 
-        $title = Valid:: clear($title);
-        $description = Valid::encode($description);
+        //$title = Valid:: clear($title);
+        //$description = Valid::encode($description);
 
-        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" .$title . "', job_adv_type =  $type,  job_adv_description = '" .$description . "',  job_adv_category = $category, job_adv_special = $special WHERE job_adv_id = $jobId");
+        $result = DB::execute("UPDATE job_adv SET job_adv_title = '" . $title . "', job_adv_type =  $type,  job_adv_description = '" . $description . "',  job_adv_category = $category, job_adv_special = $special WHERE job_adv_id = $jobId");
 
         if ($result[0] == false) {
             return [false, message("failed_job_adv_update")];
@@ -1979,7 +1978,7 @@ WHERE jl.job_adv_id = " . intval($jobId));
         }
 
         $jobLocations = $jobLocation[1];
-$job["job_adv_description"] = Valid::decode($job["job_adv_description"]);
+        $job["job_adv_description"] = Valid::decode($job["job_adv_description"]);
         return [true, $job, json_encode($jobLocations, true)];
     }
 
@@ -2064,8 +2063,8 @@ WHERE jl.job_adv_id = " . intval($jobId));
                 $query .= " AND ";
             }
 
-            $keyword = Valid::clear($keyword);
-            $keyword = Valid::encode($keyword);
+            //$keyword = Valid::clear($keyword);
+            //$keyword = Valid::encode($keyword);
 
             $query .= "(co.member_name LIKE '%$keyword%' OR co.member_surname LIKE '%$keyword%' OR ja.job_adv_title LIKE '%$keyword%' OR ja.job_adv_description LIKE '%$keyword%')";
         }
@@ -2090,10 +2089,10 @@ WHERE jl.job_adv_id = " . intval($jobId));
         $query = "";
 
 
-        $keyword = Valid::encode($keyword);
+        //$keyword = Valid::encode($keyword);
 
         if ($keyword != "") {
-            $query .= " AND (job_adv_title LIKE '%" .$keyword . "%' OR  job_adv_description LIKE '%" . $keyword . "%' OR (SELECT location_name FROM location WHERE location_id = loc.location_father) LIKE '%$keyword%' OR loc.location_name LIKE '%$keyword%') ";
+            $query .= " AND (job_adv_title LIKE '%" . $keyword . "%' OR  job_adv_description LIKE '%" . $keyword . "%' OR (SELECT location_name FROM location WHERE location_id = loc.location_father) LIKE '%$keyword%' OR loc.location_name LIKE '%$keyword%') ";
         }
 
         if (intval($type) > 0) {
@@ -2233,7 +2232,7 @@ WHERE ja.job_adv_active = 1 AND (job_adv_close IS NULL || job_adv_close = '') " 
         $query = "WHERE job_apply_active = 1 AND job_apply_job_adv_id = " . $jobId;
 
         if ($keyword != "") {
-            $keyword = Valid::clear($keyword);
+            // $keyword = Valid::clear($keyword);
 
             $query = " AND (member_name LIKE '%$keyword%' OR member_surname LIKE '%$keyword%') ";
         }
