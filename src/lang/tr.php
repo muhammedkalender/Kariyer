@@ -371,13 +371,21 @@ $lang = [
 
     "user_management_title" => "Kullanıcı Yönetimi",
     "user_management_desc" => "Kullanıcı ekleme, silme, yönetme",
-    "company_management_title" => "Firme Yönetimi",
+    "company_management_title" => "Firma Yönetimi",
     "company_management_desc" => "Firma ekleme, silme, yönetme",
     "admin_panel" => "Yönetim Paneli",
     "page_admin_main" => "Yönetim Paneli",
     "page_admin_user" => "Kullanıcılar",
     "page_admin_company" => "Firmalar",
     "register_date" => "Kayıt Tarihi",
+    "company_email" => "Firma Epostası",
+    "add_user" => "Kullanıcı Ekle",
+    "add_company" => "Firma Ekle",
+    "register_user" => "Kullanıcı Oluştur",
+    "register_company" => "Firma Oluştur",
+    "company_password" => "Şifre",
+    "company_password_repeat" => "Şifre Tekrarı",
+    "company_register" => "Firma Kayıt"
 
 ];
 

@@ -908,7 +908,7 @@ class User
             return $auth;
         }
 
-        $res = DB::select("SELECT member_id, member_name, member_surname, member_type, member_email, member_insert, member_gsm FROM member " . $suffix);
+        $res = DB::select("SELECT member_id, member_name, member_surname, member_type, member_email, member_insert, member_gsm, member_fax FROM member " . $suffix);
 
         if($res[0]){
             if(is_array($res[1]) &&count($res[1]) > 0){

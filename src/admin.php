@@ -27,7 +27,9 @@ if (isset($_GET["page"])) {
     } else if ($page == "job_apply") {
         include_once "./page/company_job_apply.php";
     } else if ($page == "user_management") {
-        include_once "./page/user_management_user.php";
+        include_once "./page/user_management.php";
+    }else if($page == "company_management"){
+        include_once "./page/company_management.php";
     } else {
         include_once "./page/admin_main.php";
     }

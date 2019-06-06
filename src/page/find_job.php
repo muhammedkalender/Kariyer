@@ -188,7 +188,7 @@ if (isset($_GET["keyword"])) {
             '            </div>' +
             '            </div>' +
             '            <div class="card-footer">' +
-            '            <a target="_blank" href="index.php?page=ilani-gor&job_id=' + id + '"><button class="btn btn-outline-success btn-block"><?=lang("view")?></button></a>' +
+            '            <a target="_blank" class="btn btn-outline-success btn-block" href="index.php?page=ilani-gor&job_id=' + id + '"><?=lang("view")?></a>' +
             '            </div>' +
             '            </div>' +
             '            </div>' +

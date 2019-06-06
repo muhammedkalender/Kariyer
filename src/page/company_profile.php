@@ -263,7 +263,7 @@ if ($profile->type != 1) {
             '            </div>' +
             '            </div>' +
             '            <div class="card-footer">' +
-            '            <a href="index.php?page=ilani-gor&job_id=' + id + '" target="_blank"><button class="btn btn-outline-success btn-block"><?=lang("view")?></button></a>' +
+            '            <a href="index.php?page=ilani-gor&job_id=' + id + '" target="_blank" class="btn btn-outline-success btn-block"><?=lang("view")?></a>' +
             '            </div>' +
             '            </div>' +
             '            </div>' +

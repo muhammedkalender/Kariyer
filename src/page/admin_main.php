@@ -39,7 +39,7 @@ if ($user->power < Perm::SUPPORT) {
                 <div class="card-body">
                     <h5 class="card-title"><?= lang("user_management_title") ?></h5>
                     <p class="card-text"><?= lang("user_management_desc") ?></p>
-                    <a href="admin.php?page=user_management&type=0" class="card-link"><?= lang("go") ?></a>
+                    <a href="admin.php?page=user_management" class="card-link"><?= lang("go") ?></a>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@ if ($user->power < Perm::SUPPORT) {
             <div class="card-body">
                 <h5 class="card-title"><?= lang("company_management_title") ?></h5>
                 <p class="card-text"><?= lang("company_management_desc") ?></p>
-                <a href="admin.php?page=user_management&type=1" class="card-link"><?= lang("go") ?></a>
+                <a href="admin.php?page=company_management" class="card-link"><?= lang("go") ?></a>
             </div>
         </div>
 
