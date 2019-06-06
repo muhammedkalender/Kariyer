@@ -385,11 +385,17 @@ $lang = [
     "register_company" => "Firma Oluştur",
     "company_password" => "Şifre",
     "company_password_repeat" => "Şifre Tekrarı",
-    "company_register" => "Firma Kayıt"
+    "company_register" => "Firma Kayıt",
+    "failure_notification_count" => "Bildirim sayısı getirilemedi",
+    "notification" => "Bildirimler",
+    "failure_send_notification" => "Bildirim gönderilemedi",
+    "success_send_notification" => "Bildirim Gönderildi",
+    "notification_apply_job" => "<b><a href='index.php?page=ilani-gor&job_id=#[%PARAM2%]'>#[%PARAM2%]</a></b> Numaraları İlanınıza <b><a href='index.php?page=profile&user=[%PARAM3%]'>[%PARAM1%]</a></b>"
 
 ];
 
-function lang($name, $firstParam = "", $secondParam = "")
+//Doğrudan parametreleri işler
+function lang($name, $firstParam = "", $secondParam = "", $thirdParam = "")
 {
     global $lang;
 
@@ -407,15 +413,21 @@ function lang($name, $firstParam = "", $secondParam = "")
         $result = str_replace("[%PARAM2%]", $secondParam, $result);
     }
 
+    if($thirdParam != ""){
+        $result = str_replace("[%PARAM3%]", $thirdParam, $result);
+    }
+
     return $result;
 }
 
-function write($name, $firstParam, $secondParam)
+//Direk yazdrırır
+function write($name, $firstParam, $secondParam, $thirdParam)
 {
-    echo lang($name, $firstParam, $secondParam);
+    echo lang($name, $firstParam, $secondParam, $thirdParam);
 }
 
-function message($name, $firstParam = "", $secondParam = "")
+//Parametreler ayrı bir dil referansı ise onları işler
+function message($name, $firstParam = "", $secondParam = "", $thirdParam = "")
 {
-    return lang($name, $firstParam != "" ? lang($firstParam) : "", $secondParam != "" ? lang($secondParam) : "");
+    return lang($name, $firstParam != "" ? lang($firstParam) : "", $secondParam != "" ? lang($secondParam) : "",$thirdParam != "" ? lang($thirdParam) : "");
 }

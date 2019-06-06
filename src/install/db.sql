@@ -207,26 +207,26 @@ VALUES ("ES"),
 ##todo function
 create table if not exists job_adv
 (
-    job_adv_id          int auto_increment primary key,
-    job_adv_author      int           not null,
+    job_adv_id            int auto_increment primary key,
+    job_adv_author        int           not null,
     ## sornadan çekme job_adv_country int not null ,
     ## sornadan çekme job_ad
-    job_adv_experience  int           not null,
-    job_adv_title       varchar(256)  not null,
-    job_adv_count       int         default 1,
-    job_adv_type        int           not null,   ## çalışma şekli, free tam part
-  job_adv_military_type varchar(32)           not null,
-    job_adv_sex         int         default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
-    job_adv_description varchar(4096) not null,
-    job_adv_view        int         default 0,
-    job_adv_app         int         default 0,
-    job_adv_special         int         default 0,
-    job_adv_category    int         default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_father      int         default 0,    ##Yazılım > Web Yazışlım gibi
-    job_adv_close       varchar(32) default null, ##şu zaman kadar ...
-    job_adv_insert      timestamp   default current_timestamp,
-    job_adv_update      timestamp   default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    job_adv_active      tinyint(1)  default 1
+    job_adv_experience    int           not null,
+    job_adv_title         varchar(256)  not null,
+    job_adv_count         int         default 1,
+    job_adv_type          int           not null,   ## çalışma şekli, free tam part
+    job_adv_military_type varchar(32)   not null,
+    job_adv_sex           int         default 0,    # 1 => erkek, 2 kadın, 0 farketmez,
+    job_adv_description   varchar(4096) not null,
+    job_adv_view          int         default 0,
+    job_adv_app           int         default 0,
+    job_adv_special       int         default 0,
+    job_adv_category      int         default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_father        int         default 0,    ##Yazılım > Web Yazışlım gibi
+    job_adv_close         varchar(32) default null, ##şu zaman kadar ...
+    job_adv_insert        timestamp   default current_timestamp,
+    job_adv_update        timestamp   default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    job_adv_active        tinyint(1)  default 1
 );
 ##todo function
 ###TODO  sadece en küçük birimi alsın ( tuzla seçilsin, üstüne doğru istanbul bilmmene oraya bağlı olanlar felan
@@ -325,8 +325,23 @@ create table if not exists cv
     cv_name   varchar(36)  not null,
     cv_desc   varchar(512) not null,
     cv_file   varchar(256) not null,
-    cv_order int default 0,
+    cv_order  int        default 0,
     cv_insert timestamp  default current_timestamp,
     cv_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     cv_active tinyint(1) default 1
+);
+
+
+##From ile kullanıcı, tempalte ilede şablon belirlenecek. Mesaj dinamik üretilecek
+create table if not exists notification
+(
+    notification_id     int auto_increment primary key,
+    notification_member int          not null,
+    notification_message   varchar(512),
+    notification_from int not null ,
+    notification_read tinyint(1) default 0,
+    notification_order  int        default 0,
+    notification_insert timestamp  default current_timestamp,
+    notification_update timestamp  default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    notification_active tinyint(1) default 1
 );

@@ -31,9 +31,11 @@ if (isset($_GET["page"])) {
         include_once  "./page/company_profile.php";
     }else if($page == "ilani-gor"){
         include_once  "./page/job_page.php";
-    } //else if ($page == "firma-paneli") {
-       // include_once "./page/company.php";
-   // }
+    }else if($page == "bildirimler"){
+        include_once  "./page/notifications.php";
+    }else{
+        include_once "./page/main.php";
+    }
 } else {
     include_once "./page/main.php";
 }

@@ -890,13 +890,14 @@ class User
     }
 
     //region User Management
-    public function selectUser($keyword, $type, $page, $count){
+    public function selectUser($keyword, $type, $page, $count)
+    {
         $suffix = "";
 
-        if($keyword != ""){
+        if ($keyword != "") {
             //TODO Sorgu iyileştir
             $suffix = " WHERE (member_email LIKE '$keyword' OR member_name LIKE '$keyword' OR member_surname LIKE '$keyword') AND member_type = $type";
-        }else{
+        } else {
             $suffix = " WHERE member_type = $type";
         }
 
@@ -910,13 +911,13 @@ class User
 
         $res = DB::select("SELECT member_id, member_name, member_surname, member_type, member_email, member_insert, member_gsm, member_fax FROM member " . $suffix);
 
-        if($res[0]){
-            if(is_array($res[1]) &&count($res[1]) > 0){
+        if ($res[0]) {
+            if (is_array($res[1]) && count($res[1]) > 0) {
                 return $res;
-            }else{
+            } else {
                 return [false, message("404_", "user")];
             }
-        }else{
+        } else {
             return $res;
         }
     }
@@ -1810,6 +1811,101 @@ class User
         return DB::select("SELECT * FROM licence WHERE licence_member = $memberId AND licence_active = 1 ORDER BY licence_order DESC " . $suffix);
     }
     //endregion
+
+    //region Notification
+    public function getNotificationCount($memberId = 0)
+    {
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::select("SELECT COUNT(*) as nc FROM notification WHERE notification_member = $memberId AND notification_read = 0");
+
+        if ($res[0]) {
+            return [true, $res[1][0]["nc"]];
+        } else {
+            return [false, lang("failure_notification_count")];
+        }
+    }
+
+    public function getNotification($notificationId)
+    {
+        $memberId = DB::select("SELECT notification_member FROM notification WHERE notification_id = $notificationId");
+
+        if ($memberId[0]) {
+            if (isset($memberId[0][1]["notification_member"])) {
+                $memberId = $memberId[0][1]["notification_member"];
+            } else {
+                return [false, message("404_", "notification")];
+            }
+        } else {
+            return [false, lang("perm_error")];
+        }
+
+        if (($auth = $this->checkAuth(Perm::OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::select("SELECT COUNT(*) as nc FROM notification WHERE notification_member = $memberId AND notification_read = 0");
+
+        if ($res[0]) {
+            return [true, $res[1][0]["nc"]];
+        } else {
+            return [false, lang("failure_notification_count")];
+        }
+    }
+
+    public function sendNotification($message, $to)
+    {
+        if (($auth = $this->checkAuth(Perm::OR_UPPER, Perm::USER))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::execute("INSERT INTO notification(notification_message, notification_to, notification_from) VALUES ($message, $to, $this->memberId)");
+
+        if ($res[0]) {
+            return [true, lang("success_send_notification")];
+        } else {
+            return [false, lang("failure_send_notification")];
+        }
+    }
+
+    public function selectNotification($memberId, $keyword, $page, $count)
+    {
+        $suffix = "";
+
+        if ($keyword != "") {
+            //TODO Sorgu iyileştir
+            $suffix = " WHERE (notification_message LIKE '$keyword') AND notification_member = $memberId";
+        } else {
+            $suffix = " WHERE notification_member = $memberId";
+        }
+
+        if ($count > 0 && $page > 0) {
+            $suffix = " LIMIT " . ($count * $page) . ", $count";
+        }
+
+        if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::select("SELECT * FROM notification " . $suffix);
+
+        if ($res[0]) {
+            if (is_array($res[1]) && count($res[1]) > 0) {
+                return $res;
+            } else {
+                return [false, message("404_", "notification")];
+            }
+        } else {
+            return $res;
+        }
+    }
+    //endregion
 }
 
 //TODO Cache hazırlama ( db de değşiklik oldukça json output
@@ -1891,8 +1987,8 @@ class Job
             return [false, lang("perm_error")];
         }
 
-       // $title = Valid:: clear($title);
-       // $description = Valid::encode($description);
+        // $title = Valid:: clear($title);
+        // $description = Valid::encode($description);
 
         $result = DB::executeId("INSERT INTO job_adv (job_adv_author, job_adv_title, job_adv_type,  job_adv_description,  job_adv_category, job_adv_special) VALUES ($companyId, '$title', $type, '$description', $category, $special)");
 
@@ -2201,7 +2297,7 @@ WHERE ja.job_adv_active = 1 AND (job_adv_close IS NULL || job_adv_close = '') " 
             return [false, lang("perm_error")];
         }
 
-        $job = DB::select("SELECT * FROM job_Adv WHERE job_adv_id = " . $jobAdvId);
+        $job = DB::select("SELECT * FROM job_adv WHERE job_adv_id = " . $jobAdvId);
 
         if ($job[0] && count($job[1]) > 0) {
             if (!($job[1][0]["job_adv_close"] == null || $job[1][0]["job_adv_close"] == "")) {
@@ -2213,6 +2309,7 @@ WHERE ja.job_adv_active = 1 AND (job_adv_close IS NULL || job_adv_close = '') " 
 
         if (DB::execute("INSERT INTO job_apply(job_apply_member, job_apply_job_adv_id) VALUES (" . $user->memberId . "," . $jobAdvId . ")")[0]) {
             Job::addApply($jobAdvId);
+            $user->sendNotification(lang("notification_apply_job", $user->name." ".$user->surname, $jobAdvId, $user->memberId),$job[1][0]["job_adv_author"]);
             return [true, message("success_job_apply")];
         } else {
             return [false, message("failed_job_apply")];
