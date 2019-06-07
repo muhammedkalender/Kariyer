@@ -329,3 +329,10 @@ function showErrorArea(id, msg) {
     item(id).style.display = "block";
     item(id).innerHTML = msg;
 }
+
+//https://stackoverflow.com/a/1395954
+function decodeEntities(encodedString) {
+    var div = document.createElement('div');
+    div.innerHTML = encodedString;
+    return div.textContent;
+}

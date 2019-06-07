@@ -14,6 +14,7 @@ if (!isset($isAllowRequest)) {
 }
 
 if (!isset($_GET["job_id"]) || intval($_GET["job_id"]) < 1) {
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     echo "<center>" . message("404_", "job") . "</center>";
     die();
 }

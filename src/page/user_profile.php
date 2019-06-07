@@ -26,7 +26,7 @@ if ($userId > 0 && $userId != $user->memberId) {
     if (!DB::isAvailable("SELECT job_adv_author FROM job_apply INNER JOIN job_adv ON job_adv_id = job_apply_job_adv_id INNER JOIN member ON job_adv_author = member_id WHERE job_apply_member = $userId  AND job_adv_author =" . $user->memberId) && $user->power < Perm::ADMIN) {
         $title = lang("perm_error");
         include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
-        echo '<script>Message.error("'.lang("perm_error").'"); href("/", 3000);</script>';
+        echo '<script>Message.error("' . lang("perm_error") . '"); href("/", 3000);</script>';
         die();
     }
 
@@ -48,7 +48,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 if ($profile->type != 0) {
     $title = lang("unknown_user");
     include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
-    echo '<script>Message.error("'.lang("unknown_user").'"); href("/", 3000);</script>';
+    echo '<script>Message.error("' . lang("unknown_user") . '"); href("/", 3000);</script>';
     die();
 }
 
@@ -60,7 +60,7 @@ if ($profile->type != 0) {
             <?php
             if ($dasAdmin) {
                 echo '<button class="btn btn-danger" onclick="changeUserStatus()" >' . lang("change_status_user") . '</button><br>';
-                echo '<p>Status : '.($profile->active?'Aktif':'Pasif');
+                echo '<p>Status : ' . ($profile->active ? 'Aktif' : 'Pasif');
             }
             ?>
             <a class="container-fluid">
@@ -235,6 +235,7 @@ if ($profile->type != 0) {
     if ($ro != "" && $profile->description == "") {
         goto noDesc;
     }
+
     ?>
 
     <div class="card">
@@ -243,15 +244,19 @@ if ($profile->type != 0) {
         </div>
 
         <div class="card-body">
-            <textarea class="form-control itsmce" id="user_desc">
-                <?= $profile->description ?>
-            </textarea>
+            <?php
+                if($ro != ""){
+                    echo '<div>'.Valid::decode($profile->description).'</div>';
+                }else{
+                    echo '<textarea class="form-control itsmce" id="user_desc">'.$profile->description.'</textarea>';
+                }
+            ?>
         </div>
         <?php
 
-        if($ro == ""){
+        if ($ro == "") {
             echo '<div class="card-footer">
-            <button type="button" class="btn btn-info" onclick="saveDesc(this)">'. lang("save").'</button>
+            <button type="button" class="btn btn-info" onclick="saveDesc(this)">' . lang("save") . '</button>
         </div>';
         }
 
@@ -315,14 +320,14 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noExps:
             ?>
         </div>
     </div>
     <br>
 
     <?php
+    noExps:
+
     $edus = $profile->selectEducation();
 
     if ($edus[0] == false || count($edus[1]) < 1) {
@@ -375,14 +380,13 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noEdus:
             ?>
         </div>
     </div>
     <br>
-
     <?php
+    noEdus:
+
     $certs = $profile->selectCertificate();
 
     if ($certs[0] == false || count($certs[1]) < 1) {
@@ -437,16 +441,13 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noCerts:
             ?>
         </div>
     </div>
-
-
     <br>
-
     <?php
+    noCerts:
+
     $refs = $profile->selectReference();
 
     if ($refs[0] == false || count($refs[1]) < 1) {
@@ -491,14 +492,14 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noRefs:
             ?>
         </div>
     </div>
     <br>
 
     <?php
+    noRefs:
+
     $skills = $profile->selectSkill();
 
     if ($skills[0] == false || count($skills[1]) < 1) {
@@ -555,8 +556,6 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noSkills:
             ?>
         </div>
     </div>
@@ -564,6 +563,8 @@ if ($profile->type != 0) {
     <br>
 
     <?php
+    noSkills:
+
     $cvs = $profile->selectCV();
 
     if ($cvs[0] == false || count($cvs[1]) < 1) {
@@ -611,13 +612,12 @@ if ($profile->type != 0) {
             } else {
                 //todo
             }
-
-            noCVs:
             ?>
         </div>
     </div>
 
     <?php
+    noCVs:
 
     if ($profile->memberId != $user->memberId) {
         goto noPassword;
@@ -1221,12 +1221,12 @@ if ($profile->type != 0) {
                 "call_request": "change_status",
                 "user":<?=$profile->memberId?>
             }, function (data, result) {
-                if(result == "success"){
+                if (result == "success") {
                     data = JSON.parse(data);
 
-                    if(data[0]){
+                    if (data[0]) {
                         Message.success(data[1]);
-                    }else{
+                    } else {
                         Message.error(data[1]);
                     }
                 }
@@ -1528,7 +1528,7 @@ if ($profile->type != 0) {
         }
 
         $(document).ready(function () {
-            tinymce.init({mode: "specific_textareas", editor_selector: 'itsmce'});
+            tinymce.init({mode: "specific_textareas", editor_selector: 'itsmce', readonly : <?=$ro==""?0:1?>});
 
         });
 

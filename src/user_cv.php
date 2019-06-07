@@ -101,7 +101,7 @@ $html = '
 
     <div id="objective">
         <p>
-            ' . $profile->description . '
+            ' . Valid::decode($profile->description) . '
         </p>
     </div>
 

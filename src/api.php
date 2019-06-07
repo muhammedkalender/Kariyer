@@ -1055,6 +1055,31 @@ if ($callCategory == "user") {
         goto output;
     }
     //endregion
+} else if ($callCategory == "notification") {
+    if ($callRequest == "select") {
+        $inputs = Valid::check([
+            new ValidObject("keyword", "", 0, 36, ValidObject::CleanText),
+            new ValidObject("page", "", 1, 16, ValidObject::Integer),
+            new ValidObject("count", "", 1, 16, ValidObject::Integer),
+            new ValidObject("user", "", 0, 16, ValidObject::Integer)
+            //new ValidObject("district", "", 1, 256, ValidObject::Check),
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        if ($_POST["keyword"] != "" && strlen($_POST["keyword"]) < 3) {
+            $callResult = [false, message("check_short", "var_keyword", "3")];
+            goto output;
+        }
+
+        $callResult = $user->selectNotification($_POST["user"], $_POST["keyword"], $_POST["page"], $_POST["count"]);
+        goto output;
+    } else {
+        goto nothing;
+    }
 } else {
     goto nothing;
 }

@@ -1865,7 +1865,9 @@ class User
             return $auth;
         }
 
-        $res = DB::execute("INSERT INTO notification(notification_message, notification_to, notification_from) VALUES ($message, $to, $this->memberId)");
+        $message = Valid::encode($message);
+
+        $res = DB::execute("INSERT INTO notification(notification_message, notification_member, notification_from) VALUES ('$message', $to, $this->memberId)");
 
         if ($res[0]) {
             return [true, lang("success_send_notification")];
@@ -1878,15 +1880,21 @@ class User
     {
         $suffix = "";
 
+        if($memberId == 0){
+             $memberId = $this->memberId;
+        }
+
         if ($keyword != "") {
             //TODO Sorgu iyileştir
-            $suffix = " WHERE (notification_message LIKE '$keyword') AND notification_member = $memberId";
+            $suffix = " WHERE (notification_message LIKE '%$keyword%') AND notification_member = $memberId";
         } else {
             $suffix = " WHERE notification_member = $memberId";
         }
 
+        $suffix .= " ORDER BY notification_read DESC ";
+
         if ($count > 0 && $page > 0) {
-            $suffix = " LIMIT " . ($count * $page) . ", $count";
+            $suffix .= " LIMIT " . ($count * $page) . ", $count";
         }
 
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $memberId))[0] == false) {
@@ -1899,7 +1907,7 @@ class User
             if (is_array($res[1]) && count($res[1]) > 0) {
                 return $res;
             } else {
-                return [false, message("404_", "notification")];
+                return [false, message("404_", "notification")."SELECT * FROM notification " . $suffix];
             }
         } else {
             return $res;

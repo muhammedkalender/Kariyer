@@ -390,7 +390,14 @@ $lang = [
     "notification" => "Bildirimler",
     "failure_send_notification" => "Bildirim gönderilemedi",
     "success_send_notification" => "Bildirim Gönderildi",
-    "notification_apply_job" => "<b><a href='index.php?page=ilani-gor&job_id=#[%PARAM2%]'>#[%PARAM2%]</a></b> Numaraları İlanınıza <b><a href='index.php?page=profile&user=[%PARAM3%]'>[%PARAM1%]</a></b>"
+    "notification_apply_job" => "<b><a target='_blank' href='index.php?page=ilani-gor&job_id=[%PARAM2%]'>#[%PARAM2%]</a></b> Numaraları İlanınıza <b><a target='_blank' href='index.php?page=profile&user=[%PARAM3%]'>[%PARAM1%]</a></b>",
+    "page_notification" => "Bildirimler",
+    "sender" => "Gönderen",
+    "message" => "Mesaj",
+    "view_full" => "Tam metni görüntüle",
+    "mark_read" => "Okundu olarak işaretle",
+    "mark_unread" => "Okunmadı olarak işaretle",
+    "view_full_message"=>"Mesaj Görüntüle"
 
 ];
 
