@@ -256,6 +256,16 @@ class Valid
                 case ValidObject::Boolean:
                     //todo kontrol et, 0 ve 1 mi yoksa true false mu arıyor
                     $checkInputType = is_bool($var);
+
+                    if($checkInputType == false){
+                        if($var == 1){
+                            $checkInputType = true;
+                            $var = 1;
+                        }else if($var == 0){
+                            $checkInputType = true;
+                            $var = 0;
+                        }
+                    }
                     break;
                 case ValidObject::Email:
                     $checkInputType = filter_var($var, FILTER_VALIDATE_EMAIL);
@@ -1880,8 +1890,8 @@ class User
     {
         $suffix = "";
 
-        if($memberId == 0){
-             $memberId = $this->memberId;
+        if ($memberId == 0) {
+            $memberId = $this->memberId;
         }
 
         if ($keyword != "") {
@@ -1891,7 +1901,7 @@ class User
             $suffix = " WHERE notification_member = $memberId";
         }
 
-        $suffix .= " ORDER BY notification_read DESC ";
+        $suffix .= " ORDER BY notification_read ASC ";
 
         if ($count > 0 && $page > 0) {
             $suffix .= " LIMIT " . ($count * $page) . ", $count";
@@ -1907,10 +1917,25 @@ class User
             if (is_array($res[1]) && count($res[1]) > 0) {
                 return $res;
             } else {
-                return [false, message("404_", "notification")."SELECT * FROM notification " . $suffix];
+                return [false, message("404_", "notification") . "SELECT * FROM notification " . $suffix];
             }
         } else {
             return $res;
+        }
+    }
+
+    public function markNotification($notificationId, $mark)
+    {
+        if (($auth = $this->checkAuth(Perm::OR_UPPER, Perm::USER))[0] == false) {
+            return $auth;
+        }
+
+        $res = DB::execute("UPDATE notification SET notification_read = $mark WHERE notification_id = $notificationId AND notification_member = " . $this->memberId);
+
+        if ($res[0]) {
+            return [true, lang("success_mark_notification")];
+        } else {
+            return [false, lang("failure_mark_notification")];
         }
     }
     //endregion
@@ -2317,7 +2342,7 @@ WHERE ja.job_adv_active = 1 AND (job_adv_close IS NULL || job_adv_close = '') " 
 
         if (DB::execute("INSERT INTO job_apply(job_apply_member, job_apply_job_adv_id) VALUES (" . $user->memberId . "," . $jobAdvId . ")")[0]) {
             Job::addApply($jobAdvId);
-            $user->sendNotification(lang("notification_apply_job", $user->name." ".$user->surname, $jobAdvId, $user->memberId),$job[1][0]["job_adv_author"]);
+            $user->sendNotification(lang("notification_apply_job", $user->name . " " . $user->surname, $jobAdvId, $user->memberId), $job[1][0]["job_adv_author"]);
             return [true, message("success_job_apply")];
         } else {
             return [false, message("failed_job_apply")];

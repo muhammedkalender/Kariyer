@@ -397,7 +397,13 @@ $lang = [
     "view_full" => "Tam metni görüntüle",
     "mark_read" => "Okundu olarak işaretle",
     "mark_unread" => "Okunmadı olarak işaretle",
-    "view_full_message"=>"Mesaj Görüntüle"
+    "view_full_message"=>"Mesaj Görüntüle",
+    "success_mark_notification" => "Bildirimin durumu başarıyla değiştirildi",
+    "failure_mark_notification" => "Bildirimin durumu değiştirilemedi",
+    "mark_notification" => "Bildirim Durumu",
+    "are_you_sure_mark_notification" => "Onaylarsanız bildiriminizin durumu değişecek",
+    "var_mark" => "Durum"
+
 
 ];
 

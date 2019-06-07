@@ -1077,6 +1077,19 @@ if ($callCategory == "user") {
 
         $callResult = $user->selectNotification($_POST["user"], $_POST["keyword"], $_POST["page"], $_POST["count"]);
         goto output;
+    }else if($callRequest == "mark"){
+        $inputs = Valid::check([
+            new ValidObject("notification_id", "", 1, 36, ValidObject::Integer),
+            new ValidObject("mark", "", 1, 16, ValidObject::Boolean)
+        ]);
+
+        if ($inputs[0] == false) {
+            $callResult = $inputs;
+            goto output;
+        }
+
+        $callResult = $user->markNotification($_POST["notification_id"], $_POST["mark"]);
+        goto output;
     } else {
         goto nothing;
     }

@@ -88,23 +88,23 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h4 class="modal-title"><?= lang("mark_apply") ?></h4>
+                <h4 class="modal-title"><?= lang("mark_notification") ?></h4>
                 <button type="button" class="close text-white" data-dismiss="modal"
                         onclick="closeModal('modal-mark')">&times;
                 </button>
             </div>
 
             <div class="modal-body">
-                <input id="delete-edu-id" value="0" type="hidden">
+                <input id="mark-id" value="0" type="hidden">
 
                 <div class="form-group">
-                    <label><?= lang("are_you_sure_mark") ?></label>
+                    <label><?= lang("are_you_sure_mark_notification") ?></label>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary"
-                        onclick="markApply(); closeModal('modal-mark')"><?= message("confirm") ?></button>
+                        onclick="markNotification(); closeModal('modal-mark')"><?= message("confirm") ?></button>
                 <button type="submit" class="btn btn-danger"
                         onclick="closeModal('modal-mark')"><?= message("cancel") ?></button>
             </div>
@@ -116,7 +116,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h4 class="modal-title"><?= lang("view_full_message") ?></h4>
+                <h4 class="modal-title"><?= lang("view_full_mesfsage") ?></h4>
                 <button type="button" class="close text-white" data-dismiss="modal"
                         onclick="closeModal('modal-full-message')">
                 </button>
@@ -139,19 +139,21 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
 </div>
 
 <script>
-    var jobId = 0;
+    var notificationId = 0;
+    var notificationMark = 0;
 
-    function markRead() {
+    function markNotification() {
         $.post("api.php", {
-            "call_category": "job",
-            "call_request": "mark_apply",
-            "apply_id": jobId
+            "call_category": "notification",
+            "call_request": "mark",
+            "notification_id": notificationId,
+            "mark" : notificationMark
         }, function (data, result) {
             if (result == "success") {
                 data = JSON.parse(data);
 
                 closeModal("modal-mark");
-                console.log(data);
+
                 if (data[0]) {
                     Message.success(data[1], "");
                 } else {
@@ -238,12 +240,19 @@ include_once $_SERVER['DOCUMENT_ROOT'] . "/page/header.php";
         var button = "";
 
         if(read == 0){
-            button = "<button class=\"btn\" onclick=\"markJob(" + id + ")\" title=\"<?=message('mark_read')?>\"><i class=\"fa fa-envelope-open\"></i></button>";
+            button = "<button class=\"btn\" onclick=\"showMark(" + id + ", 1)\" title=\"<?=message('mark_read')?>\"><i class=\"fa fa-envelope-open\"></i></button>";
         }else{
-            button = "<button class=\"btn\" onclick=\"markJob(" + id + ")\" title=\"<?=message('mark_unread')?>\"><i class=\"fa fa-envelope\"></i></button>";
+            button = "<button class=\"btn\" onclick=\"showMark(" + id + ", 0)\" title=\"<?=message('mark_unread')?>\"><i class=\"fa fa-envelope\"></i></button>";
         }
 
         return "<button class=\"btn\" onclick=\"showMessage(" + id + ")\" title=\"<?=message('view_full')?>\"><i class=\"fa fa-eye\"></i></button><a href=\"index.php?page=profile&user=" + sender_id + "\" target=\"_blank\"><button class=\"btn\" title=\"<?=message('view_user_profile')?>\"><i class=\"fa fa-user\"></i></button></a>"+button;
+    }
+
+    function showMark(id, mark) {
+        notificationId = id;
+        notificationMark = mark;
+
+        openModal("modal-mark");
     }
 
     function showMessage(id){
