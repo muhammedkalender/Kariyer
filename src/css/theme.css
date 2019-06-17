@@ -39,3 +39,13 @@
 .sidebar-item:hover {
     opacity: 1;
 }
+
+.bg-gedik{
+    background-color:  #870363;
+}
+
+.btn-outline-gedik{
+    color: #870363;
+    border-color: #870363;
+
+}

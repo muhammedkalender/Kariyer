@@ -29,13 +29,17 @@ $activeCompanys = DB::select("SELECT COUNT(*) AS ai FROM member WHERE  member_ac
         <div class="col-1">
 
         </div>
-        <div class="col-10">
+        <center class="col-10">
             <br>
             <center><h3 class="text-center text-white shadow-black"><?= lang("main_text_1", $activeJobs) ?></h3>
             </center>
             <br>
-            <div class="row"><input type="text" class="form-control" id="keyword"
-                                    placeholder="<?= lang('hint_fj_keyword') ?>"></div>
+            <center>
+                <div class="row col-8">
+                        <input type="text" class="form-control input-lg" id="keyword"
+                               placeholder="<?= lang('hint_fj_keyword') ?>">
+                </div>
+            </center>
             <br>
             <center>
                 <button class="btn btn-outline-light font-weight-bold btn-lg"
@@ -52,17 +56,17 @@ $activeCompanys = DB::select("SELECT COUNT(*) AS ai FROM member WHERE  member_ac
                 </a>
             </center>
             <br>
-        </div>
-
-        <div class="col-1">
-        </div>
     </div>
+
+    <div class="col-1">
+    </div>
+</div>
 </div>
 
 <div class="container">
     <br>
     <div class="card">
-        <div class="card-header text-center bg-primary text-white font-weight-bold">
+        <div class="card-header text-center text-white font-weight-bold bg-gedik">
             <h4 class=""><?= lang("current_statics") ?></h4>
         </div>
 

@@ -80,7 +80,7 @@ function href(URL, WAIT = 0) {
     });
 }
 
-function reload(WAIT) {
+function reload(WAIT = 3000) {
     sleep(WAIT).then(() => {
         window.location.reload();
     });

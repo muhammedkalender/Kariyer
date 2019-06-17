@@ -628,7 +628,8 @@ class User
             return [false, lang("wrong_login")];
         }
 
-        if (is_int($memberId) == false || intval($memberId) < 1) {
+        //is_int($memberId) == false ||  Serverda hata
+        if (intval($memberId) < 1) {
             return [false, lang("wrong_login")];
         }
 
@@ -1923,7 +1924,7 @@ class User
             if (is_array($res[1]) && count($res[1]) > 0) {
                 return $res;
             } else {
-                return [false, message("404_", "notification") . "SELECT * FROM notification " . $suffix];
+                return [false, message("404_", "notification")];
             }
         } else {
             return $res;
@@ -2164,7 +2165,7 @@ INNER JOIN location loc ON jal.location_id = loc.location_id WHERE ja.job_adv_ac
         }
 
         //todo
-        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::USER, $job[1][0]["job_adv_author"]))[0] == false) {
+        if (($auth = $user->checkAuth(Perm::SELF_OR_UPPER, Perm::VISITOR, $job[1][0]["job_adv_author"]))[0] == false) {
             return $auth;
         }
 

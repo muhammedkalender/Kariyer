@@ -49,8 +49,16 @@ if (!isset($isAllowRequest)) {
     </script>
 </head>
 <title><?= lang("site_title") . " - " . $title ?></title>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand font-weight-bold" href="index.php"><?= lang("site_title") ?></a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-gedik">
+    <a class="navbar-brand font-weight-bold" href="index.php">
+        <img style="max-width:32px;" src="/images/logo.png" alt="">
+
+    </a>
+    <a class="navbar-brand font-weight-bold" href="index.php">
+        <?= lang("site_title") ?>
+
+    </a>
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -143,7 +151,7 @@ if (!isset($isAllowRequest)) {
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-gedik text-white">
                 <h4 class="modal-title"><?= lang("forgot_password") ?></h4>
                 <button type="button" class="close text-white" data-dismiss="modal"
                         onclick="closeModal('modal-forgot')">&times;
@@ -178,7 +186,7 @@ if (!isset($isAllowRequest)) {
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-gedik text-white">
                 <h4 class="modal-title"><?= lang("login") ?></h4>
                 <button type="button" class="close text-white" data-dismiss="modal"
                         onclick="closeModal('modal-login')">&times;
