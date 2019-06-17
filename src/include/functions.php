@@ -604,6 +604,8 @@ class User
 
     public function login($usernameOrEmail, $password)
     {
+        $usernameOrEmail = strtolower($usernameOrEmail);
+
         $prefix = DB::Select("SELECT member_prefix, member_id FROM member WHERE (member_email = '$usernameOrEmail' OR member_nick = '$usernameOrEmail')");
 
         if ($prefix[0] == false) {
@@ -726,6 +728,8 @@ class User
 
         $password = $this->encPassword($password, $password_prefix);
 
+        $email = strtolower($email);
+
         $result = DB::executeId("INSERT INTO member (
                     member_email, member_type, member_power, member_name, member_surname, member_password, member_prefix
                     ) VALUES ('$email', $type, $power, '$name', '$surname', '$password', '$password_prefix')");
@@ -775,6 +779,8 @@ class User
         if (($auth = $this->checkAuth(Perm::SELF_OR_UPPER, Perm::SUPPORT, $userId))[0] == false) {
             return $auth;
         }
+
+        $email = strtolower($email);
 
         $result = DB::execute("UPDATE member SET member_email = '$email', member_name = '$name', member_surname = '$surname', member_gsm = '$gsm', member_bd = '$bd', member_website = '$website', member_gender = $gender, member_smoke = $smoke, member_military = $mil, member_military_date = '$mil_date', member_address = '$address', member_special = $special WHERE member_id = $userId AND member_type = 0");
 

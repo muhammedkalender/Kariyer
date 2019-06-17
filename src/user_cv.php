@@ -82,7 +82,8 @@ $html = '
 
 <div id="page-wrap">
 
-    <img src="/images/profile/' . $profile->picture . '" style="width: 180px; height: 180px" alt="" id="pic" />
+    <!--/home6/muhamme5/public_html/images/profile/   /images/profile/-->
+    <img src="/home6/muhamme5/public_html/images/profile/' . $profile->picture . '" style="width: 180px; height: 180px" alt="" id="pic" />
 
     <div id="contact-info" class="vcard">
 
