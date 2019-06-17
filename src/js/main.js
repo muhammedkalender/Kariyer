@@ -80,6 +80,12 @@ function href(URL, WAIT = 0) {
     });
 }
 
+function reload(WAIT) {
+    sleep(WAIT).then(() => {
+        window.location.reload();
+    });
+}
+
 class ValidObject {
     static TYPE_STRING = 1;
     static TYPE_INT = 2;

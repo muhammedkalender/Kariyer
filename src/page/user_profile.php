@@ -1246,6 +1246,8 @@ if ($profile->type != 0) {
 
                     if (data[0]) {
                         Message.success(data[1]);
+
+                        reload();
                     } else {
                         Message.error(data[1]);
                     }
@@ -1322,6 +1324,8 @@ if ($profile->type != 0) {
                         if (id == 0) {
                             closeModal("modal-edit-cv");
                             Message.success(data[1]);
+
+                            reload();
                         } else {
                             Message.modalSuccess("modal-edit-cv-result", data[1]);
                         }
@@ -1486,6 +1490,8 @@ if ($profile->type != 0) {
 
                     if (data[0]) {
                         Message.success(data[1]);
+
+                        reload();
                     } else {
                         Message.error(data[1]);
                     }
@@ -1547,6 +1553,8 @@ if ($profile->type != 0) {
 
                         if (data[0]) {
                             Message.success(data[1]);
+
+                            reload();
                         } else {
                             Message.error(data[1]);
                         }
@@ -1584,6 +1592,8 @@ if ($profile->type != 0) {
                         if (method == "insert") {
                             closeModal("modal-edit-experience");
                             Message.success(data[1]);
+
+                            reload();
                         } else {
                             Message.modalSuccess("modal-edit-experience-result", data[1]);
                         }
@@ -1649,6 +1659,8 @@ if ($profile->type != 0) {
 
                     if (data[0]) {
                         Message.success(data[1]);
+
+                        reload();
                     } else {
                         Message.error(data[1]);
                     }
@@ -1680,6 +1692,8 @@ if ($profile->type != 0) {
                         if (data[0]) {
                             Message.success(data[1]);
                             closeModal("modal-edit-education");
+
+                            reload();
                         } else {
                             Message.modalError("modal-edit-education-result", data[1]);
                         }
@@ -1705,6 +1719,8 @@ if ($profile->type != 0) {
 
                         if (data[0]) {
                             Message.modalSuccess("modal-edit-education-result", data[1]);
+
+                            reload();
                         } else {
                             Message.modalError("modal-edit-education-result", data[1]);
                         }
@@ -1783,6 +1799,8 @@ if ($profile->type != 0) {
 
                     if (data[0]) {
                         Message.success(data[1], "");
+
+                        reload();
                     } else {
                         Message.error(data[1], "");
                     }
@@ -1813,6 +1831,8 @@ if ($profile->type != 0) {
                             if (data[0]) {
                                 closeModal("modal-edit-certificate");
                                 Message.success(data[1], "");
+
+                                reload();
                             } else {
                                 Message.modalError("modal-edit-certificate-result", data[1])
                             }
@@ -1836,6 +1856,8 @@ if ($profile->type != 0) {
 
                             if (data[0]) {
                                 Message.modalSuccess("modal-edit-certificate-result", data[1])
+
+                                reload();
                             } else {
                                 Message.modalError("modal-edit-certificate-result", data[1])
                             }
@@ -1922,6 +1944,8 @@ if ($profile->type != 0) {
                         if (data[0]) {
                             closeModal("modal-edit-reference");
                             Message.success(data[1], "");
+
+                            reload();
                         } else {
                             Message.modalError("modal-edit-reference-result", data[1]);
                             //item("modal-edit-reference-result").style.display = "block";
@@ -1949,6 +1973,8 @@ if ($profile->type != 0) {
                         if (data) {
                             closeModal("modal-edit-reference");
                             Message.success(data[1], "");
+
+                            reload();
                         } else {
                             Message.modalError("modal-edit-reference-result", data[1]);
                             //item("modal-edit-reference-result").style.display = "block";
@@ -1973,6 +1999,8 @@ if ($profile->type != 0) {
 
                 if (data[0]) {
                     Message.success(data[1]);
+
+                    reload();
                 } else {
                     Message.error(data[1]);
                 }
@@ -2058,6 +2086,8 @@ if ($profile->type != 0) {
                     if (data) {
                         closeModal("modal-edit-skill");
                         Message.success(data[1], "");
+
+                        reload();
                     } else {
                         Message.modalError("modal-edit-skill-result", data[1]);
                         // item("modal-edit-skill-result").style.display = "block";
@@ -2087,6 +2117,8 @@ if ($profile->type != 0) {
                         if (data) {
                             closeModal("modal-edit-skill");
                             Message.success(data[1], "");
+
+                            reload();
                         } else {
                             Message.modalError("modal-edit-skill-result", data[1]);
                             //item("modal-edit-skill-result").style.display = "block";
